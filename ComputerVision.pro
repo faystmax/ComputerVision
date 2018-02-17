@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    Gui
+    Gui \
+    ImageS
+
+Gui.depends = ImageS
