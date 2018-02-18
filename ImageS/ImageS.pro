@@ -27,7 +27,8 @@ SOURCES += \
     Image.cpp \
     Core.cpp \
     CoreCreator.cpp \
-    ImageConverter.cpp
+    ImageConverter.cpp \
+    BlackEdgeEffect.cpp
 
 HEADERS +=\
         images_global.h \
@@ -36,7 +37,8 @@ HEADERS +=\
     IEdgeEffect.h \
     Core.h \
     CoreCreator.h \
-    ImageConverter.h
+    ImageConverter.h \
+    BlackEdgeEffect.h
 
 unix {
     target.path = /usr/lib

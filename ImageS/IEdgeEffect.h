@@ -1,12 +1,11 @@
 #ifndef IEDGEEFFECT_H
 #define IEDGEEFFECT_H
 
-#include <Image.h>
+#include "Image.h"
 
-class IEdgeEffect
-{
-
+class IEdgeEffect {
 public:
+    virtual ~IEdgeEffect(){}
     virtual double getPixel(int x ,int y,Image& image) = 0;
 };
 
