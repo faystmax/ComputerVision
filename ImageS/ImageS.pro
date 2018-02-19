@@ -28,7 +28,8 @@ SOURCES += \
     Core.cpp \
     CoreCreator.cpp \
     ImageConverter.cpp \
-    BlackEdgeEffect.cpp
+    BlackEdgeEffect.cpp \
+    MirrorEdgeEffect.cpp
 
 HEADERS +=\
         images_global.h \
@@ -38,7 +39,8 @@ HEADERS +=\
     Core.h \
     CoreCreator.h \
     ImageConverter.h \
-    BlackEdgeEffect.h
+    BlackEdgeEffect.h \
+    MirrorEdgeEffect.h
 
 unix {
     target.path = /usr/lib

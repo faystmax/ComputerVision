@@ -34,6 +34,7 @@ private:
     Ui::MainWindow *ui;
     Image* image = nullptr;
 
+    IEdgeEffect* getEdgeEffect();
     void showImage(Image* image);
 };
 

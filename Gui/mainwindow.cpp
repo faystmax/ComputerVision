@@ -9,6 +9,8 @@
 #include <QLineEdit>
 
 #include "RepeatEdgeEffect.h"
+
+#include "MirrorEdgeEffect.h"
 #include "ImageConverter.h"
 #include "CoreCreator.h"
 
@@ -22,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Fill combobox edgeEffects
     ui->edgeEffectComboBox->addItem("Black");
     ui->edgeEffectComboBox->addItem("Repeat");
+    ui->edgeEffectComboBox->addItem("Mirror");
 }
 
 MainWindow::~MainWindow() {
@@ -40,7 +43,7 @@ void MainWindow::on_openImageButton_clicked() {
             delete this->image;
 
         // Init our Image
-        this->image = new Image(image, new BlackEdgeEffect());
+        this->image = new Image(image, getEdgeEffect());
 
         // Show image in window
         showImage(this->image);
@@ -82,16 +85,24 @@ void MainWindow::on_gaussButton_clicked() {
     }
 }
 
+IEdgeEffect *MainWindow::getEdgeEffect() {
+    switch (this->ui->edgeEffectComboBox->currentIndex()) {
+        case (0):
+            return new BlackEdgeEffect();
+            break;
+        case (1):
+            return new RepeatEdgeEffect();
+            break;
+        case (2):
+            return new MirrorEdgeEffect();
+            break;
+    }
+    return nullptr;
+}
+
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     if (this->image != nullptr) {
-        switch (index) {
-            case (0):
-                this->image->setEdgeEffect(new BlackEdgeEffect());
-                break;
-            case (1):
-                this->image->setEdgeEffect(new RepeatEdgeEffect());
-                break;
-        }
+        this->image->setEdgeEffect(getEdgeEffect());
     }
 }
 
@@ -103,5 +114,6 @@ void MainWindow::showImage(Image *image) {
     this->ui->graphicsView->scene()->clear();
     this->ui->graphicsView->scene()->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(image->getOutputImage())));
 }
+
 
 

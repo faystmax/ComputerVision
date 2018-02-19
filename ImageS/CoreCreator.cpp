@@ -59,10 +59,8 @@ Core *CoreCreator::getGauss(int width, int height, double sigma) {
     double halfHeight = height / 2;
 
     double **core = new double *[width];
-    #pragma omp parallel for
     for (int i = 0; i < width; i++) {
         core[i] = new double[height];
-        #pragma omp parallel for
         for (int j = 0; j < height; j++) {
             core[i][j] = mainKoef * exp(((i - halfWidth) * (i - halfWidth) + (j - halfHeight) * (j - halfHeight)) *
                                         (-1.0 / doubleSigma));
@@ -71,20 +69,10 @@ Core *CoreCreator::getGauss(int width, int height, double sigma) {
     }
 
     // Normalize
-    #pragma omp parallel for
     for (int i = 0; i < width; i++) {
-        #pragma omp parallel for
         for (int j = 0; j < height; j++) {
             core[i][j] /= sum;
         }
-    }
-
-
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            std::cout << core[i][j] << " ";
-        }
-        std::cout << std::endl;
     }
     return new Core(width, height, core);
 
