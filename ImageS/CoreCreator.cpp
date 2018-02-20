@@ -1,56 +1,55 @@
 #include "CoreCreator.h"
 #include <math.h>
 #include <omp.h>
-#include <iostream>
 
 CoreCreator::CoreCreator() {
 }
 
-Core *CoreCreator::getBlur() {
+QSharedPointer <Core> CoreCreator::getBlur() {
     const double koef = 1.0 / 9;
     double core[3][3] = {{koef, koef, koef},
                          {koef, koef, koef},
                          {koef, koef, koef}};
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getClarity() {
+QSharedPointer <Core> CoreCreator::getClarity() {
     double core[3][3] = {{-1, -1, -1},
                          {-1, 9,  -1},
                          {-1, -1, -1}};
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getSobelX() {
+QSharedPointer <Core> CoreCreator::getSobelX() {
     double core[3][3] = {{1, 0, -1},
                          {2, 0, -2},
                          {1, 0, -1}};
 
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getSobelY() {
+QSharedPointer <Core> CoreCreator::getSobelY() {
     double core[3][3] = {{1,  2,  1},
                          {0,  0,  0},
                          {-1, -2, -1}};
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getPriutX() {
+QSharedPointer <Core> CoreCreator::getPriutX() {
     double core[3][3] = {{1, 0, -1},
                          {1, 0, -1},
                          {1, 0, -1}};
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getPriutY() {
+QSharedPointer <Core> CoreCreator::getPriutY() {
     double core[3][3] = {{1,  1,  1},
                          {0,  0,  0},
                          {-1, -1, -1}};
-    return new Core(3, 3, core);
+    return QSharedPointer<Core>(new Core(3, core));
 }
 
-Core *CoreCreator::getGauss(int width, int height, double sigma) {
+QSharedPointer <Core> CoreCreator::getGauss(int width, int height, double sigma) {
     // Tmp vars
     double sum = 0.0;
     double doubleSigma = 2 * sigma * sigma;
@@ -74,7 +73,7 @@ Core *CoreCreator::getGauss(int width, int height, double sigma) {
             core[i][j] /= sum;
         }
     }
-    return new Core(width, height, core);
+    return QSharedPointer<Core>(new Core(width, height, core));
 
 }
 

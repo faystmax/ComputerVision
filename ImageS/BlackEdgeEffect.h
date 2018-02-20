@@ -8,7 +8,7 @@ class IMAGESSHARED_EXPORT BlackEdgeEffect : public IEdgeEffect {
 public:
     BlackEdgeEffect();
     ~BlackEdgeEffect();
-    virtual double getPixel(int x ,int y,Image& image);
+    virtual double getPixel(int x ,int y, Image& image);
 };
 
 #endif // BLACKEDGEEFFECT_H

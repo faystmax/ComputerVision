@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSharedPointer>
+#include <QScopedPointer>
 
 #include "BlackEdgeEffect.h"
 #include "Image.h"
@@ -24,18 +24,16 @@ private slots:
     void on_blurButton_clicked();
     void on_clarityButton_clicked();
     void on_sobelButton_clicked();
-    void on_edgeEffectComboBox_currentIndexChanged(int index);
-
     void on_priutButton_clicked();
-
     void on_gaussButton_clicked();
+    void on_edgeEffectComboBox_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
-    Image* image = nullptr;
+    QScopedPointer<Image> image;
 
-    IEdgeEffect* getEdgeEffect();
-    void showImage(Image* image);
+    void showImage();
+    void enableButtons(bool enable);
 };
 
 #endif // MAINWINDOW_H

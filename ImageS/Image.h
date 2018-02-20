@@ -13,12 +13,12 @@ class IMAGESSHARED_EXPORT Image{
 
 public:
     Image(int width ,int height);
-    Image(Image& copy);
+    Image(const Image& copy);
+    Image(const QImage &image);
     Image(const QImage &image, IEdgeEffect* edgeEffect);
     ~Image();
 
     QImage& getOutputImage();
-
     double getPixel(int x, int y);
     void setPixel(int x, int y, double pixel);
     int getHeight() const {return height;}
@@ -26,7 +26,6 @@ public:
     int getWidth() const {return width;}
     void setWidth(int value) {width = value;}
     double **getPixels() const {return pixels;}
-
     void setEdgeEffect(IEdgeEffect* value);
 
 private:
@@ -34,8 +33,6 @@ private:
     int width;
     double** pixels;
     QSharedPointer<IEdgeEffect> edgeEffect;
-
-
 };
 
 #endif // IMAGE_H

@@ -6,7 +6,6 @@
 #include "Image.h"
 
 class IMAGESSHARED_EXPORT RepeatEdgeEffect : public IEdgeEffect {
-
 public:
     RepeatEdgeEffect();
     ~RepeatEdgeEffect();

@@ -11,14 +11,14 @@ Core::Core(int width, int height, double **core) {
     this->core = core;
 }
 
-Core::Core(int width, int height, double core[][3])
+Core::Core(int width, double core[][3])
 {
     this->width = width;
-    this->height = height;
+    this->height = 3;
 
     // Create pointer to pointer and initialize it
-    this->core = new double *[3];
-    for (int i = 0; i < 3; i++) {
+    this->core = new double *[width];
+    for (int i = 0; i < width; i++) {
         this->core[i] = new double[3];
         for (int j = 0; j < 3; j++) {
             this->core[i][j] = core[i][j];
@@ -27,7 +27,7 @@ Core::Core(int width, int height, double core[][3])
 }
 
 Core::~Core() {
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < width; i++) {
         delete[] this->core[i];
     }
     delete[] this->core;

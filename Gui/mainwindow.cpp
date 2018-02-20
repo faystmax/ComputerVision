@@ -22,87 +22,75 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->graphicsView->setScene(new QGraphicsScene());
 
     // Fill combobox edgeEffects
-    ui->edgeEffectComboBox->addItem("Black");
-    ui->edgeEffectComboBox->addItem("Repeat");
+
     ui->edgeEffectComboBox->addItem("Mirror");
+    ui->edgeEffectComboBox->addItem("Repeat");
+    ui->edgeEffectComboBox->addItem("Black");
+
+
+    // Disable all active buttons
+    enableButtons(false);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
-    delete this->image;
 }
 
 void MainWindow::on_openImageButton_clicked() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), nullptr,
-                                                    tr("Image Files (*.png *.jpg *.bmp)"));
-    QImage image(fileName);
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Image", nullptr, "Image Files (*.png *.jpg *.bmp)");
+    QImage qImage(fileName);
 
-    if (!image.isNull()) {
-        // Clear if not null
-        if (this->image != nullptr)
-            delete this->image;
-
+    if (!qImage.isNull()) {
         // Init our Image
-        this->image = new Image(image, getEdgeEffect());
+        this->image.reset(new Image(qImage));
+        ui->edgeEffectComboBox->setCurrentIndex(0);
 
         // Show image in window
-        showImage(this->image);
+        showImage();
+
+        // Enable all active buttons
+        enableButtons(true);
     }
 }
 
 void MainWindow::on_blurButton_clicked() {
-    if (this->image != nullptr) {
-        ImageConverter::convolution(this->image, CoreCreator::getBlur());
-        showImage(this->image);
-    }
+    ImageConverter::convolution(*this->image.data(), CoreCreator::getBlur().data());
+    showImage();
 }
 
 void MainWindow::on_clarityButton_clicked() {
-    if (this->image != nullptr) {
-        ImageConverter::convolution(this->image, CoreCreator::getClarity());
-        showImage(this->image);
-    }
+    ImageConverter::convolution(*this->image.data(), CoreCreator::getClarity().data());
+    showImage();
 }
 
 void MainWindow::on_sobelButton_clicked() {
-    if (this->image != nullptr) {
-        ImageConverter::sobel(this->image);
-        showImage(this->image);
-    }
+    ImageConverter::sobel(*this->image.data());
+    showImage();
 }
 
 void MainWindow::on_priutButton_clicked() {
-    if (this->image != nullptr) {
-        ImageConverter::priut(this->image);
-        showImage(this->image);
-    }
+    ImageConverter::priut(*this->image.data());
+    showImage();
 }
 
 void MainWindow::on_gaussButton_clicked() {
-    if (this->image != nullptr) {
-        ImageConverter::convolution(this->image, CoreCreator::getGauss(5, 5, 0.5));
-        showImage(this->image);
-    }
-}
-
-IEdgeEffect *MainWindow::getEdgeEffect() {
-    switch (this->ui->edgeEffectComboBox->currentIndex()) {
-        case (0):
-            return new BlackEdgeEffect();
-            break;
-        case (1):
-            return new RepeatEdgeEffect();
-            break;
-        case (2):
-            return new MirrorEdgeEffect();
-            break;
-    }
-    return nullptr;
+    ImageConverter::convolution(*this->image.data(), CoreCreator::getGauss(5, 5, 0.5).data());
+    showImage();
 }
 
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
-    if (this->image != nullptr) {
-        this->image->setEdgeEffect(getEdgeEffect());
+    if (!this->image.isNull()) {
+        switch (index) {
+            case (0):
+                return this->image.data()->setEdgeEffect(new MirrorEdgeEffect());
+                break;
+            case (1):
+                return this->image.data()->setEdgeEffect(new RepeatEdgeEffect());
+                break;
+            case (2):
+                return this->image.data()->setEdgeEffect(new BlackEdgeEffect());
+                break;
+        }
     }
 }
 
@@ -110,9 +98,22 @@ void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
  * @brief Show image in graphicsView
  * @param image
  */
-void MainWindow::showImage(Image *image) {
+void MainWindow::showImage() {
     this->ui->graphicsView->scene()->clear();
-    this->ui->graphicsView->scene()->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(image->getOutputImage())));
+    this->ui->graphicsView->scene()->addItem(
+            new QGraphicsPixmapItem(QPixmap::fromImage(this->image.data()->getOutputImage())));
+}
+
+/**
+ * @brief Enable or disable active buttons on widget
+ * @param enable
+ */
+void MainWindow::enableButtons(bool enable) {
+    this->ui->blurButton->setEnabled(enable);
+    this->ui->clarityButton->setEnabled(enable);
+    this->ui->gaussButton->setEnabled(enable);
+    this->ui->priutButton->setEnabled(enable);
+    this->ui->sobelButton->setEnabled(enable);
 }
 
 
