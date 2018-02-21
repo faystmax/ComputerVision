@@ -9,7 +9,6 @@
 #include <QLineEdit>
 
 #include "RepeatEdgeEffect.h"
-
 #include "MirrorEdgeEffect.h"
 #include "ImageConverter.h"
 #include "CoreCreator.h"
@@ -22,11 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->graphicsView->setScene(new QGraphicsScene());
 
     // Fill combobox edgeEffects
-
     ui->edgeEffectComboBox->addItem("Mirror");
     ui->edgeEffectComboBox->addItem("Repeat");
     ui->edgeEffectComboBox->addItem("Black");
-
 
     // Disable all active buttons
     enableButtons(false);

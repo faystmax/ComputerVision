@@ -2,11 +2,9 @@
 #include "Image.h"
 
 BlackEdgeEffect::BlackEdgeEffect() {
-
 }
 
 BlackEdgeEffect::~BlackEdgeEffect() {
-
 }
 
 double BlackEdgeEffect::getPixel(int x, int y, Image &image) {

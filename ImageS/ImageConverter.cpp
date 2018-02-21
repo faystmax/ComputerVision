@@ -4,7 +4,6 @@
 #include <omp.h>
 
 ImageConverter::ImageConverter() {
-
 }
 
 void ImageConverter::convolution(Image & image, Core * core) {

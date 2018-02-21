@@ -1,11 +1,9 @@
 #include "MirrorEdgeEffect.h"
 
 MirrorEdgeEffect::MirrorEdgeEffect() {
-
 }
 
 MirrorEdgeEffect::~MirrorEdgeEffect() {
-
 }
 
 double MirrorEdgeEffect::getPixel(int x, int y, Image &image) {

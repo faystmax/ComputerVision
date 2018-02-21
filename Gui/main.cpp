@@ -6,13 +6,12 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
 #if defined(_OPENMP)
     std::cout<<"Compiled by an OpenMP-compliant implementation!"<<std::endl;
 #endif
-
-    MainWindow w;
-    w.show();
 
     return a.exec();
 }

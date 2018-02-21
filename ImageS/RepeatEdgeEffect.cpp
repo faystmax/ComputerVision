@@ -1,11 +1,9 @@
 #include "RepeatEdgeEffect.h"
 
 RepeatEdgeEffect::RepeatEdgeEffect() {
-
 }
 
 RepeatEdgeEffect::~RepeatEdgeEffect() {
-
 }
 
 double RepeatEdgeEffect::getPixel(int x, int y, Image &image) {
