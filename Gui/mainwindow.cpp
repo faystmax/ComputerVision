@@ -1,18 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QMessageBox>
 #include <QDir>
-#include <QGraphicsPixmapItem>
+#include <QLineEdit>
+#include <QMessageBox>
 #include <QFileDialog>
 #include <QImageReader>
-#include <QLineEdit>
+#include <QGraphicsPixmapItem>
 
-#include "RepeatEdgeEffect.h"
-#include "MirrorEdgeEffect.h"
+#include "KernelCreator.h"
 #include "ImageConverter.h"
-#include "CoreCreator.h"
-
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
@@ -24,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Mirror");
     ui->edgeEffectComboBox->addItem("Repeat");
     ui->edgeEffectComboBox->addItem("Black");
+    ui->edgeEffectComboBox->addItem("Wrapping");
 
     // Disable all active buttons
     enableButtons(false);
@@ -51,12 +49,12 @@ void MainWindow::on_openImageButton_clicked() {
 }
 
 void MainWindow::on_blurButton_clicked() {
-    ImageConverter::convolution(*this->image.data(), CoreCreator::getBlur().data());
+    ImageConverter::convolution(*this->image.data(), *CoreCreator::getBlur().data());
     showImage();
 }
 
 void MainWindow::on_clarityButton_clicked() {
-    ImageConverter::convolution(*this->image.data(), CoreCreator::getClarity().data());
+    ImageConverter::convolution(*this->image.data(), *CoreCreator::getClarity().data());
     showImage();
 }
 
@@ -71,7 +69,7 @@ void MainWindow::on_priutButton_clicked() {
 }
 
 void MainWindow::on_gaussButton_clicked() {
-    ImageConverter::convolution(*this->image.data(), CoreCreator::getGauss(5, 5, 0.5).data());
+    ImageConverter::convolution(*this->image.data(), *CoreCreator::getGauss(5, 5, 4).data());
     showImage();
 }
 
@@ -79,13 +77,16 @@ void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     if (!this->image.isNull()) {
         switch (index) {
             case (0):
-                return this->image.data()->setEdgeEffect(new MirrorEdgeEffect());
+                return this->image.data()->setEdgeEffect(Image::EdgeEffect::Mirror);
                 break;
             case (1):
-                return this->image.data()->setEdgeEffect(new RepeatEdgeEffect());
+                return this->image.data()->setEdgeEffect(Image::EdgeEffect::Repeat);
                 break;
             case (2):
-                return this->image.data()->setEdgeEffect(new BlackEdgeEffect());
+                return this->image.data()->setEdgeEffect(Image::EdgeEffect::Black);
+                break;
+            case (3):
+                return this->image.data()->setEdgeEffect(Image::EdgeEffect::Wrapping);
                 break;
         }
     }

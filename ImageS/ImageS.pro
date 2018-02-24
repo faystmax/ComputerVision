@@ -23,24 +23,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    RepeatEdgeEffect.cpp \
     Image.cpp \
-    Core.cpp \
-    CoreCreator.cpp \
     ImageConverter.cpp \
-    BlackEdgeEffect.cpp \
-    MirrorEdgeEffect.cpp
+    Kernel.cpp \
+    KernelCreator.cpp \
+    Pyramid.cpp
 
 HEADERS +=\
         images_global.h \
-    RepeatEdgeEffect.h \
     Image.h \
-    IEdgeEffect.h \
-    Core.h \
-    CoreCreator.h \
     ImageConverter.h \
-    BlackEdgeEffect.h \
-    MirrorEdgeEffect.h
+    Kernel.h \
+    KernelCreator.h \
+    Pyramid.h
 
 unix {
     target.path = /usr/lib

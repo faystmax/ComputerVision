@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QScopedPointer>
 
-#include "BlackEdgeEffect.h"
 #include "Image.h"
 
 namespace Ui {
