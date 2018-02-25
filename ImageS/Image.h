@@ -2,11 +2,12 @@
 #define IMAGE_H
 
 #include <QImage>
-#include <QScopedArrayPointer>
+#include <memory>
 
 #include "images_global.h"
 #include "Kernel.h"
 
+using namespace std;
 
 class IMAGESSHARED_EXPORT Image{
 
@@ -17,7 +18,7 @@ public:
     Image(const QImage &image);
     Image(int width ,int height);
     Image(const QImage &image, EdgeEffect edgeEffect);
-    ~Image();
+    ~Image() = default;
 
     QImage& getOutputImage();
 
@@ -27,13 +28,14 @@ public:
     int getHeight() const {return height;}
     int getWidth() const {return width;}
 
-    void setEdgeEffect(EdgeEffect edgeEffect);
+    void setEdgeEffect(EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
+    EdgeEffect getEdgeEffect() {return this->edgeEffect;}
 
 private:
     int height;
     int width;
     EdgeEffect edgeEffect;
-    QScopedArrayPointer<double> pixels;
+    unique_ptr<double[]> pixels;
 
 
     double getPixelRepeat(int x ,int y);

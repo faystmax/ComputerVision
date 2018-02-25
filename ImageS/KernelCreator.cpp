@@ -2,54 +2,54 @@
 #include <math.h>
 #include <omp.h>
 
-CoreCreator::CoreCreator() {
+KernelCreator::KernelCreator() {
 }
 
-QSharedPointer <Kernel> CoreCreator::getBlur() {
+unique_ptr <Kernel> KernelCreator::getBlur() {
     const double koef = 1.0 / 9;
     double *core = new double[9]{koef, koef, koef,
                                  koef, koef, koef,
                                  koef, koef, koef};
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getClarity() {
+unique_ptr <Kernel> KernelCreator::getClarity() {
     double *core = new double[9]{-1, -1, -1,
                                  -1, 9, -1
                                         - 1, -1, -1};
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getSobelX() {
+unique_ptr <Kernel> KernelCreator::getSobelX() {
     double *core = new double[9]{1, 0, -1,
                                  2, 0, -2,
                                  1, 0, -1};
 
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getSobelY() {
+unique_ptr <Kernel> KernelCreator::getSobelY() {
     double *core = new double[9]{1, 2, 1,
                                  0, 0, 0,
                                  -1, -2, -1};
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getPriutX() {
+unique_ptr <Kernel> KernelCreator::getPriutX() {
     double *core = new double[9]{1, 0, -1,
                                  1, 0, -1,
                                  1, 0, -1};
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getPriutY() {
+unique_ptr <Kernel> KernelCreator::getPriutY() {
     double *core = new double[9]{1, 1, 1,
                                  0, 0, 0,
                                  -1, -1, -1};
-    return QSharedPointer<Kernel>(new Kernel(3, 3, core));
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
 }
 
-QSharedPointer <Kernel> CoreCreator::getGauss(int width, int height, double sigma) {
+unique_ptr <Kernel> KernelCreator::getGauss(int width, int height, double sigma) {
     // Tmp vars
     double sum = 0.0;
     double doubleSigma = 2 * sigma * sigma;
@@ -73,7 +73,7 @@ QSharedPointer <Kernel> CoreCreator::getGauss(int width, int height, double sigm
             core[i + j * width] /= sum;
         }
     }
-    return QSharedPointer<Kernel>(new Kernel(width, height, core));
+    return unique_ptr<Kernel>(new Kernel(width, height, core));
 
 }
 

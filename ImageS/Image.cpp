@@ -39,9 +39,6 @@ Image::Image(const QImage &image, EdgeEffect edgeEffect)
     }
 }
 
-Image::~Image() {
-}
-
 QImage &Image::getOutputImage() {
     QImage *image = new QImage(this->width, this->height, QImage::Format_ARGB32);
     for (int i = 0; i < this->width; i++) {
@@ -102,8 +99,4 @@ double Image::getPixelWrapping(int x, int y) {
     if (y >= height) y = 1 + (y - height);
 
     return pixels[x + y * width];
-}
-
-void Image::setEdgeEffect(EdgeEffect edgeEffect) {
-    this->edgeEffect = edgeEffect;
 }

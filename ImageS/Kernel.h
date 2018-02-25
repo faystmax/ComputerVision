@@ -1,9 +1,12 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#include <QScopedArrayPointer>
+#include "images_global.h"
+#include <memory>
 
-class Kernel {
+using namespace std;
+
+class IMAGESSHARED_EXPORT Kernel {
 public:
     Kernel(int width, int height, double* core);
     ~Kernel();
@@ -15,7 +18,7 @@ public:
 private:
     int width;
     int height;
-    QScopedArrayPointer<double> core;
+    unique_ptr<double[]> core;
 };
 
 #endif // KERNEL_H

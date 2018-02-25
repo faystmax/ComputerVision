@@ -2,9 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QScopedPointer>
+#include <memory>
 
 #include "Image.h"
+#include "Pyramid.h"
+
+using namespace std;
 
 namespace Ui {
     class MainWindow;
@@ -27,12 +30,19 @@ private slots:
     void on_gaussButton_clicked();
     void on_edgeEffectComboBox_currentIndexChanged(int index);
 
-private:
-    Ui::MainWindow *ui;
-    QScopedPointer<Image> image;
+    void on_pyramidButton_clicked();
+    void on_pyramidLeftButton_clicked();
+    void on_pyramidRightButton_clicked();
 
-    void showImage();
+private:
+    int curPyramidIdex = 0;
+    Ui::MainWindow *ui;
+    unique_ptr<Image> image;
+    unique_ptr<Pyramid> pyramid;
+
+    void showImage(Image* image);
     void enableButtons(bool enable);
+    void showPyramidInfo(Item *item);
 };
 
 #endif // MAINWINDOW_H

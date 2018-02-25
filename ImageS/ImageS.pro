@@ -8,6 +8,7 @@ QT       += core
 
 TARGET = ImageS
 TEMPLATE = lib
+CONFIG += c++17
 
 DEFINES += IMAGES_LIBRARY
 
