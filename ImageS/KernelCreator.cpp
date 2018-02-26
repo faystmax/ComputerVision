@@ -5,6 +5,13 @@
 KernelCreator::KernelCreator() {
 }
 
+unique_ptr<Kernel> KernelCreator::getSame(){
+    double *core = new double[9]{0, 0, 0,
+                                 0, 1, 0,
+                                 0, 0, 0};
+    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+}
+
 unique_ptr <Kernel> KernelCreator::getBlur() {
     const double koef = 1.0 / 9;
     double *core = new double[9]{koef, koef, koef,

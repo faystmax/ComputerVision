@@ -29,6 +29,9 @@ public:
 
 private:
     vector<Item> items;
+
+    double getDeltaSigma(double sigmaPrev,double sigmaNext);
+    Image* getLastImage();
 };
 
 #endif // PYRAMID_H
