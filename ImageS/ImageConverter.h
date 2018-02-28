@@ -3,19 +3,17 @@
 
 #include "Image.h"
 #include "KernelCreator.h"
-#include <memory>
 
-using namespace std;
 
 class IMAGESSHARED_EXPORT ImageConverter
 {
 public:
-    ImageConverter();
+    ImageConverter() = default;
 
-    static unique_ptr<Image> convolution(Image &image,Kernel &core);
-    static unique_ptr<Image> sobel(Image &image);
-    static unique_ptr<Image> priut(Image &image);
-    static unique_ptr<Image> halfReduce(Image &image);
+    static Image convolution(const Image &image,const Kernel &core);
+    static Image sobel(const Image &image);
+    static Image priut(const Image &image);
+    static Image halfReduce(const Image &image);
 };
 
 #endif // IMAGECONVERTER_H

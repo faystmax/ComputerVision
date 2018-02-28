@@ -37,12 +37,12 @@ private slots:
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
-    unique_ptr<Image> image;
-    unique_ptr<Pyramid> pyramid;
+    Image image;
+    Pyramid pyramid;
 
-    void showImage(Image* image);
+    void showImage(const Image &image);
     void enableButtons(bool enable);
-    void showPyramidInfo(Item *item);
+    void showPyramidInfo(const Item &item);
 };
 
 #endif // MAINWINDOW_H

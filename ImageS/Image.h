@@ -14,33 +14,35 @@ class IMAGESSHARED_EXPORT Image{
 public:
     enum EdgeEffect{ Black, Repeat, Mirror,  Wrapping };
 
+    Image();
+    Image(Image&&) = default;
+    Image& operator=(const Image&) = default;
     Image(const Image& copy);
-    Image(const QImage &image);
-    Image(int width ,int height);
-    Image(const QImage &image, EdgeEffect edgeEffect);
+    Image(const int width ,const int height, const EdgeEffect edgeEffect = Mirror );
+    Image(const QImage &image, const EdgeEffect edgeEffect = Mirror);
     ~Image() = default;
 
-    QImage& getOutputImage();
+    QImage getOutputImage() const;
 
-    double getPixel(int x, int y);
-    void setPixel(int x, int y, double pixel);
+    double getPixel(const int x,const int y) const;
+    void setPixel(const int x,const int y, double pixel);
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
 
-    void setEdgeEffect(EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
-    EdgeEffect getEdgeEffect() {return this->edgeEffect;}
+    void setEdgeEffect(const EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
+    EdgeEffect getEdgeEffect() const {return this->edgeEffect;}
 
 private:
     int height;
     int width;
     EdgeEffect edgeEffect;
-    unique_ptr<double[]> pixels;
+    vector<double> pixels;
 
 
-    double getPixelRepeat(int x ,int y);
-    double getPixelMirror(int x ,int y);
-    double getPixelWrapping(int x ,int y);
+    double getPixelRepeat(int x ,int y) const;
+    double getPixelMirror(int x ,int y) const;
+    double getPixelWrapping(int x ,int y) const;
 };
 
 #endif // IMAGE_H

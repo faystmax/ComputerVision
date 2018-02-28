@@ -8,6 +8,7 @@ QT       += core
 
 TARGET = ImageS
 TEMPLATE = lib
+QMAKE_CXXFLAGS += -std=c++17
 CONFIG += c++17
 
 DEFINES += IMAGES_LIBRARY

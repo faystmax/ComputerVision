@@ -8,8 +8,9 @@ using namespace std;
 
 class IMAGESSHARED_EXPORT Kernel {
 public:
-    Kernel(int width, int height, double* core);
-    ~Kernel();
+    Kernel(int width, int height, vector<double> core);
+    Kernel(Kernel&&) = default;
+    ~Kernel() = default;
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
@@ -18,7 +19,7 @@ public:
 private:
     int width;
     int height;
-    unique_ptr<double[]> core;
+    vector<double> core;
 };
 
 #endif // KERNEL_H

@@ -1,34 +1,30 @@
 #include "Image.h"
 
-Image::Image(int width, int height)
-        : pixels(new double[width * height]) {
-    this->width = width;
-    this->height = height;
+Image::Image() {
+    this->width = 0;
+    this->height = 0;
     this->edgeEffect = EdgeEffect::Black;
 }
 
-Image::Image(const Image &copy)
-        : pixels(new double[copy.width * copy.height]) {
+Image::Image(const int width, const int height, const EdgeEffect edgeEffect) {
+    this->width = width;
+    this->height = height;
+    this->edgeEffect = edgeEffect;
+    this->pixels.resize(width * height);
+}
+
+Image::Image(const Image &copy) {
     this->width = copy.width;
     this->height = copy.height;
     this->edgeEffect = copy.edgeEffect;
-
-    // Copy Pixels
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            this->pixels[i + j * width] = copy.pixels[i + j * width];
-        }
-    }
+    this->pixels = copy.pixels;
 }
 
-Image::Image(const QImage &image) : Image(image, EdgeEffect::Wrapping) {
-}
-
-Image::Image(const QImage &image, EdgeEffect edgeEffect)
-        : pixels(new double[image.width() * image.height()]) {
+Image::Image(const QImage &image, const EdgeEffect edgeEffect) {
     this->width = image.width();
     this->height = image.height();
     this->edgeEffect = edgeEffect;
+    this->pixels.resize(width * height);
 
     // Read pixels and form black and white image
     for (int i = 0; i < width; i++) {
@@ -39,15 +35,15 @@ Image::Image(const QImage &image, EdgeEffect edgeEffect)
     }
 }
 
-QImage &Image::getOutputImage() {
-    QImage *image = new QImage(this->width, this->height, QImage::Format_ARGB32);
+QImage Image::getOutputImage() const {
+    QImage image(this->width, this->height, QImage::Format_ARGB32);
     for (int i = 0; i < this->width; i++) {
         for (int j = 0; j < this->height; j++) {
             double pixel = pixels[i + j * width];
-            image->setPixel(i, j, qRgb(pixel, pixel, pixel));
+            image.setPixel(i, j, qRgb(pixel, pixel, pixel));
         }
     }
-    return *image;
+    return image;
 }
 
 void Image::setPixel(int x, int y, double pixel) {
@@ -58,9 +54,10 @@ void Image::setPixel(int x, int y, double pixel) {
     pixels[x + y * width] = pixel;
 }
 
-double Image::getPixel(int x, int y) {
+double Image::getPixel(int x, int y) const {
     if (x < width && x > -1 && y < height && y > -1)
         return pixels[x + y * width];
+
     switch (edgeEffect) {
         case EdgeEffect::Black:
             return 0;
@@ -74,7 +71,7 @@ double Image::getPixel(int x, int y) {
     return 0;
 }
 
-double Image::getPixelRepeat(int x, int y) {
+double Image::getPixelRepeat(int x, int y) const {
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     if (x >= width) x = width - 1;
@@ -83,7 +80,7 @@ double Image::getPixelRepeat(int x, int y) {
     return pixels[x + y * width];
 }
 
-double Image::getPixelMirror(int x, int y) {
+double Image::getPixelMirror(int x, int y) const {
     if (x < 0) x = -x;
     if (y < 0) y = -y;
     if (x >= width) x = 2 * width - x - 1;
@@ -92,7 +89,7 @@ double Image::getPixelMirror(int x, int y) {
     return pixels[x + y * width];
 }
 
-double Image::getPixelWrapping(int x, int y) {
+double Image::getPixelWrapping(int x, int y) const {
     if (x < 0) x = width + x;
     if (y < 0) y = height + y;
     if (x >= width) x = 1 + (x - width);

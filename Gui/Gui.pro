@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Gui
 TEMPLATE = app
+QMAKE_CXXFLAGS += -std=c++17
 CONFIG += c++17
 
 # The following define makes your compiler emit warnings if you use

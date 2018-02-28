@@ -1,10 +1,7 @@
 #include "Kernel.h"
 
-Kernel::Kernel(int width, int height, double *core)
-    :core(core){
+Kernel::Kernel(int width, int height, vector<double> core){
     this->width = width;
     this->height = height;
-}
-
-Kernel::~Kernel() {
+    this->core = core;
 }

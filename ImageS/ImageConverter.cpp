@@ -3,11 +3,8 @@
 #include "math.h"
 #include <omp.h>
 
-ImageConverter::ImageConverter() {
-}
-
-unique_ptr <Image> ImageConverter::convolution(Image & image, Kernel & core) {
-    unique_ptr <Image> resultImage(new Image(image));
+Image ImageConverter::convolution(const Image &image, const Kernel &core) {
+    Image resultImage(image);
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
             double resultPixel = 0;
@@ -18,48 +15,48 @@ unique_ptr <Image> ImageConverter::convolution(Image & image, Kernel & core) {
                     resultPixel += image.getPixel(realI, realJ) * core.getCoreAt(x, y);
                 }
             }
-            resultImage.get()->setPixel(i, j, resultPixel);
+            resultImage.setPixel(i, j, resultPixel);
         }
     }
     return resultImage;
 }
 
-unique_ptr <Image> ImageConverter::sobel(Image & image) {
-    unique_ptr <Image> resultImage(new Image(image));
-    unique_ptr <Image> copyImageX = convolution(image, *KernelCreator::getSobelX().get());
-    unique_ptr <Image> copyImageY = convolution(image, *KernelCreator::getSobelY().get());
+Image ImageConverter::sobel(const Image &image) {
+    Image resultImage(image);
+    Image copyImageX = convolution(image, KernelCreator::getSobelX());
+    Image copyImageY = convolution(image, KernelCreator::getSobelY());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-            double pixelX = copyImageX.get()->getPixel(i, j);
-            double pixelY = copyImageY.get()->getPixel(i, j);
-            resultImage.get()->setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
+            double pixelX = copyImageX.getPixel(i, j);
+            double pixelY = copyImageY.getPixel(i, j);
+            resultImage.setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
         }
     }
     return resultImage;
 }
 
-unique_ptr <Image> ImageConverter::priut(Image & image) {
-    unique_ptr <Image> resultImage(new Image(image));
-    unique_ptr <Image> copyImageX = convolution(image, *KernelCreator::getPriutX().get());
-    unique_ptr <Image> copyImageY = convolution(image, *KernelCreator::getPriutY().get());
+Image ImageConverter::priut(const Image &image) {
+    Image resultImage(image);
+    Image copyImageX = convolution(image, KernelCreator::getPriutX());
+    Image copyImageY = convolution(image, KernelCreator::getPriutY());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-            double pixelX = copyImageX.get()->getPixel(i, j);
-            double pixelY = copyImageY.get()->getPixel(i, j);
-            resultImage.get()->setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
+            double pixelX = copyImageX.getPixel(i, j);
+            double pixelY = copyImageY.getPixel(i, j);
+            resultImage.setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
         }
     }
     return resultImage;
 }
 
-unique_ptr <Image> ImageConverter::halfReduce(Image & image) {
-    unique_ptr <Image> resultImage(new Image(image.getWidth() / 2, image.getHeight() / 2));
-    resultImage.get()->setEdgeEffect(image.getEdgeEffect());
+Image ImageConverter::halfReduce(const Image &image) {
+    Image resultImage(image.getWidth() / 2, image.getHeight() / 2);
+    resultImage.setEdgeEffect(image.getEdgeEffect());
     for (int i = 0; i < image.getWidth() / 2; i++) {
         for (int j = 0; j < image.getHeight() / 2; j++) {
             double resullPixel = (image.getPixel(2 * i, 2 * j) + image.getPixel(2 * i + 1, 2 * j) +
                                   image.getPixel(2 * i, 2 * j + 1) + image.getPixel(2 * i + 1, 2 * j + 1)) / 4;
-            resultImage.get()->setPixel(i, j, resullPixel);
+            resultImage.setPixel(i, j, resullPixel);
         }
     }
     return resultImage;

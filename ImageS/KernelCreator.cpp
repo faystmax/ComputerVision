@@ -1,62 +1,75 @@
 #include "KernelCreator.h"
 #include <math.h>
-#include <omp.h>
 
 KernelCreator::KernelCreator() {
 }
 
-unique_ptr<Kernel> KernelCreator::getSame(){
-    double *core = new double[9]{0, 0, 0,
-                                 0, 1, 0,
-                                 0, 0, 0};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getSame() {
+
+    double core[9] = {0, 0, 0,
+                      0, 1, 0,
+                      0, 0, 0};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getBlur() {
+Kernel KernelCreator::getBlur() {
     const double koef = 1.0 / 9;
-    double *core = new double[9]{koef, koef, koef,
-                                 koef, koef, koef,
-                                 koef, koef, koef};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+    double core[9] = {koef, koef, koef,
+                      koef, koef, koef,
+                      koef, koef, koef};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getClarity() {
-    double *core = new double[9]{-1, -1, -1,
-                                 -1, 9, -1
-                                        - 1, -1, -1};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getClarity() {
+    double core[9] = {-1, -1, -1,
+                      -1, 9, -1,
+                      -1, -1, -1};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getSobelX() {
-    double *core = new double[9]{1, 0, -1,
-                                 2, 0, -2,
-                                 1, 0, -1};
-
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getSobelX() {
+    double core[9] = {1, 0, -1,
+                      2, 0, -2,
+                      1, 0, -1};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getSobelY() {
-    double *core = new double[9]{1, 2, 1,
-                                 0, 0, 0,
-                                 -1, -2, -1};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getSobelY() {
+    double core[9] = {1, 2, 1,
+                      0, 0, 0,
+                      -1, -2, -1};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getPriutX() {
-    double *core = new double[9]{1, 0, -1,
-                                 1, 0, -1,
-                                 1, 0, -1};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getPriutX() {
+    double core[9] = {1, 0, -1,
+                      1, 0, -1,
+                      1, 0, -1};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getPriutY() {
-    double *core = new double[9]{1, 1, 1,
-                                 0, 0, 0,
-                                 -1, -1, -1};
-    return unique_ptr<Kernel>(new Kernel(3, 3, core));
+Kernel KernelCreator::getPriutY() {
+    double core[9] = {1, 1, 1,
+                      0, 0, 0,
+                      -1, -1, -1};
+    vector<double> data(core, core + 9);
+    return Kernel(3, 3, data);
 }
 
-unique_ptr <Kernel> KernelCreator::getGauss(int width, int height, double sigma) {
+Kernel KernelCreator::getGauss(double sigma) {
+    int radius = (int) (sigma * 3);
+    if (radius % 2 == 0)
+        radius++;
+    return getGauss(radius, radius, sigma);
+}
+
+Kernel KernelCreator::getGauss(int width, int height, double sigma) {
     // Tmp vars
     double sum = 0.0;
     double doubleSigma = 2 * sigma * sigma;
@@ -64,7 +77,7 @@ unique_ptr <Kernel> KernelCreator::getGauss(int width, int height, double sigma)
     double halfWidth = width / 2;
     double halfHeight = height / 2;
 
-    double *core = new double[width * height];
+    vector<double> core(width * height);
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             core[i + j * width] =
@@ -80,7 +93,6 @@ unique_ptr <Kernel> KernelCreator::getGauss(int width, int height, double sigma)
             core[i + j * width] /= sum;
         }
     }
-    return unique_ptr<Kernel>(new Kernel(width, height, core));
-
+    return Kernel(width, height, core);
 }
 
