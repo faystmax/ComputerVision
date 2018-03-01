@@ -33,6 +33,7 @@ private slots:
     void on_pyramidButton_clicked();
     void on_pyramidLeftButton_clicked();
     void on_pyramidRightButton_clicked();
+    void on_generateLImageButton_clicked();
 
 private:
     int curPyramidIdex = 0;
@@ -40,6 +41,7 @@ private:
     Image image;
     Pyramid pyramid;
 
+    void showImage(const QImage &image);
     void showImage(const Image &image);
     void enableButtons(bool enable);
     void showPyramidInfo(const Item &item);

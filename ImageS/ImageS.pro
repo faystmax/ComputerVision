@@ -29,7 +29,8 @@ SOURCES += \
     ImageConverter.cpp \
     Kernel.cpp \
     KernelCreator.cpp \
-    Pyramid.cpp
+    Pyramid.cpp \
+    ImageUtil.cpp
 
 HEADERS +=\
         images_global.h \

@@ -16,13 +16,10 @@ public:
 
     Image();
     Image(Image&&) = default;
-    Image& operator=(const Image&) = default;
     Image(const Image& copy);
+    Image& operator=(const Image&) = default;
     Image(const int width ,const int height, const EdgeEffect edgeEffect = Mirror );
-    Image(const QImage &image, const EdgeEffect edgeEffect = Mirror);
     ~Image() = default;
-
-    QImage getOutputImage() const;
 
     double getPixel(const int x,const int y) const;
     void setPixel(const int x,const int y, double pixel);
@@ -38,7 +35,6 @@ private:
     int width;
     EdgeEffect edgeEffect;
     vector<double> pixels;
-
 
     double getPixelRepeat(int x ,int y) const;
     double getPixelMirror(int x ,int y) const;

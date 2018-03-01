@@ -9,9 +9,5 @@ int main(int argc, char *argv[]) {
     MainWindow w;
     w.show();
 
-#if defined(_OPENMP)
-    std::cout<<"Compiled by an OpenMP-compliant implementation!"<<std::endl;
-#endif
-
     return a.exec();
 }

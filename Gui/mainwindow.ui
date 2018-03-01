@@ -241,7 +241,7 @@
        <property name="geometry">
         <rect>
          <x>130</x>
-            <y>100</y>
+         <y>100</y>
          <width>151</width>
          <height>31</height>
         </rect>
@@ -263,7 +263,7 @@
        <property name="geometry">
         <rect>
          <x>130</x>
-            <y>140</y>
+         <y>140</y>
          <width>71</width>
          <height>31</height>
         </rect>
@@ -285,7 +285,7 @@
        <property name="geometry">
         <rect>
          <x>210</x>
-            <y>140</y>
+         <y>140</y>
          <width>71</width>
          <height>31</height>
         </rect>
@@ -376,7 +376,7 @@
        <property name="geometry">
         <rect>
          <x>130</x>
-            <y>180</y>
+         <y>180</y>
          <width>151</width>
          <height>111</height>
         </rect>
@@ -385,42 +385,97 @@
         <bool>true</bool>
        </property>
       </widget>
-         <widget class="QLabel" name="label_3">
-             <property name="geometry">
-                 <rect>
-                     <x>130</x>
-                     <y>70</y>
-                     <width>71</width>
-                     <height>21</height>
-                 </rect>
-             </property>
-             <property name="font">
-                 <font>
-                     <pointsize>10</pointsize>
-                 </font>
-             </property>
-             <property name="text">
-                 <string>SigmaStart:</string>
-             </property>
-         </widget>
-         <widget class="QDoubleSpinBox" name="sigmaStartSpinBox">
-             <property name="geometry">
-                 <rect>
-                     <x>210</x>
-                     <y>70</y>
-                     <width>71</width>
-                     <height>22</height>
-                 </rect>
-             </property>
-             <property name="font">
-                 <font>
-                     <pointsize>10</pointsize>
-                 </font>
-             </property>
-             <property name="value">
-                 <double>0.500000000000000</double>
-             </property>
-         </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>70</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>SigmaStart:</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="sigmaStartSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>70</y>
+         <width>71</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="generateLImageButton">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>330</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Get L image</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="sigmaLSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>300</y>
+         <width>71</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>300</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sigma:</string>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>

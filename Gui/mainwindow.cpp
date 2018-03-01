@@ -8,6 +8,7 @@
 #include <QImageReader>
 #include <QGraphicsPixmapItem>
 
+#include "ImageUtil.cpp"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
 
@@ -37,7 +38,7 @@ void MainWindow::on_openImageButton_clicked() {
 
     if (!qImage.isNull()) {
         // Init our Image
-        this->image = Image(qImage);
+        this->image = constructImage(qImage);
         ui->edgeEffectComboBox->setCurrentIndex(0);
 
         // Show image in window
@@ -97,6 +98,12 @@ void MainWindow::on_pyramidRightButton_clicked() {
     showPyramidInfo(pyramid.getItem(curPyramidIdex));
 }
 
+void MainWindow::on_generateLImageButton_clicked() {
+    double sigma = this->ui->sigmaLSpinBox->value();
+    QImage result = createFromL(image, pyramid, sigma);
+    showImage(result);
+}
+
 void MainWindow::showPyramidInfo(const Item &item) {
     this->ui->infoPyramidTextEdit->setText(
             QString::fromStdString("Octave:     ") + QString::number(item.octave) + QString::fromStdString("<br>") +
@@ -131,8 +138,17 @@ void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
  */
 void MainWindow::showImage(const Image &image) {
     this->ui->graphicsView->scene()->clear();
-    QImage outputImage = image.getOutputImage();
+    QImage outputImage = getOutputImage(image);
     this->ui->graphicsView->scene()->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(outputImage)));
+}
+
+/**
+ * @brief Show image in graphicsView
+ * @param image
+ */
+void MainWindow::showImage(const QImage &image) {
+    this->ui->graphicsView->scene()->clear();
+    this->ui->graphicsView->scene()->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(image)));
 }
 
 /**
@@ -146,8 +162,5 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->priutButton->setEnabled(enable);
     this->ui->sobelButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);
+    this->ui->generateLImageButton->setEnabled(enable);
 }
-
-
-
-

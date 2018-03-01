@@ -20,32 +20,6 @@ Image::Image(const Image &copy) {
     this->pixels = copy.pixels;
 }
 
-Image::Image(const QImage &image, const EdgeEffect edgeEffect) {
-    this->width = image.width();
-    this->height = image.height();
-    this->edgeEffect = edgeEffect;
-    this->pixels.resize(width * height);
-
-    // Read pixels and form black and white image
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            QRgb pixel = image.pixel(i, j);
-            this->pixels[i + j * width] = 0.213 * qRed(pixel) + 0.715 * qGreen(pixel) + 0.072 * qBlue(pixel);
-        }
-    }
-}
-
-QImage Image::getOutputImage() const {
-    QImage image(this->width, this->height, QImage::Format_ARGB32);
-    for (int i = 0; i < this->width; i++) {
-        for (int j = 0; j < this->height; j++) {
-            double pixel = pixels[i + j * width];
-            image.setPixel(i, j, qRgb(pixel, pixel, pixel));
-        }
-    }
-    return image;
-}
-
 void Image::setPixel(int x, int y, double pixel) {
     // Validation
     if (pixel < 0) pixel = 0;

@@ -4,7 +4,22 @@
 #include "ImageConverter.h"
 #include "math.h"
 
-void Pyramid::generate(const Image &image, const int scales, const double sigma, const double sigmaStart) {
+int Pyramid::L(int x, int y, double sigma) const{
+    if(items.size() > 0){
+        int width = items[0].image.getWidth();
+        int height = items[0].image.getHeight();
+        for (int i = 0;i < items.size()-1;i++) {
+            if (sigma >= items[i].sigmaEffect && sigma <= items[i + 1].sigmaEffect) {
+                int xCur = x * items[i].image.getWidth() * (1.0 / width);
+                int yCur = y * items[i].image.getHeight() * (1.0 / height);
+                return items[i].image.getPixel(xCur, yCur);
+            }
+        }
+    }
+    return 0;
+}
+
+void Pyramid::generate(const Image &image, const int scales, double sigma, double sigmaStart) {
 
     items.clear();
 
