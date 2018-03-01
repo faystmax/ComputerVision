@@ -74,9 +74,11 @@ void MainWindow::on_gaussButton_clicked() {
 }
 
 void MainWindow::on_pyramidButton_clicked() {
-    pyramid.generate(this->image, this->ui->scalesSpinBox->value(), this->ui->sigmaSpinBox->value());
+    pyramid.generate(this->image, this->ui->scalesSpinBox->value(), this->ui->sigmaSpinBox->value(),
+                     this->ui->sigmaStartSpinBox->value());
     curPyramidIdex = 0;
     showImage(pyramid.getItem(curPyramidIdex).image);
+    showPyramidInfo(pyramid.getItem(curPyramidIdex));
 
     //Enable buttons
     this->ui->pyramidLeftButton->setEnabled(true);

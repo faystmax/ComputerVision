@@ -4,30 +4,29 @@
 #include "ImageConverter.h"
 #include "math.h"
 
-void Pyramid::generate(const Image &image, const int scales, const double sigma) {
+void Pyramid::generate(const Image &image, const int scales, const double sigma, const double sigmaStart) {
 
     items.clear();
 
-    // Push orihinal
-    items.push_back(Item(image, 0, 0, 0, 0));
+    // Push original
+    items.emplace_back(image, 0, 0, sigmaStart, sigmaStart);
 
-//    unique_ptr<Image> tmpImage(new Image(image));
-//    unique_ptr<Kernel> gauss =  KernelCreator::getGauss(5, 5, sigma);
-//    unique_ptr<Image> result = ImageConverter::convolution(*tmpImage.get(), *gauss.get());
+    double deltaSigma = getDeltaSigma(sigmaStart, sigma);
+    Kernel gauss = KernelCreator::getGauss(deltaSigma);
+    Image result = ImageConverter::convolution(getLastImage(), gauss);
+    items.emplace_back(result, 1, 0, sigma, sigma);
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
     double octave = 1;
-    // Push first
-//    items.push_back(Item(result.release(), octave, 0, sigmaScale, sigmaEffect));
 
-    // While image can be redeced
+    // While image can be reduced
     while (getLastImage().getWidth() >= 2 && getLastImage().getHeight() >= 2) {
         sigmaScale = sigma;
         double intervalSigma = pow(2, 1.0 / scales);
         for (int i = 0; i < scales; i++) {
             double sigmaScalePrev = sigmaScale;
-            sigmaScale *= sigma * pow(intervalSigma, i + 1);
+            sigmaScale = sigma * pow(intervalSigma, i + 1);
             sigmaEffect *= sigmaScale;
             double deltaSigma = getDeltaSigma(sigmaScalePrev, sigmaScale);
             Kernel gauss = KernelCreator::getGauss(deltaSigma);

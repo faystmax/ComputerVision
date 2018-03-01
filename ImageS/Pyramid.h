@@ -22,7 +22,7 @@ class IMAGESSHARED_EXPORT Pyramid{
 public:
     Pyramid() = default;
 
-    void generate(const Image &image,const int scales = 2, const double sigma = 1);
+void generate(const Image &image, const int scales = 2, const double sigma = 1, const double sigmaStart = 0.5);
     int getItemsSize() const {return items.size();}
     Item getItem(int index) const {return items.at(index);}
 

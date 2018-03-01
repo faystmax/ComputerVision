@@ -63,10 +63,9 @@ Kernel KernelCreator::getPriutY() {
 }
 
 Kernel KernelCreator::getGauss(double sigma) {
-    int radius = (int) (sigma * 3);
-    if (radius % 2 == 0)
-        radius++;
-    return getGauss(radius, radius, sigma);
+    int razmer = (int) (sigma * 3);
+    if (razmer % 2 == 0) razmer++;
+    return getGauss(razmer, razmer, sigma);
 }
 
 Kernel KernelCreator::getGauss(int width, int height, double sigma) {
