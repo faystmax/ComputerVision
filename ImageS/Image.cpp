@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "iostream"
 
 Image::Image() {
     this->width = 0;

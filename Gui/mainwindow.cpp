@@ -70,13 +70,13 @@ void MainWindow::on_priutButton_clicked() {
 }
 
 void MainWindow::on_gaussButton_clicked() {
-    this->image = ImageConverter::convolution(this->image, KernelCreator::getGauss(5, 5, 4));
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getGauss(5, 5, 0.5));
     showImage(this->image);
 }
 
 void MainWindow::on_pyramidButton_clicked() {
-    pyramid.generate(this->image, this->ui->scalesSpinBox->value(), this->ui->sigmaSpinBox->value(),
-                     this->ui->sigmaStartSpinBox->value());
+    this->pyramid = Pyramid(this->image, this->ui->scalesSpinBox->value(), this->ui->sigmaSpinBox->value(),
+                            this->ui->sigmaStartSpinBox->value());
     curPyramidIdex = 0;
     showImage(pyramid.getItem(curPyramidIdex).image);
     showPyramidInfo(pyramid.getItem(curPyramidIdex));

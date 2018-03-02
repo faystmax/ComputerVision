@@ -1,16 +1,13 @@
 #include "KernelCreator.h"
 #include <math.h>
 
-KernelCreator::KernelCreator() {
-}
-
 Kernel KernelCreator::getSame() {
 
     double core[9] = {0, 0, 0,
                       0, 1, 0,
                       0, 0, 0};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getBlur() {
@@ -19,7 +16,7 @@ Kernel KernelCreator::getBlur() {
                       koef, koef, koef,
                       koef, koef, koef};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getClarity() {
@@ -27,7 +24,7 @@ Kernel KernelCreator::getClarity() {
                       -1, 9, -1,
                       -1, -1, -1};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getSobelX() {
@@ -35,7 +32,7 @@ Kernel KernelCreator::getSobelX() {
                       2, 0, -2,
                       1, 0, -1};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getSobelY() {
@@ -43,7 +40,7 @@ Kernel KernelCreator::getSobelY() {
                       0, 0, 0,
                       -1, -2, -1};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getPriutX() {
@@ -51,7 +48,7 @@ Kernel KernelCreator::getPriutX() {
                       1, 0, -1,
                       1, 0, -1};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getPriutY() {
@@ -59,14 +56,22 @@ Kernel KernelCreator::getPriutY() {
                       0, 0, 0,
                       -1, -1, -1};
     vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, std::move(data));
 }
 
 Kernel KernelCreator::getGauss(double sigma) {
-    int razmer = (int) (sigma * 3);
-    if (razmer % 2 == 0) razmer++;
+    int razmer = getGaussSize(sigma);
     return getGauss(razmer, razmer, sigma);
 }
+
+Kernel KernelCreator::getGaussX(double sigma) {
+    return getGauss(1, getGaussSize(sigma), sigma);
+}
+
+Kernel KernelCreator::getGaussY(double sigma) {
+    return getGauss(getGaussSize(sigma), 1, sigma);
+}
+
 
 Kernel KernelCreator::getGauss(int width, int height, double sigma) {
     // Tmp vars
@@ -92,6 +97,13 @@ Kernel KernelCreator::getGauss(int width, int height, double sigma) {
             core[i + j * width] /= sum;
         }
     }
-    return Kernel(width, height, core);
+
+    return Kernel(width, height, std::move(core));
+}
+
+int KernelCreator::getGaussSize(double sigma) {
+    int razmer = sigma * 6;
+    if (razmer % 2 == 0) razmer++;
+    return razmer;
 }
 

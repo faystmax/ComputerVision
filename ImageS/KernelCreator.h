@@ -6,7 +6,7 @@
 
 class IMAGESSHARED_EXPORT KernelCreator {
 public:
-    KernelCreator();
+    KernelCreator() = default;
     static Kernel getSame();
     static Kernel getBlur();
     static Kernel getClarity();
@@ -15,7 +15,12 @@ public:
     static Kernel getPriutX();
     static Kernel getPriutY();
     static Kernel getGauss(double sigma);
+    static Kernel getGaussX(double sigma);
+    static Kernel getGaussY(double sigma);
     static Kernel getGauss(int width, int height, double sigma);
+
+private:
+    static int getGaussSize(double sigma);
 };
 
 #endif // CORECREATOR_H

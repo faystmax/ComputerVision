@@ -1,7 +1,6 @@
 #include "ImageConverter.h"
 #include "KernelCreator.h"
-#include "math.h"
-#include <omp.h>
+#include <math.h>
 
 Image ImageConverter::convolution(const Image &image, const Kernel &core) {
     Image resultImage(image);
