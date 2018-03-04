@@ -1,6 +1,7 @@
 #include <QImage>
 #include "Image.h"
 #include "Pyramid.h"
+#include "InterestPoints.h"
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
@@ -34,6 +35,25 @@ QImage createFromL(const Image &image, const Pyramid &pyramid, const double sigm
             double pixel = pyramid.L(i, j, sigma);
             resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
         }
+    }
+    return resultImage;
+}
+
+
+QImage createImageWithPoints(const Image &image, const vector <Point> &points) {
+    QImage resultImage = getOutputImage(image);
+    for (unsigned int i = 0; i < points.size(); i++) {
+        resultImage.setPixel(points[i].x - 1, points[i].y - 1, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x - 1, points[i].y, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x - 1, points[i].y + 1, qRgb(255, 0, 0));
+
+        resultImage.setPixel(points[i].x, points[i].y - 1, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x, points[i].y, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x, points[i].y + 1, qRgb(255, 0, 0));
+
+        resultImage.setPixel(points[i].x + 1, points[i].y - 1, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x + 1, points[i].y, qRgb(255, 0, 0));
+        resultImage.setPixel(points[i].x + 1, points[i].y + 1, qRgb(255, 0, 0));
     }
     return resultImage;
 }

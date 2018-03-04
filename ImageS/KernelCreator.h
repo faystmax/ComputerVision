@@ -14,13 +14,9 @@ public:
     static Kernel getSobelY();
     static Kernel getPriutX();
     static Kernel getPriutY();
-    static Kernel getGauss(double sigma);
-    static Kernel getGaussX(double sigma);
-    static Kernel getGaussY(double sigma);
-    static Kernel getGauss(int width, int height, double sigma);
-
-private:
-    static int getGaussSize(double sigma);
+    static Kernel getGauss(const double sigma);
+    static Kernel getGauss(const double sigma, const int radius);
+    static Kernel getGaussDoubleDim(int width, int height, double sigma);
 };
 
 #endif // CORECREATOR_H

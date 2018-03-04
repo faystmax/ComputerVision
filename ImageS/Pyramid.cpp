@@ -6,33 +6,37 @@
 
 Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigmaStart) {
     items.clear();
+    int octaveCount = getOctaveCount(image);
+    items.reserve(octaveCount * scales);
 
     double deltaSigma = getDeltaSigma(sigmaStart, sigma);
-    Kernel gauss = KernelCreator::getGaussX(deltaSigma);
+    Kernel gauss = KernelCreator::getGauss(deltaSigma);
     Image imageX = ImageConverter::convolution(image, gauss);
     gauss.rotate();
-    items.emplace_back(ImageConverter::convolution(std::move(imageX), gauss), 1, 0, sigma, sigma);
+    items.emplace_back(ImageConverter::convolution(imageX, gauss), 0, 0, sigma, sigma);
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
-    double octave = 1;
+    double octave = 0;
 
     // While image can be reduced
-    while (getLastImage().getWidth() >= 2 && getLastImage().getHeight() >= 2) {
-        sigmaScale = sigma;
+    while (octaveCount > 0) {
         double intervalSigma = pow(2, 1.0 / scales);
+
         for (int i = 0; i < scales; i++) {
             double sigmaScalePrev = sigmaScale;
             sigmaScale = sigma * pow(intervalSigma, i + 1);
-            sigmaEffect *= sigmaScale;
             double deltaSigma = getDeltaSigma(sigmaScalePrev, sigmaScale);
-            gauss = KernelCreator::getGaussX(deltaSigma);
+            sigmaEffect *= intervalSigma;
+
+            gauss = KernelCreator::getGauss(deltaSigma);
             imageX = ImageConverter::convolution(getLastImage(), gauss);
             gauss.rotate();
-            items.emplace_back(ImageConverter::convolution(std::move(imageX), gauss),
-                               octave, i + 1, sigmaScale, sigmaEffect);
+            items.emplace_back(ImageConverter::convolution(imageX, gauss), octave, i + 1, sigmaScale, sigmaEffect);
         }
         octave++;
+        sigmaScale = 1;
+        octaveCount--;
         items.emplace_back(ImageConverter::halfReduce(getLastImage()), octave, 0, sigmaScale, sigmaEffect);
     }
 }
@@ -52,10 +56,22 @@ int Pyramid::L(int x, int y, double sigma) const {
     return 0;
 }
 
-double Pyramid::getDeltaSigma(double sigmaPrev, double sigmaCur) const {
-    return sqrt(sigmaCur * sigmaCur - sigmaPrev * sigmaPrev);
+double Pyramid::getDeltaSigma(double sigmaPrev, double sigmaNext) const {
+    return sqrt(sigmaNext * sigmaNext - sigmaPrev * sigmaPrev);
 }
 
-Image Pyramid::getLastImage() const {
+int Pyramid::getOctaveCount(const Image &image) {
+    int count = 0;
+    int width = image.getWidth();
+    int height = image.getHeight();
+    while (width > 2 && height > 2) {
+        count++;
+        width /= 2;
+        height /= 2;
+    }
+    return count;
+}
+
+Image &Pyramid::getLastImage() {
     return items.at(items.size() - 1).image;
 }

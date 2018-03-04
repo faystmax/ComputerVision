@@ -9,12 +9,12 @@ struct Item {
         double sigmaScale;
         double sigmaEffect;
         Image image;
-        Item(Image image, int octave, double scale, double sigmaScale, double sigmaEffect):
-        image(image){
+        Item(Image image, int octave, double scale, double sigmaScale, double sigmaEffect){
             this->octave = octave;
             this->scale = scale;
             this->sigmaScale = sigmaScale;
             this->sigmaEffect = sigmaEffect;
+            this->image = std::move(image);
         }
 };
 
@@ -31,7 +31,8 @@ private:
     vector<Item> items;
 
     double getDeltaSigma(double sigmaPrev,double sigmaNext) const;
-    Image  getLastImage() const;
+    Image&  getLastImage();
+    int getOctaveCount(const Image &image);
 };
 
 #endif // PYRAMID_H

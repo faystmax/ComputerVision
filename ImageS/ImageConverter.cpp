@@ -1,6 +1,7 @@
 #include "ImageConverter.h"
 #include "KernelCreator.h"
 #include <math.h>
+#include <iostream>
 
 Image ImageConverter::convolution(const Image &image, const Kernel &core) {
     Image resultImage(image);
@@ -17,6 +18,13 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
             resultImage.setPixel(i, j, resultPixel);
         }
     }
+
+//    for (int i = 0; i < core.getWidth(); i++) {
+//        for (int j = 0; j < core.getHeight(); j++) {
+//            std::cout << core.getCoreAt(i, j) << " ";
+//        }
+//        std::cout << std::endl;
+//    }
     return resultImage;
 }
 

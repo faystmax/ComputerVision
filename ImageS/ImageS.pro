@@ -8,8 +8,7 @@ QT       += core
 
 TARGET = ImageS
 TEMPLATE = lib
-QMAKE_CXXFLAGS += -std=c++17
-CONFIG += c++17
+CONFIG += c++1z
 
 DEFINES += IMAGES_LIBRARY
 
@@ -30,7 +29,8 @@ SOURCES += \
     Kernel.cpp \
     KernelCreator.cpp \
     Pyramid.cpp \
-    ImageUtil.cpp
+    ImageUtil.cpp \
+    InterestPoints.cpp
 
 HEADERS +=\
         images_global.h \
@@ -38,7 +38,8 @@ HEADERS +=\
     ImageConverter.h \
     Kernel.h \
     KernelCreator.h \
-    Pyramid.h
+    Pyramid.h \
+    InterestPoints.h
 
 unix {
     target.path = /usr/lib

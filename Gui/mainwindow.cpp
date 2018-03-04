@@ -70,7 +70,7 @@ void MainWindow::on_priutButton_clicked() {
 }
 
 void MainWindow::on_gaussButton_clicked() {
-    this->image = ImageConverter::convolution(this->image, KernelCreator::getGauss(5, 5, 0.5));
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getGaussDoubleDim(5, 1, 1));
     showImage(this->image);
 }
 
@@ -114,6 +114,20 @@ void MainWindow::showPyramidInfo(const Item &item) {
             QString::fromStdString("<br>"));
 }
 
+/* Interest Points */
+void MainWindow::on_moravekButton_clicked() {
+    vector <Point> &points = interestPoints.moravek(this->image, this->ui->ThresholdSpinBox->value(),
+                                                    this->ui->radiusSpinBox->value(),
+                                                    this->ui->pointsCountSpinBox->value());
+    showImage(createImageWithPoints(this->image, points));
+}
+
+void MainWindow::on_harrisButton_clicked() {
+    vector <Point> &points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
+                                                   this->ui->radiusSpinBox->value(),
+                                                   this->ui->pointsCountSpinBox->value());
+    showImage(createImageWithPoints(this->image, points));
+}
 
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {
@@ -157,10 +171,13 @@ void MainWindow::showImage(const QImage &image) {
  */
 void MainWindow::enableButtons(bool enable) {
     this->ui->blurButton->setEnabled(enable);
-    this->ui->clarityButton->setEnabled(enable);
     this->ui->gaussButton->setEnabled(enable);
     this->ui->priutButton->setEnabled(enable);
     this->ui->sobelButton->setEnabled(enable);
+    this->ui->harrisButton->setEnabled(enable);
+    this->ui->clarityButton->setEnabled(enable);
+    this->ui->moravekButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);
     this->ui->generateLImageButton->setEnabled(enable);
+
 }

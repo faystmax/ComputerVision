@@ -14,13 +14,6 @@ Image::Image(const int width, const int height, const EdgeEffect edgeEffect) {
     this->pixels.resize(width * height);
 }
 
-Image::Image(const Image &copy) {
-    this->width = copy.width;
-    this->height = copy.height;
-    this->edgeEffect = copy.edgeEffect;
-    this->pixels = copy.pixels;
-}
-
 void Image::setPixel(int x, int y, double pixel) {
     // Validation
     if (pixel < 0) pixel = 0;

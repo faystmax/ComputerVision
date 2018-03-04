@@ -6,6 +6,7 @@
 
 #include "Image.h"
 #include "Pyramid.h"
+#include "InterestPoints.h"
 
 using namespace std;
 
@@ -35,11 +36,16 @@ private slots:
     void on_pyramidRightButton_clicked();
     void on_generateLImageButton_clicked();
 
+    void on_moravekButton_clicked();
+
+    void on_harrisButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
     Image image;
     Pyramid pyramid;
+    InterestPoints interestPoints;
 
     void showImage(const QImage &image);
     void showImage(const Image &image);

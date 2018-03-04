@@ -15,8 +15,8 @@ public:
     enum EdgeEffect{ Black, Repeat, Mirror,  Wrapping };
 
     Image();
-    Image(const Image& copy) ;
-    Image(Image&& image) = default;
+    Image(Image&&) = default;
+    Image(const Image&) = default ;
     Image& operator=(Image&&) = default;
     Image& operator=(const Image& image) = default;
     Image(const int width , const int height, const EdgeEffect edgeEffect = Mirror );
