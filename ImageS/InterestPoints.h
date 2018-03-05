@@ -17,17 +17,18 @@ struct Point {
 class IMAGESSHARED_EXPORT InterestPoints{
 public:
 
-    vector<Point> &moravek(const Image &image, double porog, int radius, int pointsCount);
-    vector<Point>& harris(const Image &image, double porog, int radius, int pointsCount);
+    vector<Point> moravek(const Image &image,const double porog,const int radius,const int pointsCount);
+    vector<Point> harris(const Image &image,const double porog,const int radius,const int pointsCount);
 
 private:
-    vector<Point> points;
-
     // Adaptive Non-Maximum Suppression
-    void filter(vector<Point> &points, const int pointsCount);
+    vector<Point> filter(vector<Point> &points, const int pointsCount);
 
     // Lambda calculation
     double lambda(const Image &imgX, const Image &imgY, int x0, int y0, int width, int height);
+
+    // PorogFilter
+    vector <Point> porogFilter(vector<double> &pointsS, const Image& image, const double porog, const int radius);
 };
 
 #endif // INTERESTPOINTS_H

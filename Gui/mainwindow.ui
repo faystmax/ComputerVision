@@ -44,7 +44,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -513,10 +513,10 @@
          </font>
         </property>
         <property name="maximum">
-         <number>1000</number>
+         <number>1200000</number>
         </property>
         <property name="value">
-         <number>2</number>
+         <number>16000</number>
         </property>
        </widget>
        <widget class="QPushButton" name="moravekButton">
@@ -607,10 +607,10 @@
          </font>
         </property>
         <property name="maximum">
-         <number>10000</number>
+         <number>12000</number>
         </property>
         <property name="value">
-         <number>100</number>
+         <number>250</number>
         </property>
        </widget>
        <widget class="QPushButton" name="harrisButton">

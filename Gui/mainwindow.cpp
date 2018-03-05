@@ -116,16 +116,16 @@ void MainWindow::showPyramidInfo(const Item &item) {
 
 /* Interest Points */
 void MainWindow::on_moravekButton_clicked() {
-    vector <Point> &points = interestPoints.moravek(this->image, this->ui->ThresholdSpinBox->value(),
-                                                    this->ui->radiusSpinBox->value(),
-                                                    this->ui->pointsCountSpinBox->value());
+    vector <Point> points = interestPoints.moravek(this->image, this->ui->ThresholdSpinBox->value(),
+                                                   this->ui->radiusSpinBox->value(),
+                                                   this->ui->pointsCountSpinBox->value());
     showImage(createImageWithPoints(this->image, points));
 }
 
 void MainWindow::on_harrisButton_clicked() {
-    vector <Point> &points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
-                                                   this->ui->radiusSpinBox->value(),
-                                                   this->ui->pointsCountSpinBox->value());
+    vector <Point> points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
+                                                  this->ui->radiusSpinBox->value(),
+                                                  this->ui->pointsCountSpinBox->value());
     showImage(createImageWithPoints(this->image, points));
 }
 
