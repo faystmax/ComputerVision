@@ -25,7 +25,7 @@ private:
     vector<Point> filter(vector<Point> &points, const int pointsCount);
 
     // Lambda calculation
-    double lambda(const Image &imgX, const Image &imgY, int x0, int y0, int width, int height);
+    double lambda(const Image &imgX, const Image &imgY, const int x, const int y, const int radius);
 
     // PorogFilter
     vector <Point> porogFilter(vector<double> &pointsS, const Image& image, const double porog, const int radius);

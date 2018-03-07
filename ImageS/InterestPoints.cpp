@@ -43,7 +43,7 @@ vector <Point> InterestPoints::harris(const Image &image, const double porog, co
     vector<double> pointsS(image.getWidth() * image.getHeight());
     for (int x = radius; x < image.getWidth() - radius; x++) {
         for (int y = radius; y < image.getHeight() - radius; y++) {
-            pointsS[x + y * image.getWidth()] = lambda(copyImageX, copyImageY, x, y, radius, radius);
+            pointsS[x + y * image.getWidth()] = lambda(copyImageX, copyImageY, x, y, radius);
         }
     }
 
@@ -67,7 +67,7 @@ vector <Point> InterestPoints::filter(vector <Point> &points, const int pointsCo
             for (auto j = i + 1; j < points.size(); j++) {
                 if (flagUsedPoints[j]) {
                     Point &p2 = points[j];
-                    if (sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius && p1.s > p2.s) {
+                    if (p1.s > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
                         flagUsedPoints[j] = false;
                         usedPointsCount--;
                         if (usedPointsCount <= pointsCount) {
@@ -88,12 +88,12 @@ vector <Point> InterestPoints::filter(vector <Point> &points, const int pointsCo
     return resultPoints;
 }
 
-double InterestPoints::lambda(const Image &imgX, const Image &imgY, int x0, int y0, int width, int height) {
+double InterestPoints::lambda(const Image &imgX, const Image &imgY, const int x, const int y, const int radius) {
     double A = 0;
     double B = 0;
     double C = 0;
-    for (auto i = x0; i < x0 + width; i++) {
-        for (auto j = y0; j < y0 + height; j++) {
+    for (auto i = x - radius; i < x + radius; i++) {
+        for (auto j = y - radius; j < y + radius; j++) {
             double curA = imgX.getPixel(i, j);
             double curB = imgY.getPixel(i, j);
             A += curA * curA;
