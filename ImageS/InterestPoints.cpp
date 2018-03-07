@@ -107,8 +107,8 @@ double InterestPoints::lambda(const Image &imgX, const Image &imgY, const int x,
 
 vector <Point> InterestPoints::porogFilter(vector<double> &pointsS, const Image &image, const double porog, const int radius) {
     vector <Point> points;
-    for (auto i = radius; i < image.getWidth() - radius; i += 2) {
-        for (auto j = radius; j < image.getHeight() - radius; j += 2) {
+    for (auto i = radius; i < image.getWidth() - radius; i++) {
+        for (auto j = radius; j < image.getHeight() - radius; j++) {
             if (pointsS[i + j * image.getWidth()] >= porog) {
                 points.push_back(Point(i, j, pointsS[i + j * image.getWidth()]));
             }
