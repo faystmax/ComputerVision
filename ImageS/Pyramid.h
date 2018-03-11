@@ -32,7 +32,6 @@ private:
 
     double getDeltaSigma(double sigmaPrev,double sigmaNext) const;
     Image&  getLastImage();
-    int getOctaveCount(const Image &image);
 };
 
 #endif // PYRAMID_H

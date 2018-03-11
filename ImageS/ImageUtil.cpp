@@ -39,7 +39,6 @@ QImage createFromL(const Image &image, const Pyramid &pyramid, const double sigm
     return resultImage;
 }
 
-
 QImage createImageWithPoints(const Image &image, const vector <Point> &points) {
     QImage resultImage = getOutputImage(image);
     for (unsigned int i = 0; i < points.size(); i++) {

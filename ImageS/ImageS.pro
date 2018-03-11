@@ -30,7 +30,9 @@ SOURCES += \
     KernelCreator.cpp \
     Pyramid.cpp \
     ImageUtil.cpp \
-    InterestPoints.cpp
+    InterestPoints.cpp \
+    Descriptor.cpp \
+    Util.cpp
 
 HEADERS +=\
         images_global.h \
@@ -39,7 +41,8 @@ HEADERS +=\
     Kernel.h \
     KernelCreator.h \
     Pyramid.h \
-    InterestPoints.h
+    InterestPoints.h \
+    Descriptor.h
 
 unix {
     target.path = /usr/lib

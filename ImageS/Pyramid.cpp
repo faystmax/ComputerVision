@@ -6,7 +6,7 @@
 
 Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigmaStart) {
     items.clear();
-    int octaveCount = getOctaveCount(image);
+    int octaveCount = min(log2(image.getWidth()),log2(image.getHeight()))-1;
     items.reserve(octaveCount * scales);
 
     double deltaSigma = getDeltaSigma(sigmaStart, sigma);
@@ -58,18 +58,6 @@ int Pyramid::L(int x, int y, double sigma) const {
 
 double Pyramid::getDeltaSigma(double sigmaPrev, double sigmaNext) const {
     return sqrt(sigmaNext * sigmaNext - sigmaPrev * sigmaPrev);
-}
-
-int Pyramid::getOctaveCount(const Image &image) {
-    int count = 0;
-    int width = image.getWidth();
-    int height = image.getHeight();
-    while (width > 2 && height > 2) {
-        count++;
-        width /= 2;
-        height /= 2;
-    }
-    return count;
 }
 
 Image &Pyramid::getLastImage() {

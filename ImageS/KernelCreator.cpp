@@ -1,63 +1,56 @@
 #include "KernelCreator.h"
-#include <math.h>
 #include <iostream>
+#include <math.h>
+
 
 Kernel KernelCreator::getSame() {
-
-    double core[9] = {0, 0, 0,
-                      0, 1, 0,
-                      0, 0, 0};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = {0, 0, 0,
+                           0, 1, 0,
+                           0, 0, 0};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getBlur() {
     const double koef = 1.0 / 9;
-    double core[9] = {koef, koef, koef,
-                      koef, koef, koef,
-                      koef, koef, koef};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = { koef, koef, koef,
+                            koef, koef, koef,
+                            koef, koef, koef};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getClarity() {
-    double core[9] = {-1, -1, -1,
-                      -1, 9, -1,
-                      -1, -1, -1};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = { -1, -1, -1,
+                            -1,  9, -1,
+                            -1, -1, -1};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelX() {
-    double core[9] = {1, 0, -1,
+    vector<double> core = {1, 0, -1,
                       2, 0, -2,
                       1, 0, -1};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelY() {
-    double core[9] = {1, 2, 1,
-                      0, 0, 0,
-                      -1, -2, -1};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = { 1,   2,  1,
+                            0,   0,  0,
+                            -1, -2, -1};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getPriutX() {
-    double core[9] = {1, 0, -1,
-                      1, 0, -1,
-                      1, 0, -1};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = { 1, 0, -1,
+                            1, 0, -1,
+                            1, 0, -1};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getPriutY() {
-    double core[9] = {1, 1, 1,
-                      0, 0, 0,
-                      -1, -1, -1};
-    vector<double> data(core, core + 9);
-    return Kernel(3, 3, data);
+    vector<double> core = { 1,  1,   1,
+                            0,  0,   0,
+                            -1, -1, -1};
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getGauss(const double sigma) {

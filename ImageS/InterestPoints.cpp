@@ -1,14 +1,15 @@
 #include "InterestPoints.h"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
+#include "Image.h"
 
+vector<Point> InterestPoints::moravek(Image &image, const double threshold, const int radius, const int pointsCount) {
 
-vector <Point> InterestPoints::moravek(const Image &image, const double porog, const int radius, const int pointsCount) {
-
-    vector<double> pointsS(image.getWidth() * image.getHeight()); // weights
+    vector<double> pointsS(image.getWidth() * image.getHeight(), 0); // weights
     for (auto x = radius; x < image.getWidth() - radius; x++) {
         for (auto y = radius; y < image.getHeight() - radius; y++) {
-            vector<double> localS(8, 0); // 8 directions
+            array<double,8> localS; // 8 directions
+            localS.fill(0);
             for (auto u = -radius; u < radius; u++) {
                 for (auto v = -radius; v < radius; v++) {
                     double directDiff[8];
@@ -31,40 +32,44 @@ vector <Point> InterestPoints::moravek(const Image &image, const double porog, c
             pointsS[x + y * image.getWidth()] = *std::min_element(localS.begin(), localS.end());
         }
     }
-    vector <Point> points = porogFilter(pointsS, image, porog, radius);
+
+    image.setPointsS(pointsS);
+    vector <Point> points = porogFilter(image, threshold);
     return filter(points, pointsCount);
 }
 
-vector <Point> InterestPoints::harris(const Image &image, const double porog, const int radius, const int pointsCount) {
+vector<Point>  InterestPoints::harris(Image &image, const double threshold, const int radius, const int pointsCount) {
 
-    Image copyImageX = ImageConverter::convolution(image, KernelCreator::getSobelX());
-    Image copyImageY = ImageConverter::convolution(image, KernelCreator::getSobelY());
+    Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
+    Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
 
-    vector<double> pointsS(image.getWidth() * image.getHeight());
+    vector<double> pointsS(image.getWidth() * image.getHeight(),0);
     for (int x = radius; x < image.getWidth() - radius; x++) {
         for (int y = radius; y < image.getHeight() - radius; y++) {
-            pointsS[x + y * image.getWidth()] = lambda(copyImageX, copyImageY, x, y, radius);
+            pointsS[x + y * image.getWidth()] = lambda(image_dx, image_dy, x, y, radius);
         }
     }
 
-    vector <Point> points = porogFilter(pointsS, image, porog, radius);
-    return filter(points, pointsCount);
+    image.setPointsS(pointsS);
+    vector <Point> points = porogFilter(image, threshold);
+    vector<Point> localMsximumPoints = localMaximum(points);
+    return filter(localMsximumPoints, pointsCount);
 }
 
-vector <Point> InterestPoints::filter(vector <Point> &points, const int pointsCount) {
+vector<Point> InterestPoints::filter(vector<Point> points, const int pointsCount) {
 
     vector<bool> flagUsedPoints(points.size(), true);
-    int radius = 1;
+    int radius = 3;
     int usedPointsCount = points.size();
     while (usedPointsCount > pointsCount) {
-        for (auto i = 0; i < points.size(); i++) {
+        for (unsigned int i = 0; i < points.size(); i++) {
 
             if (!flagUsedPoints[i]) {
                 continue;
             }
 
             auto &p1 = points[i];
-            for (auto j = i + 1; j < points.size(); j++) {
+            for (unsigned int j = i + 1; j < points.size(); j++) {
                 if (flagUsedPoints[j]) {
                     Point &p2 = points[j];
                     if (p1.s > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
@@ -79,8 +84,9 @@ vector <Point> InterestPoints::filter(vector <Point> &points, const int pointsCo
         }
         radius++;
     }
+
     vector <Point> resultPoints;
-    for (auto i = 0; i < points.size(); i++) {
+    for (unsigned int i = 0; i < points.size(); i++) {
         if (flagUsedPoints[i]) {
             resultPoints.push_back(points[i]);
         }
@@ -88,14 +94,14 @@ vector <Point> InterestPoints::filter(vector <Point> &points, const int pointsCo
     return resultPoints;
 }
 
-double InterestPoints::lambda(const Image &imgX, const Image &imgY, const int x, const int y, const int radius) {
+double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, const int x, const int y, const int radius) {
     double A = 0;
     double B = 0;
     double C = 0;
     for (auto i = x - radius; i < x + radius; i++) {
         for (auto j = y - radius; j < y + radius; j++) {
-            double curA = imgX.getPixel(i, j);
-            double curB = imgY.getPixel(i, j);
+            double curA = image_dx.getPixel(i, j);
+            double curB = image_dy.getPixel(i, j);
             A += curA * curA;
             B += curA * curB;
             C += curB * curB;
@@ -105,10 +111,11 @@ double InterestPoints::lambda(const Image &imgX, const Image &imgY, const int x,
     return min(abs((A + C - descreminant) / 2), abs((A + C + descreminant) / 2));
 }
 
-vector <Point> InterestPoints::porogFilter(vector<double> &pointsS, const Image &image, const double porog, const int radius) {
+vector <Point> InterestPoints::porogFilter(Image &image, const double porog) {
+    auto pointsS = image.getPointsS();
     vector <Point> points;
-    for (auto i = radius; i < image.getWidth() - radius; i++) {
-        for (auto j = radius; j < image.getHeight() - radius; j++) {
+    for (auto i = 0; i < image.getWidth(); i++) {
+        for (auto j = 0; j < image.getHeight(); j++) {
             if (pointsS[i + j * image.getWidth()] >= porog) {
                 points.push_back(Point(i, j, pointsS[i + j * image.getWidth()]));
             }
@@ -116,5 +123,29 @@ vector <Point> InterestPoints::porogFilter(vector<double> &pointsS, const Image 
     }
     std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
     return points;
+}
+
+vector<Point> InterestPoints::localMaximum(const vector<Point> points){
+
+    vector <Point> result;
+    result.push_back(points[0]);
+    const int radius = 5;
+
+    for(unsigned int i = 1; i < points.size(); i ++){
+        auto p1 = points[i];
+        bool flagSwap = false;
+        for(unsigned int j = 0; j < result.size();j++){
+            auto p2 = result[j];
+            if(sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) < radius && p1.s > p2.s){
+                result[j] = p1;
+                flagSwap = true;
+                break;
+            }
+        }
+        if(flagSwap == false){
+            result.push_back(p1);
+        }
+    }
+    return result;
 }
 

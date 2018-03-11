@@ -6,6 +6,7 @@
 
 #include "images_global.h"
 #include "Kernel.h"
+#include "InterestPoints.h"
 
 using namespace std;
 
@@ -31,11 +32,14 @@ public:
     void setEdgeEffect(const EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
     EdgeEffect getEdgeEffect() const {return this->edgeEffect;}
 
+    void setPointsS(const vector<double> pointS) {this->pointS = pointS;}
+    vector<double>& getPointsS()  {return pointS;}
 private:
     int height;
     int width;
     EdgeEffect edgeEffect;
     vector<double> pixels;
+    vector<double> pointS; // weight points
 
     double getPixelRepeat(int x ,int y) const;
     double getPixelMirror(int x ,int y) const;

@@ -8,8 +8,6 @@
 class IMAGESSHARED_EXPORT ImageConverter
 {
 public:
-    ImageConverter() = default;
-
     static Image convolution(const Image &image,const Kernel &core);
     static Image sobel(const Image &image);
     static Image priut(const Image &image);

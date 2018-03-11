@@ -30,12 +30,12 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
 
 Image ImageConverter::sobel(const Image &image) {
     Image resultImage(image);
-    Image copyImageX = convolution(image, KernelCreator::getSobelX());
-    Image copyImageY = convolution(image, KernelCreator::getSobelY());
+    Image image_dx = convolution(image, KernelCreator::getSobelX());
+    Image image_dy = convolution(image, KernelCreator::getSobelY());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-            double pixelX = copyImageX.getPixel(i, j);
-            double pixelY = copyImageY.getPixel(i, j);
+            double pixelX = image_dx.getPixel(i, j);
+            double pixelY = image_dy.getPixel(i, j);
             resultImage.setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
         }
     }
@@ -44,12 +44,12 @@ Image ImageConverter::sobel(const Image &image) {
 
 Image ImageConverter::priut(const Image &image) {
     Image resultImage(image);
-    Image copyImageX = convolution(image, KernelCreator::getPriutX());
-    Image copyImageY = convolution(image, KernelCreator::getPriutY());
+    Image image_dx = convolution(image, KernelCreator::getPriutX());
+    Image image_dy = convolution(image, KernelCreator::getPriutY());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-            double pixelX = copyImageX.getPixel(i, j);
-            double pixelY = copyImageY.getPixel(i, j);
+            double pixelX = image_dx.getPixel(i, j);
+            double pixelY = image_dy.getPixel(i, j);
             resultImage.setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
         }
     }

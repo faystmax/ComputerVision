@@ -6,7 +6,6 @@
 
 class IMAGESSHARED_EXPORT KernelCreator {
 public:
-    KernelCreator() = default;
     static Kernel getSame();
     static Kernel getBlur();
     static Kernel getClarity();
