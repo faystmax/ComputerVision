@@ -25,21 +25,18 @@ public:
 
     double getPixel(const int x,const int y) const;
     void setPixel(const int x,const int y, double pixel);
+    void setPixelNoValidation(const int x,const int y, double pixel);
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
 
     void setEdgeEffect(const EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
     EdgeEffect getEdgeEffect() const {return this->edgeEffect;}
-
-    void setPointsS(const vector<double> pointS) {this->pointS = pointS;}
-    vector<double>& getPointsS()  {return pointS;}
 private:
     int height;
     int width;
     EdgeEffect edgeEffect;
     vector<double> pixels;
-    vector<double> pointS; // weight points
 
     double getPixelRepeat(int x ,int y) const;
     double getPixelMirror(int x ,int y) const;

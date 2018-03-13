@@ -11,9 +11,9 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
 
     double deltaSigma = getDeltaSigma(sigmaStart, sigma);
     Kernel gauss = KernelCreator::getGauss(deltaSigma);
-    Image imageX = ImageConverter::convolution(image, gauss);
+    Image image_dx = ImageConverter::convolution(image, gauss);
     gauss.rotate();
-    items.emplace_back(ImageConverter::convolution(imageX, gauss), 0, 0, sigma, sigma);
+    items.emplace_back(ImageConverter::convolution(image_dx, gauss), 0, 0, sigma, sigma);
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
@@ -30,9 +30,9 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
             sigmaEffect *= intervalSigma;
 
             gauss = KernelCreator::getGauss(deltaSigma);
-            imageX = ImageConverter::convolution(getLastImage(), gauss);
+            image_dx = ImageConverter::convolution(getLastImage(), gauss);
             gauss.rotate();
-            items.emplace_back(ImageConverter::convolution(imageX, gauss), octave, i + 1, sigmaScale, sigmaEffect);
+            items.emplace_back(ImageConverter::convolution(image_dx, gauss), octave, i + 1, sigmaScale, sigmaEffect);
         }
         octave++;
         sigmaScale = 1;

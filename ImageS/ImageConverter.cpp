@@ -19,12 +19,12 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
         }
     }
 
-//    for (int i = 0; i < core.getWidth(); i++) {
-//        for (int j = 0; j < core.getHeight(); j++) {
-//            std::cout << core.getCoreAt(i, j) << " ";
-//        }
-//        std::cout << std::endl;
-//    }
+    for (int i = 0; i < core.getWidth(); i++) {
+        for (int j = 0; j < core.getHeight(); j++) {
+            std::cout << core.getCoreAt(i, j) << " ";
+        }
+        std::cout << std::endl;
+    }
     return resultImage;
 }
 

@@ -3,14 +3,13 @@
 
 #include "images_global.h"
 #include "iostream"
+#include "Image.h"
 class Image;
-
-using namespace std;
 
 struct Point {
     int x;
     int y;
-    double s; // S(x,y) - значение опеератора
+    double s; // S(x,y) - значение оператора
     Point(int x = 0, int y = 0, double s = 0) {
         this->x = x;
         this->y = y;
@@ -26,15 +25,15 @@ public:
 
 private:
     // Adaptive Non-Maximum Suppression
-    vector<Point> filter(vector<Point> points, const int pointsCount);
+    vector<Point> anmsFilter(vector<Point> points, const int pointsCount);
 
     // Lambda calculation
     double lambda(const Image &image_dx, const Image &image_dy, const int x, const int y, const int radius);
 
     // PorogFilter
-    vector <Point> porogFilter(Image &image, const double porog);
+    vector <Point> thresholdFilter(Image &image_S, const double threshold);
 
-    // local maximum
+    // Local maximum
     vector <Point> localMaximum(const  vector <Point> points);
 };
 

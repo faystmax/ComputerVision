@@ -1,5 +1,4 @@
 #include "Image.h"
-#include "iostream"
 
 Image::Image() {
     this->width = 0;
@@ -11,7 +10,7 @@ Image::Image(const int width, const int height, const EdgeEffect edgeEffect) {
     this->width = width;
     this->height = height;
     this->edgeEffect = edgeEffect;
-    this->pixels.resize(width * height);
+    this->pixels.resize(width * height, 0);
 }
 
 void Image::setPixel(int x, int y, double pixel) {
@@ -19,6 +18,10 @@ void Image::setPixel(int x, int y, double pixel) {
     if (pixel < 0) pixel = 0;
     if (pixel > 255) pixel = 255;
 
+    pixels[x + y * width] = pixel;
+}
+
+void Image::setPixelNoValidation(const int x, const int y, double pixel){
     pixels[x + y * width] = pixel;
 }
 

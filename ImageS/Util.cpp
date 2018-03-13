@@ -1,4 +1,3 @@
-
 template<typename T>
 T clamp(const T min,const T max,const T value){
     if(value<min)

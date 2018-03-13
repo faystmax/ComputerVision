@@ -62,7 +62,7 @@ Kernel KernelCreator::getGauss(const double sigma) {
 Kernel KernelCreator::getGauss(const double sigma, const int radius) {
     double sum = 0;
     double doubleSigma = 2 * sigma * sigma;
-    double mainKoef = 1 / sqrt(2 * M_PI) * sigma;
+    double mainKoef = 1 / (sqrt(2 * M_PI) * sigma);
 
     vector<double> core(radius);
     for (int i = 0; i < radius; i++) {

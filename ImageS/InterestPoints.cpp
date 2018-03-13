@@ -5,11 +5,11 @@
 
 vector<Point> InterestPoints::moravek(Image &image, const double threshold, const int radius, const int pointsCount) {
 
-    vector<double> pointsS(image.getWidth() * image.getHeight(), 0); // weights
-    for (auto x = radius; x < image.getWidth() - radius; x++) {
-        for (auto y = radius; y < image.getHeight() - radius; y++) {
-            array<double,8> localS; // 8 directions
-            localS.fill(0);
+    Image image_S(image.getWidth(),image.getHeight());  // Веса
+
+    for (auto x = 0; x < image.getWidth(); x++) {
+        for (auto y = 0; y < image.getHeight(); y++) {
+            array<double, 8> local_S = { 0 };                    // 8 directions
             for (auto u = -radius; u < radius; u++) {
                 for (auto v = -radius; v < radius; v++) {
                     double directDiff[8];
@@ -24,18 +24,16 @@ vector<Point> InterestPoints::moravek(Image &image, const double threshold, cons
                     directDiff[7] = pixel - image.getPixel(x + u - 1, y + v + 1);
 
                     for (auto i = 0; i < 8; i++) {
-                        localS[i] += directDiff[i] * directDiff[i];
+                        local_S[i] += directDiff[i] * directDiff[i];
                     }
                 }
             }
-
-            pointsS[x + y * image.getWidth()] = *std::min_element(localS.begin(), localS.end());
+            image_S.setPixelNoValidation(x, y, *std::min_element(local_S.begin(), local_S.end()));
         }
     }
 
-    image.setPointsS(pointsS);
-    vector <Point> points = porogFilter(image, threshold);
-    return filter(points, pointsCount);
+    vector <Point> points = thresholdFilter(image_S, threshold);
+    return anmsFilter(points, pointsCount);
 }
 
 vector<Point>  InterestPoints::harris(Image &image, const double threshold, const int radius, const int pointsCount) {
@@ -43,23 +41,23 @@ vector<Point>  InterestPoints::harris(Image &image, const double threshold, cons
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
 
-    vector<double> pointsS(image.getWidth() * image.getHeight(),0);
+    Image image_S(image.getWidth(),image.getHeight());  // Веса
     for (int x = radius; x < image.getWidth() - radius; x++) {
         for (int y = radius; y < image.getHeight() - radius; y++) {
-            pointsS[x + y * image.getWidth()] = lambda(image_dx, image_dy, x, y, radius);
+           image_S.setPixelNoValidation(x, y, lambda(image_dx, image_dy, x, y, radius));
         }
     }
 
-    image.setPointsS(pointsS);
-    vector <Point> points = porogFilter(image, threshold);
-    vector<Point> localMsximumPoints = localMaximum(points);
-    return filter(localMsximumPoints, pointsCount);
+    vector<Point> points = thresholdFilter(image_S, threshold);
+    vector<Point> localMaximumPoints = localMaximum(points);
+    return anmsFilter(localMaximumPoints, pointsCount);
 }
 
-vector<Point> InterestPoints::filter(vector<Point> points, const int pointsCount) {
+// Adaptive Non-Maximum Suppression
+vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsCount) {
 
     vector<bool> flagUsedPoints(points.size(), true);
-    int radius = 3;
+    auto radius = 3;
     int usedPointsCount = points.size();
     while (usedPointsCount > pointsCount) {
         for (unsigned int i = 0; i < points.size(); i++) {
@@ -95,13 +93,11 @@ vector<Point> InterestPoints::filter(vector<Point> points, const int pointsCount
 }
 
 double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, const int x, const int y, const int radius) {
-    double A = 0;
-    double B = 0;
-    double C = 0;
+    double A = 0 , B = 0, C = 0;
     for (auto i = x - radius; i < x + radius; i++) {
         for (auto j = y - radius; j < y + radius; j++) {
-            double curA = image_dx.getPixel(i, j);
-            double curB = image_dy.getPixel(i, j);
+            auto curA = image_dx.getPixel(i, j);
+            auto curB = image_dy.getPixel(i, j);
             A += curA * curA;
             B += curA * curB;
             C += curB * curB;
@@ -111,13 +107,13 @@ double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, cons
     return min(abs((A + C - descreminant) / 2), abs((A + C + descreminant) / 2));
 }
 
-vector <Point> InterestPoints::porogFilter(Image &image, const double porog) {
-    auto pointsS = image.getPointsS();
+vector <Point> InterestPoints::thresholdFilter(Image &image_S, const double threshold) {
+
     vector <Point> points;
-    for (auto i = 0; i < image.getWidth(); i++) {
-        for (auto j = 0; j < image.getHeight(); j++) {
-            if (pointsS[i + j * image.getWidth()] >= porog) {
-                points.push_back(Point(i, j, pointsS[i + j * image.getWidth()]));
+    for (auto i = 0; i < image_S.getWidth(); i++) {
+        for (auto j = 0; j < image_S.getHeight(); j++) {
+            if (image_S.getPixel(i, j) >= threshold) {
+                points.emplace_back(i, j, image_S.getPixel(i, j));
             }
         }
     }

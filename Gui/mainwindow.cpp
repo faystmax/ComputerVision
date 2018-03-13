@@ -70,7 +70,7 @@ void MainWindow::on_priutButton_clicked() {
 }
 
 void MainWindow::on_gaussButton_clicked() {
-    this->image = ImageConverter::convolution(this->image, KernelCreator::getGaussDoubleDim(5, 1, 1));
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getGauss(1));
     showImage(this->image);
 }
 
