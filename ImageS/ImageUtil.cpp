@@ -56,3 +56,7 @@ QImage createImageWithPoints(const Image &image, const vector <Point> &points) {
     }
     return resultImage;
 }
+
+QImage glueImages(const Image &image1, const Image &image2) {
+    //TODO
+}

@@ -10,7 +10,7 @@ class DescriptorCreator;
  * @brief The Vector struct
  * for painting
  */
-struct Vector {
+struct IMAGESSHARED_EXPORT Vector {
     Point start;
     Point end;
     Vector(const Point start, const Point end) {
@@ -23,10 +23,12 @@ struct Vector {
  * @brief The Descriptor class
  * N - Количество корзин * L кол-во гистограмм
  */
-class Descriptor {
+class IMAGESSHARED_EXPORT Descriptor {
 public:
     Descriptor() = default;
     Descriptor(const int size) { data.resize(size);}
+    Descriptor(Descriptor&&) = default;
+    Descriptor& operator=(Descriptor&&) = default;
 
     void normalize();
     double getLength();
@@ -44,7 +46,7 @@ private:
  * @brief The DescriptorCreator class
  * creates Descriptors
  */
-class DescriptorCreator{
+class IMAGESSHARED_EXPORT DescriptorCreator{
 public:
     static double getDistance(const Descriptor &d1, const Descriptor &d2);
     static inline double getGradientValue(const double x, const double y) {return sqrt(x*x + y*y);}

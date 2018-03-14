@@ -35,10 +35,9 @@ private slots:
     void on_pyramidLeftButton_clicked();
     void on_pyramidRightButton_clicked();
     void on_generateLImageButton_clicked();
-
     void on_moravekButton_clicked();
-
     void on_harrisButton_clicked();
+    void on_descriptorButton_clicked();
 
 private:
     int curPyramidIdex = 0;

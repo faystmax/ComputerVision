@@ -2,7 +2,6 @@
 #define INTERESTPOINTS_H
 
 #include "images_global.h"
-#include "iostream"
 #include "Image.h"
 class Image;
 

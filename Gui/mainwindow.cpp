@@ -7,10 +7,13 @@
 #include <QFileDialog>
 #include <QImageReader>
 #include <QGraphicsPixmapItem>
+#include <iostream>
 
 #include "ImageUtil.cpp"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
+#include "Descriptor.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
@@ -179,5 +182,18 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->moravekButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);
     this->ui->generateLImageButton->setEnabled(enable);
+
+}
+
+void MainWindow::on_descriptorButton_clicked() {
+
+    vector <Point> points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
+                                                  this->ui->radiusSpinBox->value(),
+                                                  this->ui->pointsCountSpinBox->value());
+    vector <Descriptor> descriptors = DescriptorCreator::getDescriptors(this->image, points,
+                                                                        this->ui->radiusDescSpinBox->value(),
+                                                                        this->ui->basketCountDescSpinBox->value(),
+                                                                        this->ui->barCharCountDescSpinBox->value());
+
 
 }
