@@ -15,7 +15,6 @@ void Descriptor::normalize() {
     double length = 0;
     for (auto &data : this->data)
         length += data;
-    length = sqrt(length);
     for (auto &data : this->data)
         data /= length;
 }
