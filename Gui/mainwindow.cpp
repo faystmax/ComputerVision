@@ -41,8 +41,8 @@ void MainWindow::on_openImageButton_clicked() {
 
     if (!qImage.isNull()) {
         // Init our Image
-        this->image = constructImage(qImage);
         this->imageOriginal = this->image;
+        this->image = constructImage(qImage);
         ui->edgeEffectComboBox->setCurrentIndex(0);
 
         // Show image in window
@@ -165,7 +165,7 @@ void MainWindow::on_descriptorButton_clicked() {
     vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptors(this->imageOriginal,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
-    QImage result = glueImages(this->imageOriginal, this->image);
+    QImage result = glueImages(this->image, this->imageOriginal);
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
     drawLines(result, this->image.getWidth(), similar);
     showImage(result);

@@ -78,7 +78,7 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
     for (auto i = 0; i < imageRight.getWidth(); i++) {
         for (auto j = 0; j < imageRight.getHeight(); j++) {
             double pixel = imageRight.getPixel(i, j);
-            resultImage.setPixel(i + imageRight.getWidth(), j, qRgb(pixel, pixel, pixel));
+            resultImage.setPixel(i + imageLeft.getWidth(), j, qRgb(pixel, pixel, pixel));
         }
     }
     return resultImage;
