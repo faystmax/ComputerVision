@@ -83,11 +83,15 @@ void MainWindow::on_shiftButton_clicked(){
     showImage(this->image);
 }
 
-
 void MainWindow::on_noiseButton_clicked(){
     this->image = ImageConverter::noise(this->image, 2000);
     showImage(this->image);
 }
+void MainWindow::on_rotateButton_clicked(){
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getRotate());
+    showImage(this->image);
+}
+
 
 /* Pyramids */
 void MainWindow::on_pyramidButton_clicked() {
@@ -218,6 +222,7 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->shiftButton->setEnabled(enable);
     this->ui->noiseButton->setEnabled(enable);
     this->ui->harrisButton->setEnabled(enable);
+    this->ui->rotateButton->setEnabled(enable);
     this->ui->clarityButton->setEnabled(enable);
     this->ui->moravekButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);

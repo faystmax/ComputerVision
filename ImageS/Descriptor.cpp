@@ -63,13 +63,12 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 if (sideBasketIndex > basketCount) sideBasketIndex = 0;
                 if (sideBasketIndex < 0) sideBasketIndex = basketCount - 1;
 
-                // вычисляем центры смежных корзин
+                // вычисляем центр
                 auto mainBasketPhi = mainBasketIndex * sector + halfSector;
-                auto sideBasketPhi = sideBasketIndex * sector + halfSector;
 
-                // распределяем L(value) между ними
-                auto mainBasketValue = (abs(phi - mainBasketPhi) / abs(mainBasketPhi - sideBasketPhi)) * value;
-                auto sideBasketValue = (abs(phi - sideBasketPhi) / abs(mainBasketPhi - sideBasketPhi)) * value;
+                // распределяем L(value)
+                auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
+                auto sideBasketValue = value - mainBasketValue;
 
                 // вычисляем индекс куда записывать значения
                 auto barCharStep = dimension / (barCharCount / 4);
@@ -101,7 +100,7 @@ vector<Vector> DescriptorCreator::findSimilar(const vector<Descriptor> &d1, cons
 
             double dist = getDistance(d1[i], d2[j]);
             // отбрасываем
-            if(indexSimilar != -1 && dist>0 && getDistance(d1[i], d2[indexSimilar])/dist > treshhold){
+            if(indexSimilar != -1 && dist>0 && minDistance/dist > treshhold){
                 indexSimilar = -1;
                 break;
             }

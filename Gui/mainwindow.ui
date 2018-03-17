@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>829</width>
-    <height>502</height>
+    <height>524</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -267,6 +267,25 @@
         </property>
         <property name="text">
          <string>Noise</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="rotateButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>430</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Rotate</string>
         </property>
        </widget>
       </widget>

@@ -43,6 +43,8 @@ private slots:
 
     void on_noiseButton_clicked();
 
+    void on_rotateButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

@@ -33,16 +33,16 @@ Kernel KernelCreator::getClarity() {
 }
 
 Kernel KernelCreator::getSobelX() {
-    vector<double> core = {1, 0, -1,
-                      2, 0, -2,
-                      1, 0, -1};
+    vector<double> core = { -1, 0, 1,
+                            -2, 0, 2,
+                            -1, 0, 1};
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelY() {
-    vector<double> core = { 1,   2,  1,
-                            0,   0,  0,
-                            -1, -2, -1};
+    vector<double> core = { -1, -2, -1,
+                             0,  0,  0,
+                             1,  2,  1};
     return Kernel(3, 3, core);
 }
 
@@ -57,6 +57,13 @@ Kernel KernelCreator::getPriutY() {
     vector<double> core = { 1,  1,   1,
                             0,  0,   0,
                             -1, -1, -1};
+    return Kernel(3, 3, core);
+}
+
+Kernel KernelCreator::getRotate(){
+    vector<double> core = { 1,  0,   0,
+                            0,  cos(M_PI/4),   -sin(M_PI/4),
+                            0, sin(M_PI/4), cos(M_PI/4)};
     return Kernel(3, 3, core);
 }
 
