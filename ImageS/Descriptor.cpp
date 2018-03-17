@@ -28,7 +28,6 @@ double DescriptorCreator::getDistance(const Descriptor &d1, const Descriptor &d2
     double result = 0;
     for (unsigned int i = 0; i < d1.data.size(); i++) {
         double tmp = d1.data[i] - d2.data[i];
-        //std::cout<<d1.data[i]<<" "<<d2.data[i]<<d1.data[i] - d2.data[i]<<std::endl;
         result += tmp * tmp;
     }
     return sqrt(result);
@@ -39,6 +38,9 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
+    auto barCharStep = dimension / (barCharCount / 4);
+    auto barCharCountInLine = (barCharCount / 4);
+
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -71,12 +73,11 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 auto sideBasketValue = value - mainBasketValue;
 
                 // вычисляем индекс куда записывать значения
-                auto barCharStep = dimension / (barCharCount / 4);
                 auto tmp_i = (i / barCharStep) * basketCount;
                 auto tmp_j = (j / barCharStep) * basketCount;
 
-                auto indexMain = tmp_i + tmp_j * (barCharCount / 4) + mainBasketIndex;
-                auto indexSide = tmp_i + tmp_j * (barCharCount / 4) + sideBasketIndex;
+                auto indexMain = tmp_i + tmp_j * barCharCountInLine + mainBasketIndex;
+                auto indexSide = tmp_i + tmp_j * barCharCountInLine + sideBasketIndex;
 
                 // записываем значения
                 descriptors[k].data[indexMain] += mainBasketValue;
@@ -100,7 +101,7 @@ vector<Vector> DescriptorCreator::findSimilar(const vector<Descriptor> &d1, cons
 
             double dist = getDistance(d1[i], d2[j]);
             // отбрасываем
-            if(indexSimilar != -1 && dist>0 && minDistance/dist > treshhold){
+            if(indexSimilar != -1 && dist>0 && dist > minDistance && minDistance/dist > treshhold){
                 indexSimilar = -1;
                 break;
             }

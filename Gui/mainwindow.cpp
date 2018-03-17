@@ -128,10 +128,8 @@ void MainWindow::showPyramidInfo(const Item &item) {
     this->ui->infoPyramidTextEdit->setText(
             QString::fromStdString("Octave:     ") + QString::number(item.octave) + QString::fromStdString("<br>") +
             QString::fromStdString("Scale:      ") + QString::number(item.scale) + QString::fromStdString("<br>") +
-            QString::fromStdString("SigmaScale: ") + QString::number(item.sigmaScale) +
-            QString::fromStdString("<br>") +
-            QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) +
-            QString::fromStdString("<br>"));
+            QString::fromStdString("SigmaScale: ") + QString::number(item.sigmaScale) + QString::fromStdString("<br>") +
+            QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) + QString::fromStdString("<br>"));
 }
 
 /* Interest Points */
