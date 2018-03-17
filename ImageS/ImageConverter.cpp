@@ -58,6 +58,16 @@ Image ImageConverter::priut(const Image &image) {
     return resultImage;
 }
 
+Image ImageConverter::rotate(const Image &image){
+    Image resultImage(image.getHeight(),image.getWidth());
+    for (int i = 0; i < image.getWidth(); i++) {
+        for (int j = 0; j < image.getHeight(); j++) {
+          resultImage.setPixel(j, i, image.getPixel(i,j));
+      }
+    }
+    return resultImage;
+}
+
 Image ImageConverter::noise(const Image &image, const int count){
     srand(time(0));
     Image resultImage(image);

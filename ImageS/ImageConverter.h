@@ -11,6 +11,7 @@ public:
     static Image convolution(const Image &image,const Kernel &core);
     static Image sobel(const Image &image);
     static Image priut(const Image &image);
+    static Image rotate(const Image &image);
     static Image noise(const Image &image, const int count);
     static Image halfReduce(const Image &image);
 };
