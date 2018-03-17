@@ -18,6 +18,13 @@ Kernel KernelCreator::getBlur() {
     return Kernel(3, 3, core);
 }
 
+Kernel KernelCreator::getShift(){
+vector<double> core = {0, 1, 0,
+                       0, 0, 0,
+                       0, 0, 0};
+return Kernel(3, 3, core);
+}
+
 Kernel KernelCreator::getClarity() {
     vector<double> core = { -1, -1, -1,
                             -1,  9, -1,

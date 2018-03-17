@@ -7,39 +7,45 @@
 class DescriptorCreator;
 
 /**
- * @brief The Vector struct
- * for painting
- */
-struct IMAGESSHARED_EXPORT Vector {
-    Point start;
-    Point end;
-    Vector(const Point start, const Point end) {
-        this->start = start;
-        this->end = end;
-    }
-};
-
-/**
  * @brief The Descriptor class
- * N - Количество корзин * L кол-во гистограмм
  */
 class IMAGESSHARED_EXPORT Descriptor {
 public:
     Descriptor() = default;
-    Descriptor(const int size) { data.resize(size);}
+    Descriptor(const int size,  Point interPoint);
+    Descriptor(const Descriptor&) = default ;
     Descriptor(Descriptor&&) = default;
     Descriptor& operator=(Descriptor&&) = default;
+    Descriptor& operator=(const Descriptor&) = default;
 
     void normalize();
-    double getLength();
     int getSize() const { return data.size(); }
     double getAt(const int index) const {return data[index];}
+    Point getInterPoint() const {return interPoint;}
     void clampData(const double min, const double max);
 
 private:
-   vector<double> data; // Гистограммы * Кол-во корзин
+   Point interPoint;    // Интересная точка - центр
+   vector<double> data; // N - Количество корзин * L кол-во гистограмм
 
    friend DescriptorCreator;
+};
+
+/**
+ * @brief The Vector struct
+ * for painting
+ */
+struct IMAGESSHARED_EXPORT Vector {
+    Descriptor first;
+    Descriptor second;
+    Vector(Descriptor first,Descriptor second) {
+        this->first = first;
+        this->second = second;
+    }
+    Vector(Vector&&) = default;
+    Vector(const Vector&) = default ;
+    Vector& operator=(Vector&&) = default;
+    Vector& operator=(const Vector&) = default;
 };
 
 /**
@@ -48,13 +54,15 @@ private:
  */
 class IMAGESSHARED_EXPORT DescriptorCreator{
 public:
-    static double getDistance(const Descriptor &d1, const Descriptor &d2);
-    static inline double getGradientValue(const double x, const double y) {return sqrt(x*x + y*y);}
-    static inline double getGradientDirection(const double x, const double y) {return atan2(y, x);}
-
+    // Поиск самих дескрипторов
     static vector<Descriptor> getDescriptors(const Image& image, const vector<Point> interestPoints,
                                              const int radius, const int basketCount, const int barCharCount);
-
+    // Поиск похожих дескрипторов
+    static vector<Vector> findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold = 0.8);
+private:
+    static double getDistance(const Descriptor &d1, const Descriptor &d2);
+    static inline double getGradientValue(const double x, const double y) {return sqrt(x * x + y * y);}
+    static inline double getGradientDirection(const double x, const double y) {return atan2(y, x);}
 };
 
 #endif // DESCRIPTOR_H

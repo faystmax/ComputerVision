@@ -8,6 +8,7 @@ class IMAGESSHARED_EXPORT KernelCreator {
 public:
     static Kernel getSame();
     static Kernel getBlur();
+    static Kernel getShift();
     static Kernel getClarity();
     static Kernel getSobelX();
     static Kernel getSobelY();

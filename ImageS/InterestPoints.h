@@ -14,6 +14,10 @@ struct Point {
         this->y = y;
         this->s = s;
     };
+    Point(Point&&) = default;
+    Point(const Point&) = default ;
+    Point& operator=(Point&&) = default;
+    Point& operator=(const Point&) = default;
 };
 
 class IMAGESSHARED_EXPORT InterestPoints{

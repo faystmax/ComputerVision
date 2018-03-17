@@ -39,10 +39,15 @@ private slots:
     void on_harrisButton_clicked();
     void on_descriptorButton_clicked();
 
+    void on_shiftButton_clicked();
+
+    void on_noiseButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
     Image image;
+    Image imageOriginal;
     Pyramid pyramid;
     InterestPoints interestPoints;
 

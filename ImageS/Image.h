@@ -1,9 +1,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <QImage>
-#include <memory>
-
 #include "images_global.h"
 #include "Kernel.h"
 #include "InterestPoints.h"
@@ -19,7 +16,7 @@ public:
     Image(Image&&) = default;
     Image(const Image&) = default ;
     Image& operator=(Image&&) = default;
-    Image& operator=(const Image& image) = default;
+    Image& operator=(const Image&) = default;
     Image(const int width , const int height, const EdgeEffect edgeEffect = Mirror );
     ~Image() = default;
 

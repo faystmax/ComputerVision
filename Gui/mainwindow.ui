@@ -44,7 +44,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -229,6 +229,44 @@
         </property>
         <property name="text">
          <string>Priut</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="shiftButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>350</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Shift</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="noiseButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>390</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Noise</string>
         </property>
        </widget>
       </widget>
@@ -641,7 +679,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>100</y>
+          <y>130</y>
           <width>151</width>
           <height>31</height>
          </rect>
@@ -725,7 +763,7 @@
          </font>
         </property>
         <property name="value">
-         <number>4</number>
+         <number>16</number>
         </property>
        </widget>
        <widget class="QLabel" name="label_10">
@@ -762,6 +800,45 @@
         </property>
         <property name="value">
          <number>8</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_11">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>71</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>T</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="TSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>100</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.800000000000000</double>
         </property>
        </widget>
       </widget>

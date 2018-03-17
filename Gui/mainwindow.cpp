@@ -42,6 +42,7 @@ void MainWindow::on_openImageButton_clicked() {
     if (!qImage.isNull()) {
         // Init our Image
         this->image = constructImage(qImage);
+        this->imageOriginal = this->image;
         ui->edgeEffectComboBox->setCurrentIndex(0);
 
         // Show image in window
@@ -77,6 +78,18 @@ void MainWindow::on_gaussButton_clicked() {
     showImage(this->image);
 }
 
+void MainWindow::on_shiftButton_clicked(){
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getShift());
+    showImage(this->image);
+}
+
+
+void MainWindow::on_noiseButton_clicked(){
+    this->image = ImageConverter::noise(this->image, 2000);
+    showImage(this->image);
+}
+
+/* Pyramids */
 void MainWindow::on_pyramidButton_clicked() {
     this->pyramid = Pyramid(this->image, this->ui->scalesSpinBox->value(), this->ui->sigmaSpinBox->value(),
                             this->ui->sigmaStartSpinBox->value());
@@ -132,6 +145,31 @@ void MainWindow::on_harrisButton_clicked() {
     showImage(createImageWithPoints(this->image, points));
 }
 
+/* Descriptors */
+void MainWindow::on_descriptorButton_clicked() {
+    // Vars
+    int treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    vector <Point> points1 = interestPoints.harris(this->image, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptors(this->image, points1,radiusDesc,basketCount, barCharCount);
+
+    vector <Point> points2 = interestPoints.harris(this->imageOriginal, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptors(this->imageOriginal,  points2, radiusDesc,basketCount, barCharCount);
+
+    // Glue and draw
+    QImage result = glueImages(this->imageOriginal, this->image);
+    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+    drawLines(result, this->image.getWidth(), similar);
+    showImage(result);
+}
+
+
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {
         case (0):
@@ -177,23 +215,12 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->gaussButton->setEnabled(enable);
     this->ui->priutButton->setEnabled(enable);
     this->ui->sobelButton->setEnabled(enable);
+    this->ui->shiftButton->setEnabled(enable);
+    this->ui->noiseButton->setEnabled(enable);
     this->ui->harrisButton->setEnabled(enable);
     this->ui->clarityButton->setEnabled(enable);
     this->ui->moravekButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);
+    this->ui->descriptorButton->setEnabled(enable);
     this->ui->generateLImageButton->setEnabled(enable);
-
-}
-
-void MainWindow::on_descriptorButton_clicked() {
-
-    vector <Point> points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
-                                                  this->ui->radiusSpinBox->value(),
-                                                  this->ui->pointsCountSpinBox->value());
-    vector <Descriptor> descriptors = DescriptorCreator::getDescriptors(this->image, points,
-                                                                        this->ui->radiusDescSpinBox->value(),
-                                                                        this->ui->basketCountDescSpinBox->value(),
-                                                                        this->ui->barCharCountDescSpinBox->value());
-
-
 }

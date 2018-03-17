@@ -2,6 +2,8 @@
 #include "KernelCreator.h"
 #include <math.h>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 Image ImageConverter::convolution(const Image &image, const Kernel &core) {
     Image resultImage(image);
@@ -52,6 +54,15 @@ Image ImageConverter::priut(const Image &image) {
             double pixelY = image_dy.getPixel(i, j);
             resultImage.setPixel(i, j, sqrt(pixelX * pixelX + pixelY * pixelY));
         }
+    }
+    return resultImage;
+}
+
+Image ImageConverter::noise(const Image &image, const int count){
+    srand(time(0));
+    Image resultImage(image);
+    for (int i = 0; i < count; i++) {
+        resultImage.setPixel(rand() % image.getWidth(), rand() % image.getHeight(), 150);
     }
     return resultImage;
 }

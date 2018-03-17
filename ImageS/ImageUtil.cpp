@@ -1,7 +1,10 @@
 #include <QImage>
+#include <QPixmap>
+#include <QPainter>
 #include "Image.h"
 #include "Pyramid.h"
 #include "InterestPoints.h"
+#include "Descriptor.h"
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
@@ -57,6 +60,40 @@ QImage createImageWithPoints(const Image &image, const vector <Point> &points) {
     return resultImage;
 }
 
-QImage glueImages(const Image &image1, const Image &image2) {
-    //TODO
+QImage glueImages(const Image &imageLeft, const Image &imageRight) {
+
+    // max height
+    auto height = max(imageLeft.getHeight(),imageRight.getHeight());
+
+    QImage resultImage(imageLeft.getWidth() + imageRight.getWidth(), height, QImage::Format_ARGB32);
+    // imageLeft
+    for (auto i = 0; i < imageLeft.getWidth(); i++) {
+        for (auto j = 0; j < imageLeft.getHeight(); j++) {
+            double pixel = imageLeft.getPixel(i, j);
+            resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
+        }
+    }
+
+    // imageRight
+    for (auto i = 0; i < imageRight.getWidth(); i++) {
+        for (auto j = 0; j < imageRight.getHeight(); j++) {
+            double pixel = imageRight.getPixel(i, j);
+            resultImage.setPixel(i + imageRight.getWidth(), j, qRgb(pixel, pixel, pixel));
+        }
+    }
+    return resultImage;
+}
+
+void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
+    QPainter painter(&image);
+    QPen pen;
+    pen.setWidth(1);
+    pen.setColor(Qt::red);
+    painter.setPen(pen);
+    for (Vector& vec :similar) {
+        Point p1 = vec.first.getInterPoint();
+        Point p2 = vec.second.getInterPoint();
+        painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
+    }
+    painter.end ();
 }

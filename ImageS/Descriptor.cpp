@@ -3,18 +3,21 @@
 #include "ImageConverter.h"
 #include <Util.cpp>
 #include <math.h>
+#include <iostream>
 
-void Descriptor::normalize() {
-    double length = getLength();
-    for (auto &data : this->data)
-        data /= length;
+
+Descriptor::Descriptor(const int size, Point interPoint) {
+    data.resize(size, 0);
+    this->interPoint = interPoint;
 }
 
-double Descriptor::getLength() {
-    auto length = 0;
+void Descriptor::normalize() {
+    double length = 0;
     for (auto &data : this->data)
-        length += data * data;
-    return sqrt(length);
+        length += data;
+    length = sqrt(length);
+    for (auto &data : this->data)
+        data /= length;
 }
 
 void Descriptor::clampData(const double min, const double max) {
@@ -23,9 +26,11 @@ void Descriptor::clampData(const double min, const double max) {
 }
 
 double DescriptorCreator::getDistance(const Descriptor &d1, const Descriptor &d2) {
-    auto result = 0;
-    for (unsigned int i = 0; i < d1.data.size() && i < d2.data.size(); i++) {
-        result += (d1.data[i] - d2.data[i]) * (d1.data[i] - d2.data[i]);
+    double result = 0;
+    for (unsigned int i = 0; i < d1.data.size(); i++) {
+        double tmp = d1.data[i] - d2.data[i];
+        //std::cout<<d1.data[i]<<" "<<d2.data[i]<<d1.data[i] - d2.data[i]<<std::endl;
+        result += tmp * tmp;
     }
     return sqrt(result);
 }
@@ -41,7 +46,7 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
 
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
-        descriptors[k] = Descriptor(barCharCount * basketCount);
+        descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
 
         for (auto i = 0; i < dimension; i++) {
             for (auto j = 0; j < dimension; j++) {
@@ -55,9 +60,7 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
 
                 // получаем индекс корзины в которую входит phi и смежную с ней
                 int mainBasketIndex = floor(phi / sector);
-                int sideBasketIndex =
-                        floor((phi + halfSector) / sector) == mainBasketIndex ? mainBasketIndex - 1 : mainBasketIndex +
-                                                                                                      1;
+                int sideBasketIndex = floor((phi + halfSector) / sector) == mainBasketIndex ? mainBasketIndex - 1 : mainBasketIndex +1;
                 if (sideBasketIndex > basketCount) sideBasketIndex = 0;
                 if (sideBasketIndex < 0) sideBasketIndex = basketCount - 1;
 
@@ -70,12 +73,12 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 auto sideBasketValue = (abs(phi - sideBasketPhi) / abs(mainBasketPhi - sideBasketPhi)) * value;
 
                 // вычисляем индекс куда записывать значения
-                auto barCharStep = dimension / (barCharCount / 2);
-                auto tmp_i = i / barCharStep;
-                auto tmp_j = j / barCharStep;
+                auto barCharStep = dimension / (barCharCount / 4);
+                auto tmp_i = (i / barCharStep) * basketCount;
+                auto tmp_j = (j / barCharStep) * basketCount;
 
-                auto indexMain = tmp_i + tmp_j * (barCharCount / 2) + mainBasketIndex;
-                auto indexSide = tmp_i + tmp_j * (barCharCount / 2) + sideBasketIndex;
+                auto indexMain = tmp_i + tmp_j * (barCharCount / 4) + mainBasketIndex;
+                auto indexSide = tmp_i + tmp_j * (barCharCount / 4) + sideBasketIndex;
 
                 // записываем значения
                 descriptors[k].data[indexMain] += mainBasketValue;
@@ -87,6 +90,33 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
         descriptors[k].normalize();
     }
     return descriptors;
+}
+
+vector<Vector> DescriptorCreator::findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold){
+    vector<Vector> similar;
+
+    for(unsigned int i = 0; i < d1.size(); i++){
+        int indexSimilar = -1;
+        double minDistance = numeric_limits<int>::max();
+        for(unsigned int j = 0; j < d2.size(); j++){
+
+            double dist = getDistance(d1[i], d2[j]);
+            // отбрасываем
+            if(indexSimilar != -1 && dist>0 && getDistance(d1[i], d2[indexSimilar])/dist > treshhold){
+                indexSimilar = -1;
+                break;
+            }
+            if(dist < minDistance){
+                indexSimilar = j;
+                minDistance = dist;
+            }
+        }
+
+        if(indexSimilar != -1){
+            similar.emplace_back(d1[i],d2[indexSimilar]);
+        }
+    }
+    return similar;
 }
 
 
