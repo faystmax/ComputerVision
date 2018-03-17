@@ -60,13 +60,6 @@ Kernel KernelCreator::getPriutY() {
     return Kernel(3, 3, core);
 }
 
-Kernel KernelCreator::getRotate(){
-    vector<double> core = { 1,  0,   0,
-                            0,  cos(M_PI/4),   -sin(M_PI/4),
-                            0, sin(M_PI/4), cos(M_PI/4)};
-    return Kernel(3, 3, core);
-}
-
 Kernel KernelCreator::getGauss(const double sigma) {
     int radius = sigma * 6;
     if (radius % 2 == 0) radius++;

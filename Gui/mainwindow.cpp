@@ -88,8 +88,8 @@ void MainWindow::on_noiseButton_clicked(){
     showImage(this->image);
 }
 void MainWindow::on_rotateButton_clicked(){
-    this->image = ImageConverter::convolution(this->image, KernelCreator::getRotate());
-    showImage(this->image);
+//    this->image = ImageConverter::convolution(this->image, KernelCreator::getRotate());
+//    showImage(this->image);
 }
 
 
