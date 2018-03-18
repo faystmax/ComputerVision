@@ -57,12 +57,18 @@ public:
     // Поиск самих дескрипторов
     static vector<Descriptor> getDescriptors(const Image& image, const vector<Point> interestPoints,
                                              const int radius, const int basketCount, const int barCharCount);
+    // Поиск дескрипторов инвариантых к вращению
+    static vector<Descriptor> getDescriptorsInvRotation(const Image& image, const vector<Point> interestPoints,
+                                             const int radius, const int basketCount, const int barCharCount);
     // Поиск похожих дескрипторов
     static vector<Vector> findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold = 0.8);
 private:
+
     static double getDistance(const Descriptor &d1, const Descriptor &d2);
+    static double getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const int radius);
     static inline double getGradientValue(const double x, const double y) {return sqrt(x * x + y * y);}
     static inline double getGradientDirection(const double x, const double y) {return atan2(y, x);}
+
 };
 
 #endif // DESCRIPTOR_H
