@@ -39,7 +39,6 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
     auto barCharStep = dimension / (barCharCount / 4);
     auto barCharCountInLine = (barCharCount / 4);
 
-
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
 
@@ -58,13 +57,13 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 auto phi = getGradientDirection(gradient_X, gradient_Y);
 
                 // получаем индекс корзины в которую входит phi и смежную с ней
-                int mainBasketIndex = floor(phi / sector);
-                int sideBasketIndex = floor((phi + halfSector) / sector) == mainBasketIndex ? mainBasketIndex - 1 : mainBasketIndex +1;
-                if (sideBasketIndex > basketCount) sideBasketIndex = 0;
-                if (sideBasketIndex < 0) sideBasketIndex = basketCount - 1;
+                int firstBasketIndex = floor(phi / sector);
+                int secondBasketIndex = floor((phi - halfSector) / sector);
+                if (secondBasketIndex > basketCount) secondBasketIndex = 0;
+                if (secondBasketIndex < 0) secondBasketIndex = basketCount - 1;
 
                 // вычисляем центр
-                auto mainBasketPhi = mainBasketIndex * sector + halfSector;
+                auto mainBasketPhi = firstBasketIndex * sector + halfSector;
 
                 // распределяем L(value)
                 auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
@@ -74,8 +73,8 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 auto tmp_i = (i / barCharStep) * basketCount;
                 auto tmp_j = (j / barCharStep) * basketCount;
 
-                auto indexMain = tmp_i + tmp_j * barCharCountInLine + mainBasketIndex;
-                auto indexSide = tmp_i + tmp_j * barCharCountInLine + sideBasketIndex;
+                auto indexMain = tmp_i + tmp_j * barCharCountInLine + firstBasketIndex;
+                auto indexSide = tmp_i + tmp_j * barCharCountInLine + secondBasketIndex;
 
                 // записываем значения
                 descriptors[k].data[indexMain] += mainBasketValue;
@@ -131,6 +130,7 @@ double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image
     auto max = *std::max(values.begin()+1, values.end()-1);
     return max;
 }
+
 /*  Инвариантость к вращению TODO */
 vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &image, const vector<Point> interestPoints,
                                                              const int radius,const int basketCount, const int barCharCount){
@@ -191,25 +191,24 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
 
 vector<Vector> DescriptorCreator::findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold){
     vector<Vector> similar;
-
     for(unsigned int i = 0; i < d1.size(); i++){
-        int indexSimilar = -1;
-        double minDistance = numeric_limits<int>::max();
-        for(unsigned int j = 0; j < d2.size(); j++){
 
+        int indexSimilar = -1;
+        double prevDistance = numeric_limits<int>::max();       // Предыдущий
+        double minDistance = numeric_limits<int>::max();        // Минимальный
+
+        for(unsigned int j = 0; j < d2.size(); j++){
             double dist = getDistance(d1[i], d2[j]);
-            // отбрасываем
-            if(indexSimilar != -1 && dist>0 && dist > minDistance && minDistance/dist > treshhold){
-                indexSimilar = -1;
-                break;
-            }
             if(dist < minDistance){
                 indexSimilar = j;
+                prevDistance = minDistance;
                 minDistance = dist;
             }
         }
 
-        if(indexSimilar != -1){
+        if(minDistance/prevDistance > treshhold){
+            continue;      // отбрасываем
+        } else {
             similar.emplace_back(d1[i],d2[indexSimilar]);
         }
     }
