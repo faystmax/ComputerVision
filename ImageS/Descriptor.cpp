@@ -101,8 +101,10 @@ double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image
     for (auto i = 0; i < dimension; i++) {
         for (auto j = 0; j < dimension; j++) {
             // get Gradient
-            auto gradient_X = image_dx.getPixel(i - radius + point.x, j - radius + point.y);
-            auto gradient_Y = image_dy.getPixel(i - radius + point.x, j - radius + point.y);
+            auto coord_X = i - radius + point.x;
+            auto coord_Y = j - radius + point.y;
+            auto gradient_X = image_dx.getPixel(coord_X + 1, coord_Y) - image_dx.getPixel(coord_X - 1, coord_Y);
+            auto gradient_Y = image_dy.getPixel(coord_X,  coord_Y + 1) - image_dy.getPixel(coord_X,  coord_Y - 1);
 
             // get value and phi
             auto value = getGradientValue(gradient_X, gradient_Y);
@@ -126,7 +128,7 @@ double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image
             values[sideBasketIndex] += sideBasketValue;
         }
     }
-
+    // TODO
     auto max = *std::max(values.begin()+1, values.end()-1);
     return max;
 }
@@ -192,11 +194,9 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
 vector<Vector> DescriptorCreator::findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold){
     vector<Vector> similar;
     for(unsigned int i = 0; i < d1.size(); i++){
-
         int indexSimilar = -1;
-        double prevDistance = numeric_limits<int>::max();       // Предыдущий
-        double minDistance = numeric_limits<int>::max();        // Минимальный
-
+        double prevDistance = numeric_limits<double>::max();       // Предыдущий
+        double minDistance = numeric_limits<double>::max();        // Минимальный
         for(unsigned int j = 0; j < d2.size(); j++){
             double dist = getDistance(d1[i], d2[j]);
             if(dist < minDistance){
