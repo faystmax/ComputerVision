@@ -66,6 +66,12 @@ Kernel KernelCreator::getGauss(const double sigma) {
     return getGauss(sigma, radius);
 }
 
+Kernel KernelCreator::getGaussDoubleDim(const double sigma) {
+    int radius = sigma * 6;
+    if (radius % 2 == 0) radius++;
+    return getGaussDoubleDim(radius, radius, sigma);
+}
+
 Kernel KernelCreator::getGauss(const double sigma, const int radius) {
     double sum = 0;
     double doubleSigma = 2 * sigma * sigma;
@@ -84,7 +90,7 @@ Kernel KernelCreator::getGauss(const double sigma, const int radius) {
 }
 
 
-Kernel KernelCreator::getGaussDoubleDim(int width, int height, double sigma) {
+Kernel KernelCreator::getGaussDoubleDim(const int width,const int height,const double sigma) {
     // Tmp vars
     double sum = 0.0;
     double doubleSigma = 2 * sigma * sigma;

@@ -14,7 +14,7 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
                 for (int y = 0; y < core.getHeight(); y++) {
                     int realI = i + (x - (core.getWidth() / 2));
                     int realJ = j + (y - (core.getHeight() / 2));
-                    resultPixel += image.getPixel(realI, realJ) * core.getCoreAt(x, y);
+                    resultPixel += image.getPixel(realI, realJ) * core.get(x, y);
                 }
             }
             resultImage.setPixel(i, j, resultPixel);

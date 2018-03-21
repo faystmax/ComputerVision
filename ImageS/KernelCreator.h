@@ -15,8 +15,9 @@ public:
     static Kernel getPriutX();
     static Kernel getPriutY();
     static Kernel getGauss(const double sigma);
+    static Kernel getGaussDoubleDim(const double sigma);
     static Kernel getGauss(const double sigma, const int radius);
-    static Kernel getGaussDoubleDim(int width, int height, double sigma);
+    static Kernel getGaussDoubleDim(const int width, const int height, const double sigma);
 };
 
 #endif // CORECREATOR_H

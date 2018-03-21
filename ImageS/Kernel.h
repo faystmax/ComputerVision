@@ -16,7 +16,7 @@ public:
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
-    double getCoreAt(int x, int y) const {return core[x + y * width];}
+    double get(int x, int y) const {return core[x + y * width];}
     void rotate();
 
 private:

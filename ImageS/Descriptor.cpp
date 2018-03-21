@@ -1,4 +1,5 @@
 #include "Descriptor.h"
+#include "Kernel.h"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
 #include <Util.cpp>
@@ -88,59 +89,79 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
     return descriptors;
 }
 
-
-double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image &image_dy,const Point &point, const int radius){
+/* Ориентация точки */
+double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image &image_dy,const Point &point, const Kernel &gauss){
 
     const int basketCount = 36;
 
+    auto radius = (gauss.getWidth()/2);
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
 
-    vector<double> values(basketCount, 0);
+    vector<double> baskets(basketCount, 0);
     for (auto i = 0; i < dimension; i++) {
         for (auto j = 0; j < dimension; j++) {
-            // get Gradient
+            // координаты
             auto coord_X = i - radius + point.x;
             auto coord_Y = j - radius + point.y;
+
+            // градиент
             auto gradient_X = image_dx.getPixel(coord_X + 1, coord_Y) - image_dx.getPixel(coord_X - 1, coord_Y);
             auto gradient_Y = image_dy.getPixel(coord_X,  coord_Y + 1) - image_dy.getPixel(coord_X,  coord_Y - 1);
 
-            // get value and phi
-            auto value = getGradientValue(gradient_X, gradient_Y);
+            // получаем значение(домноженное на Гаусса) и угол
+            auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
-            int mainBasketIndex = floor(phi / sector);
-            int sideBasketIndex = floor((phi + halfSector) / sector) == mainBasketIndex ? mainBasketIndex - 1 : mainBasketIndex +1;
-            if (sideBasketIndex > basketCount) sideBasketIndex = 0;
-            if (sideBasketIndex < 0) sideBasketIndex = basketCount - 1;
+            int firstBasketIndex = floor(phi / sector);
+            int secondBasketIndex = floor((phi - halfSector) / sector);
+            if (secondBasketIndex > basketCount) secondBasketIndex = 0;
+            if (secondBasketIndex < 0) secondBasketIndex = basketCount - 1;
 
             // вычисляем центр
-            auto mainBasketPhi = mainBasketIndex * sector + halfSector;
+            auto mainBasketPhi = firstBasketIndex * sector + halfSector;
 
             // распределяем L(value)
             auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
             auto sideBasketValue = value - mainBasketValue;
 
             // записываем значения
-            values[mainBasketIndex] += mainBasketValue;
-            values[sideBasketIndex] += sideBasketValue;
+            baskets[firstBasketIndex] += mainBasketValue;
+            baskets[secondBasketIndex] += sideBasketValue;
         }
     }
-    // TODO
-    auto max = *std::max(values.begin()+1, values.end()-1);
-    return max;
+    // Ищем Пики
+    auto maxIndex = 0;
+    auto prevMaxIndex = 0;
+    auto max = 0;
+    for(unsigned int i = 0; i < baskets.size(); i++){
+        if(max < baskets[i]){
+            prevMaxIndex = maxIndex;
+            maxIndex = i;
+            max = baskets[i];
+        }
+    }
+    // Проверка на 2 пика TODO
+//    if(baskets[prevMaxIndex]/baskets[maxIndex] >= 0.8){
+//        //Интерполяция параболой
+//        max =
+//    }
+
+    return maxIndex * sector + halfSector;
 }
 
 /*  Инвариантость к вращению TODO */
 vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &image, const vector<Point> interestPoints,
                                                              const int radius,const int basketCount, const int barCharCount){
+    auto sigma = 1.5;
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
     auto barCharStep = dimension / (barCharCount / 4);
     auto barCharCountInLine = (barCharCount / 4);
+    auto gauss = KernelCreator::getGaussDoubleDim(sigma);
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -148,6 +169,7 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
         descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
+        auto phiRotate = getPointOrientation(image_dx,image_dy,interestPoints[k],gauss);    // Ориентация точки
 
         for (auto i = 0; i < dimension; i++) {
             for (auto j = 0; j < dimension; j++) {
@@ -157,27 +179,30 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
 
                 // get value and phi
                 auto value = getGradientValue(gradient_X, gradient_Y);
-                auto phi = getGradientDirection(gradient_X, gradient_Y);
+                auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
+                phi = fmod(phi, 2 * M_PI);  //Shift
 
                 // получаем индекс корзины в которую входит phi и смежную с ней
-                int mainBasketIndex = floor(phi / sector);
-                int sideBasketIndex = floor((phi + halfSector) / sector) == mainBasketIndex ? mainBasketIndex - 1 : mainBasketIndex +1;
-                if (sideBasketIndex > basketCount) sideBasketIndex = 0;
-                if (sideBasketIndex < 0) sideBasketIndex = basketCount - 1;
+                int firstBasketIndex = floor(phi / sector);
+                int secondBasketIndex = floor((phi - halfSector) / sector);
+                if (secondBasketIndex > basketCount) secondBasketIndex = 0;
+                if (secondBasketIndex < 0) secondBasketIndex = basketCount - 1;
 
                 // вычисляем центр
-                auto mainBasketPhi = mainBasketIndex * sector + halfSector;
+                auto mainBasketPhi = firstBasketIndex * sector + halfSector;
 
                 // распределяем L(value)
                 auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
                 auto sideBasketValue = value - mainBasketValue;
 
                 // вычисляем индекс куда записывать значения
-                auto tmp_i = (i / barCharStep) * basketCount;
-                auto tmp_j = (j / barCharStep) * basketCount;
+                auto i_Rotate = i * cos(phiRotate) + j * sin(phiRotate);
+                auto j_Rotate = -i * sin(phiRotate) + j * cos(phiRotate);
+                auto tmp_i = (i_Rotate / barCharStep) * basketCount;
+                auto tmp_j = (j_Rotate / barCharStep) * basketCount;
 
-                auto indexMain = tmp_i + tmp_j * barCharCountInLine + mainBasketIndex;
-                auto indexSide = tmp_i + tmp_j * barCharCountInLine + sideBasketIndex;
+                auto indexMain = tmp_i + tmp_j * barCharCountInLine + firstBasketIndex;
+                auto indexSide = tmp_i + tmp_j * barCharCountInLine + secondBasketIndex;
 
                 // записываем значения
                 descriptors[k].data[indexMain] += mainBasketValue;
