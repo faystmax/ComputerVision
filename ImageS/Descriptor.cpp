@@ -107,8 +107,8 @@ double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image
             auto coord_Y = j - radius + point.y;
 
             // градиент
-            auto gradient_X = image_dx.getPixel(coord_X + 1, coord_Y) - image_dx.getPixel(coord_X - 1, coord_Y);
-            auto gradient_Y = image_dy.getPixel(coord_X,  coord_Y + 1) - image_dy.getPixel(coord_X,  coord_Y - 1);
+            auto gradient_X = image_dx.getPixel(coord_X, coord_Y);
+            auto gradient_Y = image_dy.getPixel(coord_X,  coord_Y);
 
             // получаем значение(домноженное на Гаусса) и угол
             auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
@@ -130,26 +130,23 @@ double DescriptorCreator::getPointOrientation(const Image &image_dx, const Image
             // записываем значения
             baskets[firstBasketIndex] += mainBasketValue;
             baskets[secondBasketIndex] += sideBasketValue;
+
         }
     }
-    // Ищем Пики
-    auto maxIndex = 0;
-    auto prevMaxIndex = 0;
-    auto max = 0;
+    // Ищем Пик
+    double max = 0;
+    int maxBasket = 0;
     for(unsigned int i = 0; i < baskets.size(); i++){
         if(max < baskets[i]){
-            prevMaxIndex = maxIndex;
-            maxIndex = i;
+            maxBasket = i;
             max = baskets[i];
         }
     }
-    // Проверка на 2 пика TODO
-//    if(baskets[prevMaxIndex]/baskets[maxIndex] >= 0.8){
-//        //Интерполяция параболой
-//        max =
-//    }
-
-    return maxIndex * sector + halfSector;
+    // берём левую и правую корзину и интерполируем параболой
+    auto left = baskets[(maxBasket - 1 + basketCount) % basketCount];
+    auto right = baskets[(maxBasket + 1) % basketCount];
+    auto phi = parabaloidInterpolation(left, max, right);
+    return (phi + maxBasket) * sector;
 }
 
 /*  Инвариантость к вращению TODO */
@@ -169,19 +166,24 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
         descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
-        auto phiRotate = getPointOrientation(image_dx,image_dy,interestPoints[k],gauss);    // Ориентация точки
+        auto phiRotate = getPointOrientation(image_dx,image_dy,interestPoints[k], gauss);    // Ориентация точки
 
         for (auto i = 0; i < dimension; i++) {
             for (auto j = 0; j < dimension; j++) {
-                // get Gradient
-                auto gradient_X = image_dx.getPixel(i - radius + interestPoints[k].x, j - radius + interestPoints[k].y);
-                auto gradient_Y = image_dy.getPixel(i - radius + interestPoints[k].x, j - radius + interestPoints[k].y);
 
-                // get value and phi
-                auto value = getGradientValue(gradient_X, gradient_Y);
+                // координаты
+                auto coord_X = i - radius + interestPoints[k].x;
+                auto coord_Y = j - radius + interestPoints[k].y;
+
+                // градиент
+                auto gradient_X = image_dx.getPixel(coord_X, coord_Y);
+                auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
+
+                // получаем значение(домноженное на Гаусса) и угол
+                auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
                 auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                 phi = fmod(phi, 2 * M_PI);  //Shift
-
+                        std::cout<<phi<<" "<<std::endl;
                 // получаем индекс корзины в которую входит phi и смежную с ней
                 int firstBasketIndex = floor(phi / sector);
                 int secondBasketIndex = floor((phi - halfSector) / sector);
@@ -196,8 +198,13 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &ima
                 auto sideBasketValue = value - mainBasketValue;
 
                 // вычисляем индекс куда записывать значения
-                auto i_Rotate = i * cos(phiRotate) + j * sin(phiRotate);
-                auto j_Rotate = -i * sin(phiRotate) + j * cos(phiRotate);
+                int i_Rotate = round(i * cos(phiRotate) + j * sin(phiRotate));
+                int j_Rotate = round(-i * sin(phiRotate) + j * cos(phiRotate));
+
+                // отбрасываем
+                if (i_Rotate <0 || j_Rotate<0 || i_Rotate>=dimension || j_Rotate>=dimension) {
+                    continue;
+                }
                 auto tmp_i = (i_Rotate / barCharStep) * basketCount;
                 auto tmp_j = (j_Rotate / barCharStep) * basketCount;
 

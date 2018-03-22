@@ -159,10 +159,10 @@ void MainWindow::on_descriptorButton_clicked() {
     double T = this->ui->TSpinBox->value();
 
     vector <Point> points1 = interestPoints.harris(this->image, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptors(this->image, points1,radiusDesc,basketCount, barCharCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->image, points1,radiusDesc,basketCount, barCharCount);
 
     vector <Point> points2 = interestPoints.harris(this->imageOriginal, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptors(this->imageOriginal,  points2, radiusDesc,basketCount, barCharCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
     QImage result = glueImages(this->image, this->imageOriginal);
