@@ -205,7 +205,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
                     auto value = getGradientValue(gradient_X, gradient_Y) * gauss_2.get(i, j);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
-                    //std::cout<<phi<<" "<<std::endl;
+
 
                     // получаем индекс корзины в которую входит phi и смежную с ней
                     int firstBasketIndex = floor(phi / sector);
@@ -219,11 +219,11 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
                     auto sideBasketValue = value - mainBasketValue;
 
                     // вычисляем индекс куда записывать значения
-                    int i_Rotate = round(i * cos(phiRotate) + j * sin(phiRotate));
-                    int j_Rotate = round(-i * sin(phiRotate) + j * cos(phiRotate));
-
+                    int i_Rotate = round((i - radius) * cos(phiRotate) +(j- radius) * sin(phiRotate));
+                    int j_Rotate = round(-(i - radius) * sin(phiRotate) + (j- radius) * cos(phiRotate));
+                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
                     // отбрасываем
-                    if (i_Rotate < 0 || j_Rotate < 0 || i_Rotate >= basketCount || j_Rotate >= basketCount) {
+                    if (i_Rotate < -radius || j_Rotate < -radius || i_Rotate >= radius || j_Rotate >= radius) {
                         continue;
                     }
                     auto tmp_i = ((i_Rotate + radius) / barCharStep) * basketCount;
