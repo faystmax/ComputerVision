@@ -138,7 +138,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
 
     vector<double> peaks;
     peaks.push_back(parabaloidInterpolation(baskets, peak_1));
-    if (baskets[peak_2] / baskets[peak_1] >= 0.8) { // Если второй пик не ниже 80%
+    if (peak_2 != -1 && baskets[peak_2] / baskets[peak_1] >= 0.8) { // Если второй пик не ниже 80%
         peaks.push_back(parabaloidInterpolation(baskets, peak_2));
     }
     return peaks;
@@ -158,10 +158,12 @@ double DescriptorCreator::parabaloidInterpolation(const vector<double> &baskets,
 
 /* Поиск пика */
 double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEqual) {
-    int maxBasketIndex = 0;
+    int maxBasketIndex = -1;
     for (unsigned int i = 1; i < baskets.size() - 1; i++) {
-        if (baskets[maxBasketIndex] < baskets[i] && baskets[i] > baskets[i - 1] && baskets[i] > baskets[i + 1]
-            && maxBasketIndex != notEqual) {
+        if (baskets[i] > baskets[i - 1] && baskets[i] > baskets[i + 1] && i != notEqual) {
+            if(maxBasketIndex != -1 && baskets[maxBasketIndex] > baskets[i] ){
+                continue;
+            }
             maxBasketIndex = i;
         }
     }
@@ -179,7 +181,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
     auto barCharCountInLine = (barCharCount / 4);
 
     auto gauss_1 = KernelCreator::getGaussDoubleDim(sigma);
-    auto gauss_2 = KernelCreator::getGaussDoubleDim(radius / 3.0);
+    auto gauss_2 = KernelCreator::getGaussDoubleDim(sigma*2);
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -190,8 +192,8 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
         auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], gauss_1);    // Ориентация точки
 
         for (auto &phiRotate : peaks) {
-            for (auto i = 0; i < dimension; i++) {
-                for (auto j = 0; j < dimension; j++) {
+            for (auto i = 0 ; i < dimension ; i++) {
+                for (auto j = 0 ; j < dimension; j++) {
 
                     // координаты
                     auto coord_X = i - radius + interestPoints[k].x;
@@ -205,7 +207,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
                     auto value = getGradientValue(gradient_X, gradient_Y) * gauss_2.get(i, j);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
-
 
                     // получаем индекс корзины в которую входит phi и смежную с ней
                     int firstBasketIndex = floor(phi / sector);
@@ -221,11 +222,13 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
                     // вычисляем индекс куда записывать значения
                     int i_Rotate = round((i - radius) * cos(phiRotate) +(j- radius) * sin(phiRotate));
                     int j_Rotate = round(-(i - radius) * sin(phiRotate) + (j- radius) * cos(phiRotate));
-                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
+
                     // отбрасываем
                     if (i_Rotate < -radius || j_Rotate < -radius || i_Rotate >= radius || j_Rotate >= radius) {
+                        std::cout<<"drop "<<i_Rotate<<" "<<j_Rotate <<std::endl;
                         continue;
                     }
+                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
                     auto tmp_i = ((i_Rotate + radius) / barCharStep) * basketCount;
                     auto tmp_j = ((j_Rotate + radius) / barCharStep) * basketCount;
 

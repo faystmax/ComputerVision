@@ -70,7 +70,7 @@ vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsC
             for (unsigned int j = i + 1; j < points.size(); j++) {
                 if (flagUsedPoints[j]) {
                     Point &p2 = points[j];
-                    if (p1.s * 0.9 > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
+                    if (p1.s > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
                         flagUsedPoints[j] = false;
                         usedPointsCount--;
                         if (usedPointsCount <= pointsCount) {
