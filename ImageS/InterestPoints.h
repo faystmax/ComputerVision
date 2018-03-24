@@ -23,8 +23,8 @@ struct Point {
 class IMAGESSHARED_EXPORT InterestPoints{
 public:
 
-    vector<Point> moravek(Image &image, const double threshold, const int radius, const int pointsCount);
-    vector<Point> harris(Image &image,const double threshold,const int radius,const int pointsCount);
+    vector<Point> moravek(const Image &image, const double threshold, const int radius, const int pointsCount);
+    vector<Point> harris(const Image &image, const double threshold, const int radius, const int pointsCount);
 
 private:
     // Adaptive Non-Maximum Suppression
@@ -34,10 +34,10 @@ private:
     double lambda(const Image &image_dx, const Image &image_dy, const int x, const int y, const int radius);
 
     // PorogFilter
-    vector <Point> thresholdFilter(Image &image_S, const double threshold);
+    vector <Point> thresholdFilter(const Image &image_S, const double threshold);
 
     // Local maximum
-    vector <Point> localMaximum(const  vector <Point> points);
+    vector <Point> localMaximum(const vector <Point> points, const Image &image_S);
 };
 
 #endif // INTERESTPOINTS_H

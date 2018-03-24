@@ -3,7 +3,7 @@
 #include "ImageConverter.h"
 #include "Image.h"
 
-vector<Point> InterestPoints::moravek(Image &image, const double threshold, const int radius, const int pointsCount) {
+vector<Point> InterestPoints::moravek(const Image &image, const double threshold, const int radius, const int pointsCount) {
 
     Image image_S(image.getWidth(),image.getHeight());  // Веса
 
@@ -36,7 +36,7 @@ vector<Point> InterestPoints::moravek(Image &image, const double threshold, cons
     return anmsFilter(points, pointsCount);
 }
 
-vector<Point>  InterestPoints::harris(Image &image, const double threshold, const int radius, const int pointsCount) {
+vector<Point>  InterestPoints::harris(const Image &image, const double threshold, const int radius, const int pointsCount) {
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -49,7 +49,7 @@ vector<Point>  InterestPoints::harris(Image &image, const double threshold, cons
     }
 
     vector<Point> points = thresholdFilter(image_S, threshold);
-    vector<Point> localMaximumPoints = localMaximum(points);
+    vector<Point> localMaximumPoints = localMaximum(points, image_S);
     return anmsFilter(localMaximumPoints, pointsCount);
 }
 
@@ -70,7 +70,7 @@ vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsC
             for (unsigned int j = i + 1; j < points.size(); j++) {
                 if (flagUsedPoints[j]) {
                     Point &p2 = points[j];
-                    if (p1.s > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
+                    if (p1.s * 0.9 > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
                         flagUsedPoints[j] = false;
                         usedPointsCount--;
                         if (usedPointsCount <= pointsCount) {
@@ -107,7 +107,7 @@ double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, cons
     return min(abs((A + C - descreminant) / 2), abs((A + C + descreminant) / 2));
 }
 
-vector <Point> InterestPoints::thresholdFilter(Image &image_S, const double threshold) {
+vector <Point> InterestPoints::thresholdFilter(const Image &image_S, const double threshold) {
 
     vector <Point> points;
     for (auto i = 0; i < image_S.getWidth(); i++) {
@@ -121,24 +121,27 @@ vector <Point> InterestPoints::thresholdFilter(Image &image_S, const double thre
     return points;
 }
 
-vector<Point> InterestPoints::localMaximum(const vector<Point> points){
+vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Image &image_S){
 
     vector <Point> result;
-    result.push_back(points[0]);
-    const int radius = 5;
+    const int radius = 2;
 
-    for(unsigned int i = 1; i < points.size(); i ++){
+    for(unsigned int i = 0; i < points.size(); i ++){
         auto p1 = points[i];
-        bool flagSwap = false;
-        for(unsigned int j = 0; j < result.size();j++){
-            auto p2 = result[j];
-            if(sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) < radius && p1.s > p2.s){
-                result[j] = p1;
-                flagSwap = true;
-                break;
+        bool flagMaximum = true;
+
+        for (auto j = -radius; j <= radius; ++j) {
+            for (auto k = -radius; k <= radius; ++k) {
+                if(j ==0 && k == 0) continue;
+
+                if (image_S.getPixel(p1.x + j, p1.y + k) >= p1.s) {
+                    flagMaximum = false;
+                    break;
+                }
             }
         }
-        if(flagSwap == false){
+
+        if(flagMaximum == true){
             result.push_back(p1);
         }
     }

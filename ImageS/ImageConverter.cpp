@@ -62,7 +62,7 @@ Image ImageConverter::rotate(const Image &image){
     Image resultImage(image.getHeight(),image.getWidth());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-          resultImage.setPixel(j, i, image.getPixel(i,j));
+          resultImage.setPixel(image.getHeight()-1-j, i, image.getPixel(i,j));
       }
     }
     return resultImage;
