@@ -59,9 +59,7 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
 
                 // получаем индекс корзины в которую входит phi и смежную с ней
                 int firstBasketIndex = floor(phi / sector);
-                int secondBasketIndex = floor((phi - halfSector) / sector);
-                if (secondBasketIndex > basketCount) secondBasketIndex = 0;
-                if (secondBasketIndex < 0) secondBasketIndex = basketCount - 1;
+                int secondBasketIndex = int(floor((phi - halfSector) / sector) + basketCount) % basketCount;
 
                 // вычисляем центр
                 auto mainBasketPhi = firstBasketIndex * sector + halfSector;
@@ -112,7 +110,8 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
             // получаем значение(домноженное на Гаусса) и угол
-            auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
+//            auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
+            auto value = getGradientValue(gradient_X, gradient_Y);
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
@@ -206,6 +205,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 
                     // получаем значение(домноженное на Гаусса) и угол
                     auto value = getGradientValue(gradient_X, gradient_Y) * gauss_2.get(i, j);
+//                    auto value = getGradientValue(gradient_X, gradient_Y);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
 
@@ -226,7 +226,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 
                     // отбрасываем
                     if (i_Rotate < -radius || j_Rotate < -radius || i_Rotate >= radius || j_Rotate >= radius) {
-//                        std::cout<<"drop "<<i_Rotate<<" "<<j_Rotate <<std::endl;
                         continue;
                     }
 
