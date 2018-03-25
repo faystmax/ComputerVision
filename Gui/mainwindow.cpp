@@ -163,16 +163,16 @@ void MainWindow::on_descriptorButton_clicked() {
     int barCharCount = this->ui->barCharCountDescSpinBox->value();
     double T = this->ui->TSpinBox->value();
 
-    vector <Point> points1 = interestPoints.harris(this->image, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->image, points1,radiusDesc,basketCount, barCharCount);
+    vector <Point> points1 = interestPoints.harris(this->imageOriginal, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
 
-    vector <Point> points2 = interestPoints.harris(this->imageOriginal, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal,  points2, radiusDesc,basketCount, barCharCount);
+    vector <Point> points2 = interestPoints.harris(this->image, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
-    QImage result = glueImages(this->image, this->imageOriginal);
+    QImage result = glueImages(this->imageOriginal, this->image);
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
-    drawLines(result, this->image.getWidth(), similar);
+    drawLines(result, this->imageOriginal.getWidth(), similar);
     showImage(result);
 }
 

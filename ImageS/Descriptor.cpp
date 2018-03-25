@@ -71,11 +71,11 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
                 auto sideBasketValue = value - mainBasketValue;
 
                 // вычисляем индекс куда записывать значения
-                auto tmp_i = (i / barCharStep) * basketCount;
-                auto tmp_j = (j / barCharStep) * basketCount;
+                auto tmp_i = i / barCharStep;
+                auto tmp_j = j / barCharStep;
 
-                auto indexMain = tmp_i + tmp_j * barCharCountInLine + firstBasketIndex;
-                auto indexSide = tmp_i + tmp_j * barCharCountInLine + secondBasketIndex;
+                auto indexMain = (tmp_i * barCharCountInLine + tmp_j) * basketCount + firstBasketIndex;
+                auto indexSide = (tmp_i * barCharCountInLine + tmp_j) * basketCount + secondBasketIndex;
 
                 // записываем значения
                 descriptors[k].data[indexMain] += mainBasketValue;
@@ -181,7 +181,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
     auto barCharCountInLine = (barCharCount / 4);
 
     auto gauss_1 = KernelCreator::getGaussDoubleDim(sigma);
-    auto gauss_2 = KernelCreator::getGaussDoubleDim(sigma*2);
+    auto gauss_2 = KernelCreator::getGaussDoubleDim(sigma * 2);
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -225,15 +225,15 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 
                     // отбрасываем
                     if (i_Rotate < -radius || j_Rotate < -radius || i_Rotate >= radius || j_Rotate >= radius) {
-                        std::cout<<"drop "<<i_Rotate<<" "<<j_Rotate <<std::endl;
+//                        std::cout<<"drop "<<i_Rotate<<" "<<j_Rotate <<std::endl;
                         continue;
                     }
-                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
-                    auto tmp_i = ((i_Rotate + radius) / barCharStep) * basketCount;
-                    auto tmp_j = ((j_Rotate + radius) / barCharStep) * basketCount;
+//                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
+                    auto tmp_i = (i_Rotate + radius) / barCharStep;
+                    auto tmp_j = (j_Rotate + radius) / barCharStep;
 
-                    auto indexMain = tmp_i + tmp_j * barCharCountInLine + firstBasketIndex;
-                    auto indexSide = tmp_i + tmp_j * barCharCountInLine + secondBasketIndex;
+                    auto indexMain = (tmp_i * barCharCountInLine + tmp_j) * basketCount + firstBasketIndex;
+                    auto indexSide = (tmp_i * barCharCountInLine + tmp_j) * basketCount + secondBasketIndex;
 
                     // записываем значения
                     descriptors[k].data[indexMain] += mainBasketValue;
