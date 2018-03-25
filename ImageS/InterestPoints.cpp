@@ -42,8 +42,8 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
 
     Image image_S(image.getWidth(),image.getHeight());  // Веса
-    for (int x = radius; x < image.getWidth() - radius; x++) {
-        for (int y = radius; y < image.getHeight() - radius; y++) {
+    for (int x = 0; x < image.getWidth(); x++) {
+        for (int y = 0; y < image.getHeight(); y++) {
            image_S.setPixelNoValidation(x, y, lambda(image_dx, image_dy, x, y, radius));
         }
     }
@@ -70,7 +70,7 @@ vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsC
             for (unsigned int j = i + 1; j < points.size(); j++) {
                 if (flagUsedPoints[j]) {
                     Point &p2 = points[j];
-                    if (p1.s > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
+                    if (p1.s * 0.9 > p2.s && sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)) <= radius) {
                         flagUsedPoints[j] = false;
                         usedPointsCount--;
                         if (usedPointsCount <= pointsCount) {

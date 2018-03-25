@@ -96,7 +96,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
     const int basketCount = 36;
 
     auto radius = (gauss.getWidth() / 2);
-    auto dimension = 2 * radius;
+    auto dimension = gauss.getWidth();
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
 
@@ -159,8 +159,8 @@ double DescriptorCreator::parabaloidInterpolation(const vector<double> &baskets,
 /* Поиск пика */
 double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEqual) {
     int maxBasketIndex = -1;
-    for (unsigned int i = 1; i < baskets.size() - 1; i++) {
-        if (baskets[i] > baskets[i - 1] && baskets[i] > baskets[i + 1] && i != notEqual) {
+    for (unsigned int i = 0; i < baskets.size(); i++) {
+        if (baskets[i] > baskets[(i - 1 + baskets.size()) % baskets.size()] && baskets[i] > baskets[(i + 1) % baskets.size()] && i != notEqual) {
             if(maxBasketIndex != -1 && baskets[maxBasketIndex] > baskets[i] ){
                 continue;
             }

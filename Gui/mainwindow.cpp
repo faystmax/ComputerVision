@@ -27,8 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Black");
     ui->edgeEffectComboBox->addItem("Wrapping");
 
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
+    this->image =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
+    this->image = ImageConverter::rotate(this->image);
+    showImage(this->image);
+
     // Disable all active buttons
-    enableButtons(false);
+    //enableButtons(false);
 }
 
 MainWindow::~MainWindow() {
