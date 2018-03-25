@@ -123,12 +123,12 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto mainBasketPhi = firstBasketIndex * sector + halfSector;
 
             // распределяем L(value)
-            int mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
-            int sideBasketValue = value - mainBasketValue;
+            auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
+            auto sideBasketValue = value - mainBasketValue;
 
             // записываем значения
             firstBasketIndex = clamp(0,basketCount-1,firstBasketIndex);
-            sideBasketValue = clamp(0,basketCount-1,sideBasketValue);
+            secondBasketIndex = clamp(0,basketCount-1,secondBasketIndex);
             baskets[firstBasketIndex] += mainBasketValue;
             baskets[secondBasketIndex] += sideBasketValue;
         }
