@@ -89,12 +89,12 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
 
 /* Ориентация точки */
 vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, const Image &image_dy, const Point &point,
-                                                      const Kernel &gauss) {
+                                                      const int sigma ) {
 
     const int basketCount = 36;
 
-    auto radius = (gauss.getWidth() / 2);
-    auto dimension = gauss.getWidth();
+    auto radius = sigma * 3;
+    auto dimension = radius * 2;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
 
@@ -110,8 +110,8 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
             // получаем значение(домноженное на Гаусса) и угол
-//            auto value = getGradientValue(gradient_X, gradient_Y) * gauss.get(i, j);
-            auto value = getGradientValue(gradient_X, gradient_Y);
+            auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
+//            auto value = getGradientValue(gradient_X, gradient_Y);
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
@@ -174,15 +174,12 @@ double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEq
 /*  Инвариантость к вращению TODO */
 vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &image, const vector <Point> interestPoints,
                                              const int radius, const int basketCount, const int barCharCount) {
-    auto sigma = 3;
+    auto sigma = 20;
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
     auto barCharStep = dimension / (barCharCount / 4);
     auto barCharCountInLine = (barCharCount / 4);
-
-    auto gauss_1 = KernelCreator::getGaussDoubleDim(sigma);
-    auto gauss_2 = KernelCreator::getGaussDoubleDim(sigma * 2);
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -190,7 +187,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
         descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
-        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], gauss_1);    // Ориентация точки
+        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], sigma);    // Ориентация точки
 
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {
@@ -204,7 +201,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
                     auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
                     // получаем значение(домноженное на Гаусса) и угол
-                    auto value = getGradientValue(gradient_X, gradient_Y) * gauss_2.get(i, j);
+                    auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
 //                    auto value = getGradientValue(gradient_X, gradient_Y);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift

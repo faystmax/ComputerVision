@@ -66,7 +66,7 @@ public:
 private:
 
     static double getDistance(const Descriptor &d1, const Descriptor &d2);
-    static vector<double> getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const Kernel &gauss);
+    static vector<double> getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const int sigma);
 
     static inline double getGradientValue(const double x, const double y) {return sqrt(x * x + y * y);}
     static inline double getGradientDirection(const double x, const double y) {return atan2(y, x) + M_PI;}
