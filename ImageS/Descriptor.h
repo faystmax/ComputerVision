@@ -69,7 +69,7 @@ private:
     static vector<double> getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const Kernel &gauss);
 
     static inline double getGradientValue(const double x, const double y) {return sqrt(x * x + y * y);}
-    static inline double getGradientDirection(const double x, const double y) {return atan2(y, x);}
+    static inline double getGradientDirection(const double x, const double y) {return atan2(y, x) + M_PI;}
 
     static double parabaloidInterpolation(const vector<double> &baskets, const int maxIndex);
     static double getPeak(const vector<double> &baskets, const int notEqual =- 1);

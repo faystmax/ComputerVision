@@ -123,10 +123,12 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto mainBasketPhi = firstBasketIndex * sector + halfSector;
 
             // распределяем L(value)
-            auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
-            auto sideBasketValue = value - mainBasketValue;
+            int mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
+            int sideBasketValue = value - mainBasketValue;
 
             // записываем значения
+            firstBasketIndex = clamp(0,basketCount-1,firstBasketIndex);
+            sideBasketValue = clamp(0,basketCount-1,sideBasketValue);
             baskets[firstBasketIndex] += mainBasketValue;
             baskets[secondBasketIndex] += sideBasketValue;
         }
@@ -173,7 +175,7 @@ double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEq
 /*  Инвариантость к вращению TODO */
 vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &image, const vector <Point> interestPoints,
                                              const int radius, const int basketCount, const int barCharCount) {
-    auto sigma = 2;
+    auto sigma = 3;
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
@@ -194,7 +196,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {
                 for (auto j = 0 ; j < dimension; j++) {
-
                     // координаты
                     auto coord_X = i - radius + interestPoints[k].x;
                     auto coord_Y = j - radius + interestPoints[k].y;
@@ -228,7 +229,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 //                        std::cout<<"drop "<<i_Rotate<<" "<<j_Rotate <<std::endl;
                         continue;
                     }
-//                    std::cout<<i_Rotate<<" "<<j_Rotate <<std::endl;
+
                     auto tmp_i = (i_Rotate + radius) / barCharStep;
                     auto tmp_j = (j_Rotate + radius) / barCharStep;
 

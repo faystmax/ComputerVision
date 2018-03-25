@@ -33,16 +33,16 @@ Kernel KernelCreator::getClarity() {
 }
 
 Kernel KernelCreator::getSobelX() {
-    vector<double> core = { -1, 0, 1,
-                            -2, 0, 2,
-                            -1, 0, 1};
+    vector<double> core = { 1, 0, -1,
+                            2, 0, -2,
+                            1, 0, -1};
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelY() {
-    vector<double> core = { -1, -2, -1,
-                             0,  0,  0,
-                             1,  2,  1};
+    vector<double> core = { 1,  2,  1,
+                            0,  0,  0,
+                           -1, -2, -1};
     return Kernel(3, 3, core);
 }
 
