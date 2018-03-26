@@ -6,6 +6,16 @@ Image::Image() {
     this->edgeEffect = EdgeEffect::Black;
 }
 
+Image Image::operator-(const Image &right) const {
+    Image result(this->width, this->height, this->edgeEffect);
+    for (int i = 0; i < this->width; i++) {
+        for (int j = 0; j < this->height; j++) {
+            result.setPixel(i, j, this->getPixel(i, j) - right.getPixel(i, j));
+        }
+    }
+    return result;
+}
+
 Image::Image(const int width, const int height, const EdgeEffect edgeEffect) {
     this->width = width;
     this->height = height;

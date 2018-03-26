@@ -53,6 +53,11 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
     return anmsFilter(localMaximumPoints, pointsCount);
 }
 
+vector <Point>
+InterestPoints::blob(const Image &image, const double threshold, const int radius, const int pointsCount) {
+    // TODO
+}
+
 // Adaptive Non-Maximum Suppression
 vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsCount) {
 

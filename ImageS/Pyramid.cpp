@@ -5,39 +5,46 @@
 #include "math.h"
 
 Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigmaStart) {
-    items.clear();
+
+    /* Reserve data */
     int octaveCount = min(log2(image.getWidth()),log2(image.getHeight()))-1;
     items.reserve(octaveCount * scales);
 
-    double deltaSigma = getDeltaSigma(sigmaStart, sigma);
-    Kernel gauss = KernelCreator::getGauss(deltaSigma);
-    Image image_dx = ImageConverter::convolution(image, gauss);
-    gauss.rotate();
-    items.emplace_back(ImageConverter::convolution(image_dx, gauss), 0, 0, sigma, sigma);
+    /* First image */
+    items.emplace_back(convultionSeparab(image, KernelCreator::getGauss(getDeltaSigma(sigmaStart, sigma))), 0, 0, sigma,
+                       sigma);
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
     double octave = 0;
+    Image tmpLastImage;
 
     // While image can be reduced
     while (octaveCount > 0) {
         double intervalSigma = pow(2, 1.0 / scales);
 
-        for (int i = 0; i < scales; i++) {
+        for (int i = 0; i < scales + 3; i++) {
             double sigmaScalePrev = sigmaScale;
             sigmaScale = sigma * pow(intervalSigma, i + 1);
             double deltaSigma = getDeltaSigma(sigmaScalePrev, sigmaScale);
             sigmaEffect *= intervalSigma;
 
-            gauss = KernelCreator::getGauss(deltaSigma);
-            image_dx = ImageConverter::convolution(getLastImage(), gauss);
-            gauss.rotate();
-            items.emplace_back(ImageConverter::convolution(image_dx, gauss), octave, i + 1, sigmaScale, sigmaEffect);
+            items.emplace_back(convultionSeparab(getLastImage(), KernelCreator::getGauss(deltaSigma)), octave, i + 1,
+                               sigmaScale, sigmaEffect);
+
+            if (i == scales - 1) {
+                tmpLastImage = ImageConverter::halfReduce(getLastImage());
+            }
         }
         octave++;
         sigmaScale = 1;
         octaveCount--;
-        items.emplace_back(ImageConverter::halfReduce(getLastImage()), octave, 0, sigmaScale, sigmaEffect);
+        items.emplace_back(tmpLastImage, octave, 0, sigmaScale, sigmaEffect);
+    }
+
+    /* Construct DOGs TODO*/
+    for (int i = 1; i < items.size(); i++) {
+        dogs.push_back(items[i - 1].image - items[i].image);
     }
 }
 
@@ -58,6 +65,12 @@ int Pyramid::L(int x, int y, double sigma) const {
 
 double Pyramid::getDeltaSigma(double sigmaPrev, double sigmaNext) const {
     return sqrt(sigmaNext * sigmaNext - sigmaPrev * sigmaPrev);
+}
+
+Image Pyramid::convultionSeparab(const Image &image, Kernel &&gaussLine) {
+    Image result = ImageConverter::convolution(image, gaussLine);
+    gaussLine.rotate();
+    return ImageConverter::convolution(result, gaussLine);
 }
 
 Image &Pyramid::getLastImage() {

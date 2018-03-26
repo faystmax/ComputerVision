@@ -29,9 +29,11 @@ public:
 
 private:
     vector<Item> items;
+vector<Image> dogs;
 
-    double getDeltaSigma(double sigmaPrev,double sigmaNext) const;
     Image&  getLastImage();
+double getDeltaSigma(double sigmaPrev, double sigmaNext) const;
+Image convultionSeparab(const Image &image, Kernel &&gaussLine);
 };
 
 #endif // PYRAMID_H

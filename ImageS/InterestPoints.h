@@ -8,12 +8,20 @@ class Image;
 struct Point {
     int x;
     int y;
+    int z;
     double s; // S(x,y) - значение оператора
     Point(int x = 0, int y = 0, double s = 0) {
         this->x = x;
         this->y = y;
         this->s = s;
     };
+
+//    Point(int x = 0, int y = 0, int z = 0, double s = 0) {
+//        this->x = x;
+//        this->y = y;
+//        this->z = z;
+//        this->s = s;
+//    };
     Point(Point&&) = default;
     Point(const Point&) = default ;
     Point& operator=(Point&&) = default;
@@ -25,6 +33,7 @@ public:
 
     vector<Point> moravek(const Image &image, const double threshold, const int radius, const int pointsCount);
     vector<Point> harris(const Image &image, const double threshold, const int radius, const int pointsCount);
+vector<Point> blob(const Image &image, const double threshold, const int radius, const int pointsCount);
 
 private:
     // Adaptive Non-Maximum Suppression
