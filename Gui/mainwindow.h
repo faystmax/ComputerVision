@@ -45,6 +45,8 @@ private slots:
 
     void on_rotateButton_clicked();
 
+    void on_rotaterButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

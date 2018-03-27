@@ -28,18 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Wrapping");
 
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-
-
-    QImage imageRotate(":/resource/img/resource/img/lenna.jpg");
-    QPoint center = imageRotate.rect().center();
-    QMatrix matrix;
-    matrix.translate(center.x(), center.y());
-    matrix.rotate(61);
-    QImage dstImg = imageRotate.transformed(matrix);
-    //QPixmap dstPix = QPixmap::fromImage(dstImg);
-
-    this->image = constructImage(dstImg);
-    //this->image = ImageConverter::rotate(this->image);
+    this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     showImage(this->image);
 
     // Disable all active buttons
@@ -184,6 +173,17 @@ void MainWindow::on_descriptorButton_clicked() {
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
     drawLines(result, this->imageOriginal.getWidth(), similar);
     showImage(result);
+}
+
+void MainWindow::on_rotaterButton_clicked() {
+    QImage outputImage = getOutputImage(this->image);
+    QPoint center = outputImage.rect().center();
+    QMatrix matrix;
+    matrix.translate(center.x(), center.y());
+    matrix.rotate(this->ui->rotateSpinBox->value());
+    QImage dstImg = outputImage.transformed(matrix);
+    this->image = constructImage(dstImg);
+    showImage(this->image);
 }
 
 
