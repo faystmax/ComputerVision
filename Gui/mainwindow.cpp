@@ -28,8 +28,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Wrapping");
 
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    this->image =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    this->image = ImageConverter::rotate(this->image);
+
+
+    QImage imageRotate(":/resource/img/resource/img/lenna.jpg");
+    QPoint center = imageRotate.rect().center();
+    QMatrix matrix;
+    matrix.translate(center.x(), center.y());
+    matrix.rotate(61);
+    QImage dstImg = imageRotate.transformed(matrix);
+    //QPixmap dstPix = QPixmap::fromImage(dstImg);
+
+    this->image = constructImage(dstImg);
+    //this->image = ImageConverter::rotate(this->image);
     showImage(this->image);
 
     // Disable all active buttons
