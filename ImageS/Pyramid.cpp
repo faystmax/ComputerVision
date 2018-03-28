@@ -42,9 +42,11 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
         items.emplace_back(tmpLastImage, octave, 0, sigmaScale, sigmaEffect);
     }
 
-    /* Construct DOGs TODO*/
-    for (int i = 1; i < items.size(); i++) {
-        dogs.push_back(items[i - 1].image - items[i].image);
+    /* Constructs DOGs */
+    for (unsigned int i = 1; i < items.size(); i++) {
+        if(items[i - 1].image.getWidth() == items[i].image.getWidth() && items[i - 1].image.getHeight() == items[i].image.getHeight() ){
+            dogs.push_back(items[i - 1].image - items[i].image);
+        }
     }
 }
 

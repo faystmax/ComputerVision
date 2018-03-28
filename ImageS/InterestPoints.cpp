@@ -1,6 +1,7 @@
 #include "InterestPoints.h"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
+#include "Pyramid.h"
 #include "Image.h"
 
 vector<Point> InterestPoints::moravek(const Image &image, const double threshold, const int radius, const int pointsCount) {
@@ -53,9 +54,19 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
     return anmsFilter(localMaximumPoints, pointsCount);
 }
 
-vector <Point>
-InterestPoints::blob(const Image &image, const double threshold, const int radius, const int pointsCount) {
-    // TODO
+vector <Point> InterestPoints::blob(const Image &image, const double threshold, const int radius, const int pointsCount) {
+    Pyramid pyramid(image);
+
+    vector<Point> points;
+
+    Kernel kernel_x = KernelCreator::getSobelX();
+    Kernel kernel_y = KernelCreator::getSobelY();
+    for (int i = 1;i < pyramid.getDogsSize(); i++) {
+        Image image_dx = ImageConverter::convolution(pyramid.getDog(i), kernel_x);
+        Image image_dy = ImageConverter::convolution(pyramid.getDog(i), kernel_y);
+
+        // TODO harris and extremum
+    }
 }
 
 // Adaptive Non-Maximum Suppression
@@ -151,5 +162,25 @@ vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Ima
         }
     }
     return result;
+}
+
+bool InterestPoints::isExtremum(const Pyramid &pyramid, const int x, const int y, const int z){
+    bool min = true, max = true;
+    double center = pyramid.getDog(z).getPixel(x, y);
+
+    // ищем в 3D
+    for (int i = -1;i <= 1;i++) {
+        for (int j = -1;j <= 1;j++) {
+            for (int k = -1;k <= 1;k++) {
+                if (i == 0 && j == 0 && k == 0) {
+                    continue;   //skip center
+                }
+                double value = pyramid.getDog(z + k).getPixel(x + i, y + j);
+                if (value > center) max = false;
+                if (value < center) min = false;
+            }
+        }
+    }
+    return max || min;
 }
 

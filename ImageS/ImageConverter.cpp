@@ -12,9 +12,9 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
             double resultPixel = 0;
             for (int x = 0; x < core.getWidth(); x++) {
                 for (int y = 0; y < core.getHeight(); y++) {
-                    int realI = i + (x - (core.getWidth() / 2));
-                    int realJ = j + (y - (core.getHeight() / 2));
-                    resultPixel += image.getPixel(realI, realJ) * core.get(x, y);
+                    int real_i = i + (x - (core.getWidth() / 2));
+                    int real_j = j + (y - (core.getHeight() / 2));
+                    resultPixel += image.getPixel(real_i, real_j) * core.get(x, y);
                 }
             }
             resultImage.setPixelNoValidation(i, j, resultPixel);

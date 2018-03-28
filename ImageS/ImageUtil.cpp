@@ -84,16 +84,28 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
     return resultImage;
 }
 
+inline vector<QColor> randomColors(int count){
+    vector<QColor> colors;
+    float currentHue = 0.0;
+    for (int i = 0; i < count; i++){
+        colors.push_back( QColor::fromHslF(currentHue, 1.0, 0.5) );
+        currentHue += 0.618033988749895f;
+        currentHue = std::fmod(currentHue, 1.0f);
+    }
+    return colors;
+}
+
 void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
     QPainter painter(&image);
     QPen pen;
-    pen.setWidth(1);
-    pen.setColor(Qt::red);
-    painter.setPen(pen);
-    for (Vector& vec :similar) {
-        Point p1 = vec.first.getInterPoint();
-        Point p2 = vec.second.getInterPoint();
+    pen.setWidth(2);
+    vector<QColor> colors = randomColors(similar.size());
+    for (unsigned int i = 0; i < similar.size(); i++) {
+        pen.setColor(colors[i]);
+        painter.setPen(pen);
+        Point p1 = similar[i].first.getInterPoint();
+        Point p2 = similar[i].second.getInterPoint();
         painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
     }
-    painter.end ();
+    painter.end();
 }

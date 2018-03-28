@@ -4,6 +4,7 @@
 #include "images_global.h"
 #include "Image.h"
 class Image;
+class Pyramid;
 
 struct Point {
     int x;
@@ -14,14 +15,13 @@ struct Point {
         this->x = x;
         this->y = y;
         this->s = s;
-    };
-
-//    Point(int x = 0, int y = 0, int z = 0, double s = 0) {
-//        this->x = x;
-//        this->y = y;
-//        this->z = z;
-//        this->s = s;
-//    };
+    }
+    Point(int x, int y, int z, double s) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+        this->s = s;
+    }
     Point(Point&&) = default;
     Point(const Point&) = default ;
     Point& operator=(Point&&) = default;
@@ -33,7 +33,7 @@ public:
 
     vector<Point> moravek(const Image &image, const double threshold, const int radius, const int pointsCount);
     vector<Point> harris(const Image &image, const double threshold, const int radius, const int pointsCount);
-vector<Point> blob(const Image &image, const double threshold, const int radius, const int pointsCount);
+    vector<Point> blob(const Image &image, const double threshold, const int radius, const int pointsCount);
 
 private:
     // Adaptive Non-Maximum Suppression
@@ -47,6 +47,9 @@ private:
 
     // Local maximum
     vector <Point> localMaximum(const vector <Point> points, const Image &image_S);
+
+    // Check extremum
+    bool isExtremum(const Pyramid& pyramid,const int x,const int y,const int z);
 };
 
 #endif // INTERESTPOINTS_H

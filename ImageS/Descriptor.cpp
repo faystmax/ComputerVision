@@ -93,7 +93,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
 
     const int basketCount = 36;
 
-    auto radius = sigma * 3;
+    auto radius = sigma;
     auto dimension = radius * 2;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
@@ -111,7 +111,6 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
 
             // получаем значение(домноженное на Гаусса) и угол
             auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
-//            auto value = getGradientValue(gradient_X, gradient_Y);
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
@@ -161,7 +160,7 @@ double DescriptorCreator::parabaloidInterpolation(const vector<double> &baskets,
 double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEqual) {
     int maxBasketIndex = -1;
     for (unsigned int i = 0; i < baskets.size(); i++) {
-        if (baskets[i] > baskets[(i - 1 + baskets.size()) % baskets.size()] && baskets[i] > baskets[(i + 1) % baskets.size()] && i != notEqual) {
+        if (baskets[i] > baskets[(i - 1 + baskets.size()) % baskets.size()] && baskets[i] > baskets[(i + 1) % baskets.size()] && (int)i != notEqual) {
             if(maxBasketIndex != -1 && baskets[maxBasketIndex] > baskets[i] ){
                 continue;
             }
@@ -202,7 +201,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 
                     // получаем значение(домноженное на Гаусса) и угол
                     auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
-//                    auto value = getGradientValue(gradient_X, gradient_Y);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
 

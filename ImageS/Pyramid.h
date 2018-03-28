@@ -21,19 +21,22 @@ struct Item {
 class IMAGESSHARED_EXPORT Pyramid{
 public:
     Pyramid() = default;
-    Pyramid(const Image &image, const int scales = 2, double sigma = 1, double sigmaStart = 0.5);
+    Pyramid(const Image &image, const int scales = 5, double sigma = 1, double sigmaStart = 0.5);
 
     int L(int x, int y, double sigma) const;
     int getItemsSize() const {return items.size();}
-    Item getItem(int index) const {return items.at(index);}
+    Item getItem(int index) const {return items[index];}
+    int getDogsSize() const {return dogs.size();}
+    Image getDog(int index) const {return dogs[index];}
 
 private:
     vector<Item> items;
-vector<Image> dogs;
+    vector<Image> dogs;
 
     Image&  getLastImage();
-double getDeltaSigma(double sigmaPrev, double sigmaNext) const;
-Image convultionSeparab(const Image &image, Kernel &&gaussLine);
+    double getDeltaSigma(double sigmaPrev, double sigmaNext) const;
+    Image convultionSeparab(const Image &image, Kernel &&gaussLine);
+
 };
 
 #endif // PYRAMID_H
