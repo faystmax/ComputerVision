@@ -98,6 +98,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
 
+
     vector<double> baskets(basketCount, 0);
     for (auto i = 0; i < dimension; i++) {
         for (auto j = 0; j < dimension; j++) {

@@ -106,6 +106,23 @@ void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
         Point p1 = similar[i].first.getInterPoint();
         Point p2 = similar[i].second.getInterPoint();
         painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
+
     }
     painter.end();
+}
+
+QImage createImageWithPointsBlob(const Image &image, const vector <Point> &points) {
+    QImage resultImage = getOutputImage(image);
+    QPainter painter(&resultImage);
+    QPen pen;
+    pen.setWidth(2);
+    vector<QColor> colors = randomColors(points.size());
+    for (unsigned int i = 0; i < points.size(); i++) {
+        pen.setColor(colors[i]);
+        painter.setPen(pen);
+        painter.drawEllipse(QPoint(points[i].x,points[i].y), points[i].r, points[i].r);
+        painter.drawPoint(points[i].x,points[i].y);
+    }
+    painter.end();
+    return resultImage;
 }

@@ -11,16 +11,18 @@ struct Point {
     int y;
     int z;
     double s; // S(x,y) - значение оператора
+    double r; // radius
     Point(int x = 0, int y = 0, double s = 0) {
         this->x = x;
         this->y = y;
         this->s = s;
     }
-    Point(int x, int y, int z, double s) {
+    Point(int x, int y, int z, double s, double r = 0) {
         this->x = x;
         this->y = y;
         this->z = z;
         this->s = s;
+        this->r = r;
     }
     Point(Point&&) = default;
     Point(const Point&) = default ;
@@ -49,7 +51,7 @@ private:
     vector <Point> localMaximum(const vector <Point> points, const Image &image_S);
 
     // Check extremum
-    bool isExtremum(const Pyramid& pyramid,const int x,const int y,const int z);
+    bool isExtremum(Pyramid &pyramid, const int x, const int y, const int z);
 };
 
 #endif // INTERESTPOINTS_H

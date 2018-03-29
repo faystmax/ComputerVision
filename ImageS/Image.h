@@ -17,7 +17,7 @@ public:
     Image(const Image&) = default ;
     Image& operator=(Image&&) = default;
     Image& operator=(const Image&) = default;
-Image operator-(const Image& right)const;
+    Image operator-(const Image& right)const;
     Image(const int width , const int height, const EdgeEffect edgeEffect = Mirror );
     ~Image() = default;
 

@@ -151,6 +151,13 @@ void MainWindow::on_harrisButton_clicked() {
     showImage(createImageWithPoints(this->image, points));
 }
 
+void MainWindow::on_blobButton_clicked() {
+    vector <Point> points = interestPoints.blob(this->image, this->ui->ThresholdSpinBox->value(),
+                                                  this->ui->radiusSpinBox->value(),
+                                                  this->ui->pointsCountSpinBox->value());
+    showImage(createImageWithPointsBlob(this->image, points));
+}
+
 /* Descriptors */
 void MainWindow::on_descriptorButton_clicked() {
     // Vars

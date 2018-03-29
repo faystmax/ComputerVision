@@ -56,17 +56,31 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
 
 vector <Point> InterestPoints::blob(const Image &image, const double threshold, const int radius, const int pointsCount) {
     Pyramid pyramid(image);
-
     vector<Point> points;
 
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
-    for (int i = 1;i < pyramid.getDogsSize(); i++) {
-        Image image_dx = ImageConverter::convolution(pyramid.getDog(i), kernel_x);
-        Image image_dy = ImageConverter::convolution(pyramid.getDog(i), kernel_y);
+    for (int z = 1;z < pyramid.getDogsSize()-1; z++) {
+        Image imageDOG = pyramid.getDog(z);
+        Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
+        Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
 
-        // TODO harris and extremum
+        for(int i = 1; i < imageDOG.getWidth(); i++){
+            for(int j = 1; j < imageDOG.getHeight(); j++){
+                if (isExtremum(pyramid, i, j, z)) {
+
+                    // check harris
+                    double lambdaMin = lambda(image_dx, image_dy, i, j, radius);
+                    if (lambdaMin < threshold)
+                        continue; // skip - haris to low
+
+                    int scale = round(image.getWidth()/imageDOG.getWidth()) - 1;
+                    points.emplace_back(i * scale, j * scale, z, lambdaMin, sqrt(2) * scale);
+                }
+            }
+        }
     }
+    return points;
 }
 
 // Adaptive Non-Maximum Suppression
@@ -164,7 +178,7 @@ vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Ima
     return result;
 }
 
-bool InterestPoints::isExtremum(const Pyramid &pyramid, const int x, const int y, const int z){
+bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, const int z){
     bool min = true, max = true;
     double center = pyramid.getDog(z).getPixel(x, y);
 

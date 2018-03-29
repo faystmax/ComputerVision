@@ -7,10 +7,11 @@ Image::Image() {
 }
 
 Image Image::operator-(const Image &right) const {
+    Q_ASSERT(this->width == right.width && this->height == right.height);
     Image result(this->width, this->height, this->edgeEffect);
     for (int i = 0; i < this->width; i++) {
         for (int j = 0; j < this->height; j++) {
-            result.setPixel(i, j, this->getPixel(i, j) - right.getPixel(i, j));
+            result.setPixelNoValidation(i, j, this->getPixel(i, j) - right.getPixel(i, j));
         }
     }
     return result;
