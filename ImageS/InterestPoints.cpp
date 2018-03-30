@@ -61,7 +61,7 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
     for (int z = 1;z < pyramid.getDogsSize()-1; z++) {
-        Image imageDOG = pyramid.getDog(z);
+        Image imageDOG = pyramid.getDog(z).image;
         Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
         Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
 
@@ -75,7 +75,7 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
                         continue; // skip - haris to low
 
                     int scale = round(image.getWidth()/imageDOG.getWidth()) - 1;
-                    points.emplace_back(i * scale, j * scale, z, lambdaMin, sqrt(2) * scale);
+                    points.emplace_back(i * scale, j * scale, z, lambdaMin, sqrt(2) * pyramid.getDog(z).sigmaEffect);
                 }
             }
         }
@@ -180,7 +180,7 @@ vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Ima
 
 bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, const int z){
     bool min = true, max = true;
-    double center = pyramid.getDog(z).getPixel(x, y);
+    double center = pyramid.getDog(z).image.getPixel(x, y);
 
     // ищем в 3D
     for (int i = -1;i <= 1;i++) {
@@ -189,7 +189,7 @@ bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, cons
                 if (i == 0 && j == 0 && k == 0) {
                     continue;   //skip center
                 }
-                double value = pyramid.getDog(z + k).getPixel(x + i, y + j);
+                double value = pyramid.getDog(z + k).image.getPixel(x + i, y + j);
                 if (value > center) max = false;
                 if (value < center) min = false;
             }

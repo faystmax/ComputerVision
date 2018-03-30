@@ -11,8 +11,7 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
     items.reserve(octaveCount * scales);
 
     /* First image */
-    items.emplace_back(convultionSeparab(image, KernelCreator::getGauss(getDeltaSigma(sigmaStart, sigma))), 0, 0, sigma,
-                       sigma);
+    items.emplace_back(convultionSeparab(image, KernelCreator::getGauss(getDeltaSigma(sigmaStart, sigma))), 0, 0, sigma, sigma);
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
@@ -45,7 +44,8 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
     /* Constructs DOGs */
     for (unsigned int i = 1; i < items.size(); i++) {
         if(items[i - 1].image.getWidth() == items[i].image.getWidth() && items[i - 1].image.getHeight() == items[i].image.getHeight() ){
-            dogs.push_back(items[i - 1].image - items[i].image);
+            Item& item = items[i];
+            dogs.emplace_back(items[i - 1].image - item.image,item.octave, item.scale, item.sigmaScale, item.sigmaEffect);
         }
     }
 }

@@ -27,11 +27,11 @@ public:
     int getItemsSize() const {return items.size();}
     Item getItem(int index) const {return items[index];}
     int getDogsSize() const {return dogs.size();}
-    Image& getDog(int index) {return dogs[index];}
+    Item& getDog(int index) {return dogs[index];}
 
 private:
     vector<Item> items;
-    vector<Image> dogs;
+    vector<Item> dogs;
 
     Image&  getLastImage();
     double getDeltaSigma(double sigmaPrev, double sigmaNext) const;
