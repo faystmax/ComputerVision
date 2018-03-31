@@ -36,6 +36,10 @@ void Image::setPixelNoValidation(const int x, const int y, double pixel){
     pixels[x + y * width] = pixel;
 }
 
+bool Image::sizeEq(Image &img1, Image &img2){
+    return img1.width == img2.width && img1.height == img1.height;
+}
+
 double Image::getPixel(int x, int y) const {
     if (x < width && x > -1 && y < height && y > -1)
         return pixels[x + y * width];

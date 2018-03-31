@@ -3,6 +3,7 @@
 #include "ImageConverter.h"
 #include "Pyramid.h"
 #include "Image.h"
+#include "iostream"
 
 vector<Point> InterestPoints::moravek(const Image &image, const double threshold, const int radius, const int pointsCount) {
 
@@ -60,7 +61,7 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
 
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
-    for (int z = 1;z < pyramid.getDogsSize()-1; z++) {
+    for (int z = 1;z < pyramid.getDogsSize() - 1; z++) {
         Image imageDOG = pyramid.getDog(z).image;
         Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
         Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
@@ -74,8 +75,10 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 
-                    int scale = round(image.getWidth()/imageDOG.getWidth()) - 1;
-                    points.emplace_back(i * scale, j * scale, z, lambdaMin, sqrt(2) * pyramid.getDog(z).sigmaEffect);
+                    int octave = pyramid.getDog(z).octave + 1;
+                    double radius = sqrt(2) * pyramid.getDog(z).sigmaEffect;
+                    std::cout<<radius<<std::endl;
+                    points.emplace_back(i * octave, j * octave, z, lambdaMin, radius);
                 }
             }
         }

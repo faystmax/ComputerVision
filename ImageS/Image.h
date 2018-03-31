@@ -24,6 +24,7 @@ public:
     double getPixel(const int x,const int y) const;
     void setPixel(const int x,const int y, double pixel);
     void setPixelNoValidation(const int x,const int y, double pixel);
+    static bool sizeEq(Image& img1,Image& img2);
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
