@@ -13,8 +13,10 @@ public:
     static Image priut(const Image &image);
     static Image rotate(const Image &image);
     static Image halfReduce(const Image &image);
+    static Image bilinearHalfReduce(const Image &image);
     static Image noise(const Image &image, const int count);
     static Image convolution(const Image &image, const Kernel &core);
+
 };
 
 #endif // IMAGECONVERTER_H

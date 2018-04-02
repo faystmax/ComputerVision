@@ -3,11 +3,13 @@
 #include "KernelCreator.h"
 #include "ImageConverter.h"
 #include "math.h"
+#include "iostream"
 
 Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigmaStart) {
 
     /* Reserve data */
     int octaveCount = min(log2(image.getWidth()),log2(image.getHeight()))-1;
+    std::cout<<"octaveCount "<<octaveCount<<std::endl;
     items.reserve(octaveCount * scales);
 
     /* First image */
@@ -15,6 +17,7 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
+    double tmpSigmaEffect;
     double octave = 0;
     Image tmpLastImage;
 
@@ -32,12 +35,14 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
                                sigmaScale, sigmaEffect);
 
             if (i == scales - 1) {
-                tmpLastImage = ImageConverter::halfReduce(getLastImage());
+                tmpLastImage = ImageConverter::bilinearHalfReduce(getLastImage());
+                tmpSigmaEffect = sigmaEffect;
             }
         }
         octave++;
         sigmaScale = 1;
         octaveCount--;
+        sigmaEffect = tmpSigmaEffect;
         items.emplace_back(tmpLastImage, octave, 0, sigmaScale, sigmaEffect);
     }
 

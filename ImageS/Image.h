@@ -18,7 +18,7 @@ public:
     Image& operator=(Image&&) = default;
     Image& operator=(const Image&) = default;
     Image operator-(const Image& right)const;
-    Image(const int width , const int height, const EdgeEffect edgeEffect = Mirror );
+    Image(const int width , const int height, const EdgeEffect edgeEffect = Repeat );
     ~Image() = default;
 
     double getPixel(const int x,const int y) const;

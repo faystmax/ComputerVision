@@ -62,7 +62,7 @@ Image ImageConverter::rotate(const Image &image){
     Image resultImage(image.getHeight(),image.getWidth());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-          resultImage.setPixelNoValidation(image.getHeight()-1-j, i, image.getPixel(i,j));
+          resultImage.setPixelNoValidation(image.getHeight() -1 -j, i, image.getPixel(i,j));
       }
     }
     return resultImage;
@@ -80,11 +80,35 @@ Image ImageConverter::noise(const Image &image, const int count){
 Image ImageConverter::halfReduce(const Image &image) {
     Image resultImage(image.getWidth() / 2, image.getHeight() / 2);
     resultImage.setEdgeEffect(image.getEdgeEffect());
-    for (int i = 0; i < image.getWidth() / 2; i++) {
-        for (int j = 0; j < image.getHeight() / 2; j++) {
+    for (int i = 0; i < resultImage.getWidth(); i++) {
+        for (int j = 0; j < resultImage.getHeight(); j++) {
             double resullPixel = (image.getPixel(2 * i, 2 * j) + image.getPixel(2 * i + 1, 2 * j) +
                                   image.getPixel(2 * i, 2 * j + 1) + image.getPixel(2 * i + 1, 2 * j + 1)) / 4;
             resultImage.setPixel(i, j, resullPixel);
+        }
+    }
+    return resultImage;
+}
+
+
+Image ImageConverter::bilinearHalfReduce(const Image &image){
+    Image resultImage(image.getWidth() / 2, image.getHeight() / 2);
+    resultImage.setEdgeEffect(image.getEdgeEffect());
+    double x_koef = image.getWidth()  / (image.getWidth()/2.);
+    double y_koef = image.getHeight()  / (image.getHeight()/2.);
+
+    for (auto i = 0; i < resultImage.getWidth(); i++) {
+        for (auto j = 0; j < resultImage.getHeight(); j++) {
+
+            int x = x_koef * i;
+            int y = y_koef * j;
+            double x_ost = (x_koef * i) - x;
+            double y_ost = (y_koef * j) - y;
+            double p1 = image.getPixel(x, y) * (1 - x_ost) * (1 - y_ost);
+            double p2 = image.getPixel(x + 1, y) * (x_ost) * (1 - y_ost);
+            double p3 = image.getPixel(x, y + 1) * (1 - x_ost) * (y_ost);
+            double p4 = image.getPixel(x + 1, y + 1) * (x_ost * y_ost);
+            resultImage.setPixel(i, j, p1 + p2 + p3 + p4);
         }
     }
     return resultImage;

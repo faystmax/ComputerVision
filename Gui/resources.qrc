@@ -4,6 +4,8 @@
         <file>resource/img/2.jpg</file>
         <file>resource/img/3.jpg</file>
         <file>resource/img/lenna.jpg</file>
+        <file>resource/img/big_lenna.jpg</file>
+        <file>resource/img/blob.png</file>
     </qresource>
     <qresource prefix="/icons">
         <file>resource/icons/main.png</file>

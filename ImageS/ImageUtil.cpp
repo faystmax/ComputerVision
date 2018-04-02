@@ -17,7 +17,7 @@ QImage getOutputImage(const Image &image) {
     return resultImage;
 }
 
-Image constructImage(const QImage &image, const Image::EdgeEffect edgeEffect = Image::EdgeEffect::Mirror) {
+Image constructImage(const QImage &image, const Image::EdgeEffect edgeEffect = Image::EdgeEffect::Repeat) {
 
     Image resultImage(image.width(), image.height(), edgeEffect);
 

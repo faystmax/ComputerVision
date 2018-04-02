@@ -22,13 +22,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->graphicsView->setScene(new QGraphicsScene());
 
     // Fill combobox edgeEffects
-    ui->edgeEffectComboBox->addItem("Mirror");
     ui->edgeEffectComboBox->addItem("Repeat");
+    ui->edgeEffectComboBox->addItem("Mirror");
     ui->edgeEffectComboBox->addItem("Black");
     ui->edgeEffectComboBox->addItem("Wrapping");
 
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/big_lenna.jpg"));
     showImage(this->image);
 
     // Disable all active buttons
@@ -169,10 +169,10 @@ void MainWindow::on_descriptorButton_clicked() {
     int barCharCount = this->ui->barCharCountDescSpinBox->value();
     double T = this->ui->TSpinBox->value();
 
-    vector <Point> points1 = interestPoints.harris(this->imageOriginal, treshold,radius,pointsCount);
+    vector <Point> points1 = interestPoints.blob(this->imageOriginal, treshold,radius,pointsCount);
     vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
 
-    vector <Point> points2 = interestPoints.harris(this->image, treshold,radius,pointsCount);
+    vector <Point> points2 = interestPoints.blob(this->image, treshold,radius,pointsCount);
     vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
@@ -197,10 +197,10 @@ void MainWindow::on_rotaterButton_clicked() {
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {
         case (0):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Mirror);
+            return this->image.setEdgeEffect(Image::EdgeEffect::Repeat);
             break;
         case (1):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Repeat);
+            return this->image.setEdgeEffect(Image::EdgeEffect::Mirror);
             break;
         case (2):
             return this->image.setEdgeEffect(Image::EdgeEffect::Black);

@@ -3,7 +3,7 @@
 Image::Image() {
     this->width = 0;
     this->height = 0;
-    this->edgeEffect = EdgeEffect::Black;
+    this->edgeEffect = EdgeEffect::Repeat;
 }
 
 Image Image::operator-(const Image &right) const {
