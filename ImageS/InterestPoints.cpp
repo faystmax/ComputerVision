@@ -78,7 +78,6 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
                     double step_W = double(image.getWidth()) / imageDOG.getWidth();
                     double step_H = double(image.getHeight()) / imageDOG.getHeight();
                     double radius = sqrt(2) * pyramid.getDog(z).sigmaEffect;
-                    std::cout << radius << std::endl;
                     points.emplace_back(round(i * step_W), round(j * step_H), z, lambdaMin, radius);
                 }
             }

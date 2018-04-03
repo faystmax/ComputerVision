@@ -49,6 +49,8 @@ private slots:
 
     void on_blobButton_clicked();
 
+    void on_scaleButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

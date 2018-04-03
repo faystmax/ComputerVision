@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Wrapping");
 
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    this->image = constructImage(QImage(":/resource/img/resource/img/big_lenna.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     showImage(this->image);
 
     // Disable all active buttons
@@ -193,6 +193,13 @@ void MainWindow::on_rotaterButton_clicked() {
     showImage(this->image);
 }
 
+
+void MainWindow::on_scaleButton_clicked(){
+    QImage outputImage = getOutputImage(this->image);
+    QImage rotateImage = outputImage.scaled(outputImage.width() + this->ui->scaleSpinBox->value(), outputImage.height() + this->ui->scaleSpinBox->value(),Qt::KeepAspectRatio);
+    this->image = constructImage(rotateImage);
+    showImage(this->image);
+}
 
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {

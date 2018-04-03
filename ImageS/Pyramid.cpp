@@ -17,7 +17,6 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
 
     double sigmaScale = sigma;
     double sigmaEffect = sigma;
-    double tmpSigmaEffect;
     double octave = 0;
     Image tmpLastImage;
 
@@ -29,20 +28,20 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
             double sigmaScalePrev = sigmaScale;
             sigmaScale = sigma * pow(intervalSigma, i + 1);
             double deltaSigma = getDeltaSigma(sigmaScalePrev, sigmaScale);
-            sigmaEffect *= intervalSigma;
+            sigmaEffect = sigmaScale *  pow(2, octave);
 
             items.emplace_back(convultionSeparab(getLastImage(), KernelCreator::getGauss(deltaSigma)), octave, i + 1,
                                sigmaScale, sigmaEffect);
 
             if (i == scales - 1) {
                 tmpLastImage = ImageConverter::bilinearHalfReduce(getLastImage());
-                tmpSigmaEffect = sigmaEffect;
             }
         }
         octave++;
+       sigmaEffect = sigma *  pow(2, octave);
         sigmaScale = 1;
         octaveCount--;
-        sigmaEffect = tmpSigmaEffect;
+
         items.emplace_back(tmpLastImage, octave, 0, sigmaScale, sigmaEffect);
     }
 
