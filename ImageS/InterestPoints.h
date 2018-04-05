@@ -11,18 +11,20 @@ struct Point {
     int y;
     int z;
     double s; // S(x,y) - значение оператора
-    double r; // radius
+    double sigmaScale;
+    double sigmaEffect;
     Point(int x = 0, int y = 0, double s = 0) {
         this->x = x;
         this->y = y;
         this->s = s;
     }
-    Point(int x, int y, int z, double s, double r = 0) {
+    Point(int x, int y, int z, double s, double sigmaScale = 0, double sigmaEffect = 0) {
         this->x = x;
         this->y = y;
         this->z = z;
         this->s = s;
-        this->r = r;
+        this->sigmaScale = sigmaScale;
+        this->sigmaEffect = sigmaEffect;
     }
     Point(Point&&) = default;
     Point(const Point&) = default ;
@@ -35,8 +37,10 @@ public:
 
     vector<Point> moravek(const Image &image, const double threshold, const int radius, const int pointsCount);
     vector<Point> harris(const Image &image, const double threshold, const int radius, const int pointsCount);
-    vector<Point> blob(const Image &image, const double threshold, const int radius, const int pointsCount);
+    vector<Point> blob(Pyramid &pyramid, const double threshold, const int radius, const int pointsCount);
 
+    // Восстановление точек
+    void restorePoints(Pyramid &pyramid, vector<Point> &points);
 private:
     // Adaptive Non-Maximum Suppression
     vector<Point> anmsFilter(vector<Point> points, const int pointsCount);

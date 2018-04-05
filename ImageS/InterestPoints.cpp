@@ -55,13 +55,12 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
     return anmsFilter(localMaximumPoints, pointsCount);
 }
 
-vector <Point> InterestPoints::blob(const Image &image, const double threshold, const int radius, const int pointsCount) {
-    Pyramid pyramid(image);
-    vector<Point> points;
+vector <Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, const int radius, const int pointsCount) {
 
+    vector<Point> points;
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
-    for (int z = 1; z < pyramid.getDogsSize() - 4; z++) {
+    for (int z = 1; z < pyramid.getDogsSize() - 1; z++) {
         Image imageDOG = pyramid.getDog(z).image;
         Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
         Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
@@ -71,16 +70,13 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
                 if (isExtremum(pyramid, i, j, z)) {
 
                     // check harris
-                    double val = pyramid.getDog(z).sigmaScale/1.6  ;
-                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<std::endl;
+                    double val = pyramid.getDog(z).sigmaScale/pyramid.getDog(0).sigmaScale;
+//                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<std::endl;
                     double lambdaMin = lambda(image_dx, image_dy, i, j, radius * val);
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 
-                    double step_W = double(image.getWidth()) / imageDOG.getWidth();
-                    double step_H = double(image.getHeight()) / imageDOG.getHeight();
-                    double radius = sqrt(2) * pyramid.getDog(z).sigmaEffect;
-                    points.emplace_back(round(i * step_W), round(j * step_H), z, lambdaMin, radius);
+                      points.emplace_back(i, j, z, lambdaMin, pyramid.getDog(z).sigmaScale, pyramid.getDog(z).sigmaEffect);
                 }
             }
         }
@@ -91,6 +87,16 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
     if(points.size()>pointsCount)
         points.resize(pointsCount);
     return points;
+}
+
+void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
+    for (auto& point: points) {
+        //приводим к оригинальному масштабу
+        double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(point.z).image.getWidth();
+        double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(point.z).image.getHeight();
+        point.x = round(point.x * step_W);
+        point.y = round(point.y * step_H);
+    }
 }
 
 bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, const int z){

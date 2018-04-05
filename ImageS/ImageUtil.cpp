@@ -120,9 +120,11 @@ QImage createImageWithPointsBlob(const Image &image, const vector <Point> &point
     for (unsigned int i = 0; i < points.size(); i++) {
         pen.setColor(colors[i]);
         painter.setPen(pen);
-        painter.drawEllipse(QPoint(points[i].x,points[i].y), points[i].r, points[i].r);
-        painter.drawPoint(points[i].x,points[i].y);
+        double radius = sqrt(2) * points[i].sigmaEffect;
+        painter.drawEllipse(QPoint(points[i].x,points[i].y), radius, radius);
+        painter.drawPoint(points[i].x, points[i].y);
     }
     painter.end();
     return resultImage;
 }
+

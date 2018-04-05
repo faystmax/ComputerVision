@@ -1,5 +1,6 @@
 #include "Descriptor.h"
 #include "Kernel.h"
+#include "Pyramid.h"
 #include "KernelCreator.h"
 #include "ImageConverter.h"
 #include <Util.cpp>
@@ -171,9 +172,9 @@ double DescriptorCreator::getPeak(const vector<double> &baskets, const int notEq
     return maxBasketIndex;
 }
 
-/*  Инвариантость к вращению TODO */
+/*  Инвариантость к вращению  */
 vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &image, const vector <Point> interestPoints,
-                                             const int radius, const int basketCount, const int barCharCount) {
+                                                                 const int radius, const int basketCount, const int barCharCount) {
     auto sigma = 20;
     auto dimension = 2 * radius;
     auto sector = 2 * M_PI / basketCount;
@@ -243,6 +244,94 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
     }
     return descriptors;
 }
+
+/*  Инвариантость к вращению и масштабу */
+vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &pyramid, vector <Point> interestPoints,const int _radius,
+                                                                      const int basketCount, const int barCharCount) {
+    auto sigma = 20;
+    auto sector = 2 * M_PI / basketCount;
+    auto halfSector = M_PI / basketCount;
+    auto barCharCountInLine = (barCharCount / 4);
+
+
+    vector <Descriptor> descriptors(interestPoints.size());
+    for (unsigned int k = 0; k < interestPoints.size(); k++) {
+        descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
+
+        int radius = _radius *(interestPoints[k].sigmaScale/pyramid.getDog(0).sigmaScale);
+        int dimension = 2 * radius;
+        int barCharStep = dimension / (barCharCount / 4);
+        Image image_dx = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelX());
+        Image image_dy = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelY());
+
+        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], sigma);    // Ориентация точки
+
+        for (auto &phiRotate : peaks) {
+            for (auto i = 0 ; i < dimension ; i++) {
+                for (auto j = 0 ; j < dimension; j++) {
+                    // координаты
+                    auto coord_X = i - radius + interestPoints[k].x;
+                    auto coord_Y = j - radius + interestPoints[k].y;
+
+                    // градиент
+                    auto gradient_X = image_dx.getPixel(coord_X, coord_Y);
+                    auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
+
+                    // получаем значение(домноженное на Гаусса) и угол
+                    auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
+                    auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
+                    phi = fmod(phi, 2 * M_PI);  // Shift
+
+                    // получаем индекс корзины в которую входит phi и смежную с ней
+                    int firstBasketIndex = floor(phi / sector);
+                    int secondBasketIndex = int(floor((phi - halfSector) / sector) + basketCount) % basketCount;
+
+                    // вычисляем центр
+                    auto mainBasketPhi = firstBasketIndex * sector + halfSector;
+
+                    // распределяем L(value)
+                    auto mainBasketValue = (1 - (abs(phi - mainBasketPhi) / sector)) * value;
+                    auto sideBasketValue = value - mainBasketValue;
+
+                    // вычисляем индекс куда записывать значения
+                    int i_Rotate = round((i - radius) * cos(phiRotate) +(j- radius) * sin(phiRotate));
+                    int j_Rotate = round(-(i - radius) * sin(phiRotate) + (j- radius) * cos(phiRotate));
+
+                    // отбрасываем
+                    if (i_Rotate < -radius || j_Rotate < -radius || i_Rotate >= radius || j_Rotate >= radius) {
+                        continue;
+                    }
+
+                    auto tmp_i = (i_Rotate + radius) / barCharStep;
+                    auto tmp_j = (j_Rotate + radius) / barCharStep;
+
+                    auto indexMain = (tmp_i * barCharCountInLine + tmp_j) * basketCount + firstBasketIndex;
+                    auto indexSide = (tmp_i * barCharCountInLine + tmp_j) * basketCount + secondBasketIndex;
+
+                    // записываем значения
+                     std::cout<<indexMain<<" "<<indexSide<<std::endl;
+                    Q_ASSERT(indexMain>-1 && indexMain<128 && indexSide>-1 && indexSide<128);
+
+                    descriptors[k].data[indexMain] += mainBasketValue;
+                    descriptors[k].data[indexSide] += sideBasketValue;
+                }
+            }
+            descriptors[k].normalize();
+            descriptors[k].clampData(0, 0.2);
+            descriptors[k].normalize();
+        }
+    }
+
+    for (unsigned int i = 0; i < interestPoints.size(); i++) {
+        //приводим к оригинальному масштабу
+        double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(interestPoints[i].z).image.getWidth();
+        double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(interestPoints[i].z).image.getHeight();
+        interestPoints[i].x = round(interestPoints[i].x * step_W);
+        interestPoints[i].y = round(interestPoints[i].y * step_H);
+    }
+    return descriptors;
+}
+
 
 vector <Vector> DescriptorCreator::findSimilar(const vector <Descriptor> &d1, const vector <Descriptor> &d2, const double treshhold) {
     vector <Vector> similar;

@@ -152,9 +152,11 @@ void MainWindow::on_harrisButton_clicked() {
 }
 
 void MainWindow::on_blobButton_clicked() {
-    vector <Point> points = interestPoints.blob(this->image, this->ui->ThresholdSpinBox->value(),
+    Pyramid pyramid(this->image, 7, 1.6, 0.5);
+    vector <Point> points = interestPoints.blob(pyramid, this->ui->ThresholdSpinBox->value(),
                                                   this->ui->radiusSpinBox->value(),
                                                   this->ui->pointsCountSpinBox->value());
+    interestPoints.restorePoints(pyramid, points);
     showImage(createImageWithPointsBlob(this->image, points));
 }
 
@@ -169,11 +171,13 @@ void MainWindow::on_descriptorButton_clicked() {
     int barCharCount = this->ui->barCharCountDescSpinBox->value();
     double T = this->ui->TSpinBox->value();
 
-    vector <Point> points1 = interestPoints.blob(this->imageOriginal, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
+    Pyramid pyramid_1(this->imageOriginal, 7, 1.6, 0.5);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
 
-    vector <Point> points2 = interestPoints.blob(this->image, treshold,radius,pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
+    Pyramid pyramid_2(this->image, 7, 1.6, 0.5);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold,radius,pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
     QImage result = glueImages(this->imageOriginal, this->image);
