@@ -61,7 +61,7 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
 
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
-    for (int z = 1; z < pyramid.getDogsSize() - 3; z++) {
+    for (int z = 1; z < pyramid.getDogsSize() - 4; z++) {
         Image imageDOG = pyramid.getDog(z).image;
         Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
         Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
@@ -71,7 +71,9 @@ vector <Point> InterestPoints::blob(const Image &image, const double threshold, 
                 if (isExtremum(pyramid, i, j, z)) {
 
                     // check harris
-                    double lambdaMin = lambda(image_dx, image_dy, i, j, radius);
+                    double val = pyramid.getDog(z).sigmaScale/1.6  ;
+                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<std::endl;
+                    double lambdaMin = lambda(image_dx, image_dy, i, j, radius * val);
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 

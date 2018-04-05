@@ -38,8 +38,8 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
             }
         }
         octave++;
-       sigmaEffect = sigma *  pow(2, octave);
-        sigmaScale = 1;
+        sigmaEffect = sigma *  pow(2, octave);
+        sigmaScale = sigma;
         octaveCount--;
 
         items.emplace_back(tmpLastImage, octave, 0, sigmaScale, sigmaEffect);
