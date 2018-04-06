@@ -44,7 +44,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -576,7 +576,7 @@
          <number>1</number>
         </property>
         <property name="value">
-         <number>20000</number>
+         <number>100</number>
         </property>
        </widget>
        <widget class="QPushButton" name="moravekButton">
@@ -961,7 +961,7 @@
          <number>10000</number>
         </property>
         <property name="value">
-         <number>0</number>
+         <number>-170</number>
         </property>
        </widget>
        <widget class="QLabel" name="label_13">

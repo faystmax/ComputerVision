@@ -254,13 +254,19 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
     auto barCharCountInLine = (barCharCount / 4);
 
 
+    vector<Image> images_dx;
+    vector<Image> images_dy;
+
+
+
+
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
         descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
 
-        int radius = _radius *(interestPoints[k].sigmaScale/pyramid.getDog(0).sigmaScale);
+        int radius = _radius *(interestPoints[k].sigmaScale/1.6);
         int dimension = 2 * radius;
-        int barCharStep = dimension / (barCharCount / 4);
+        double barCharStep = double(dimension) / (barCharCount / 4);
         Image image_dx = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelX());
         Image image_dy = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelY());
 
@@ -302,15 +308,18 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
                         continue;
                     }
 
-                    auto tmp_i = (i_Rotate + radius) / barCharStep;
-                    auto tmp_j = (j_Rotate + radius) / barCharStep;
+                    int tmp_i = (i_Rotate + radius) / barCharStep;
+                    int tmp_j = (j_Rotate + radius) / barCharStep;
 
                     auto indexMain = (tmp_i * barCharCountInLine + tmp_j) * basketCount + firstBasketIndex;
                     auto indexSide = (tmp_i * barCharCountInLine + tmp_j) * basketCount + secondBasketIndex;
 
                     // записываем значения
-                     std::cout<<indexMain<<" "<<indexSide<<std::endl;
-                    Q_ASSERT(indexMain>-1 && indexMain<128 && indexSide>-1 && indexSide<128);
+//                     std::cout<<indexMain<<" "<<indexSide<<std::endl;
+//                    //Q_ASSERT(indexMain>-1 && indexMain<128 && indexSide>-1 && indexSide<128);
+//                     if(indexMain<0 || indexMain>127 || indexSide<0 || indexSide>127){
+//                         continue;
+//                     }
 
                     descriptors[k].data[indexMain] += mainBasketValue;
                     descriptors[k].data[indexSide] += sideBasketValue;

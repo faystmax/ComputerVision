@@ -70,7 +70,7 @@ vector <Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, co
                 if (isExtremum(pyramid, i, j, z)) {
 
                     // check harris
-                    double val = pyramid.getDog(z).sigmaScale/pyramid.getDog(0).sigmaScale;
+                    double val = pyramid.getDog(z).sigmaScale/1.6;
 //                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<std::endl;
                     double lambdaMin = lambda(image_dx, image_dy, i, j, radius * val);
                     if (lambdaMin < threshold)
