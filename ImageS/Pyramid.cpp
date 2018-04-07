@@ -9,7 +9,6 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
 
     /* Reserve data */
     int octaveCount = min(log2(image.getWidth()),log2(image.getHeight()))-1;
-    std::cout<<"octaveCount "<<octaveCount<<std::endl;
     items.reserve(octaveCount * scales);
 
     /* First image */
@@ -48,8 +47,8 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
     /* Constructs DOGs */
     for (unsigned int i = 1; i < items.size(); i++) {
         if(Image::sizeEq(items[i - 1].image, items[i].image)){
-            Item& item = items[i];
-            dogs.emplace_back(items[i - 1].image - item.image,
+            Item& item = items[i - 1];
+            dogs.emplace_back(items[i].image ,items[i].image - item.image ,
                     item.octave, item.scale, item.sigmaScale, item.sigmaEffect);
         }
     }

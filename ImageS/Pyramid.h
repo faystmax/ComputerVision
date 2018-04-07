@@ -9,6 +9,7 @@ struct Item {
         double sigmaScale;
         double sigmaEffect;
         Image image;
+        Image trueImage;
         Item(Image image, int octave, double scale, double sigmaScale, double sigmaEffect){
             this->octave = octave;
             this->scale = scale;
@@ -16,12 +17,20 @@ struct Item {
             this->sigmaEffect = sigmaEffect;
             this->image = std::move(image);
         }
+        Item(Image trueImage,Image image, int octave, double scale, double sigmaScale, double sigmaEffect){
+            this->octave = octave;
+            this->scale = scale;
+            this->sigmaScale = sigmaScale;
+            this->sigmaEffect = sigmaEffect;
+            this->image = std::move(image);
+            this->trueImage = std::move(trueImage);
+        }
 };
 
 class IMAGESSHARED_EXPORT Pyramid{
 public:
     Pyramid() = default;
-    Pyramid(const Image &image, const int scales = 7, double sigma = 1.6, double sigmaStart = 0.5);
+    Pyramid(const Image &image, const int scales = 4, double sigma = 1.6, double sigmaStart = 1);
 
     int L(int x, int y, double sigma) const;
     int getItemsSize() const {return items.size();}

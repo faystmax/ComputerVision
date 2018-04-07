@@ -27,6 +27,11 @@ void Descriptor::clampData(const double min, const double max) {
         data = clamp(min, max, data);
 }
 
+void Descriptor::setPointXY(const int x, const int y){
+    this->interPoint.x = x;
+    this->interPoint.y = y;
+}
+
 double DescriptorCreator::getDistance(const Descriptor &d1, const Descriptor &d2) {
     auto op = [](double a, double b) { return pow(a - b, 2); };
     auto sum = inner_product(begin(d1.data), end(d1.data), begin(d2.data), 0., plus<>(), op);
@@ -90,11 +95,10 @@ vector <Descriptor> DescriptorCreator::getDescriptors(const Image &image, const 
 
 /* Ориентация точки */
 vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, const Image &image_dy, const Point &point,
-                                                      const int sigma ) {
+                                                      const int sigma,const int radius) {
 
     const int basketCount = 36;
 
-    auto radius = sigma;
     auto dimension = radius * 2;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
@@ -112,7 +116,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
             // получаем значение(домноженное на Гаусса) и угол
-            auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma);
+            auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma*2);
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
@@ -188,7 +192,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
     vector <Descriptor> descriptors(interestPoints.size());
     for (unsigned int k = 0; k < interestPoints.size(); k++) {
         descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
-        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], sigma);    // Ориентация точки
+        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], sigma, radius);    // Ориентация точки
 
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {
@@ -246,38 +250,43 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotation(const Image &im
 }
 
 /*  Инвариантость к вращению и масштабу */
-vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &pyramid, vector <Point> interestPoints,const int _radius,
+vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &pyramid, vector <Point> points,const int _radius,
                                                                       const int basketCount, const int barCharCount) {
     auto sigma = 20;
+    auto sigma0 = pyramid.getDog(0).sigmaScale;
     auto sector = 2 * M_PI / basketCount;
     auto halfSector = M_PI / basketCount;
     auto barCharCountInLine = (barCharCount / 4);
 
-
     vector<Image> images_dx;
     vector<Image> images_dy;
 
+    // Ищем производные заранее
+    for(int i = 0;i< pyramid.getDogsSize(); i++){
+        Image& imageTrue = pyramid.getDog(i).trueImage;
+        images_dx.push_back(ImageConverter::convolution(imageTrue, KernelCreator::getSobelX()));
+        images_dy.push_back(ImageConverter::convolution(imageTrue, KernelCreator::getSobelY()));
+    }
 
+    vector <Descriptor> descriptors(points.size());
+    for (unsigned int k = 0; k < points.size(); k++) {
+        descriptors[k] = Descriptor(barCharCount * basketCount, points[k]);
 
-
-    vector <Descriptor> descriptors(interestPoints.size());
-    for (unsigned int k = 0; k < interestPoints.size(); k++) {
-        descriptors[k] = Descriptor(barCharCount * basketCount, interestPoints[k]);
-
-        int radius = _radius *(interestPoints[k].sigmaScale/1.6);
+        int radius = _radius * (points[k].sigmaScale/sigma0);
         int dimension = 2 * radius;
         double barCharStep = double(dimension) / (barCharCount / 4);
-        Image image_dx = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelX());
-        Image image_dy = ImageConverter::convolution(pyramid.getDog(interestPoints[k].z).image, KernelCreator::getSobelY());
+        Image& image_dx = images_dx[points[k].z];
+        Image& image_dy = images_dy[points[k].z];
 
-        auto peaks = getPointOrientation(image_dx, image_dy, interestPoints[k], sigma);    // Ориентация точки
+        // Ориентация точки
+        auto peaks = getPointOrientation(image_dx, image_dy, points[k], sigma, radius);
 
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {
                 for (auto j = 0 ; j < dimension; j++) {
                     // координаты
-                    auto coord_X = i - radius + interestPoints[k].x;
-                    auto coord_Y = j - radius + interestPoints[k].y;
+                    auto coord_X = i - radius + points[k].x;
+                    auto coord_Y = j - radius + points[k].y;
 
                     // градиент
                     auto gradient_X = image_dx.getPixel(coord_X, coord_Y);
@@ -315,12 +324,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
                     auto indexSide = (tmp_i * barCharCountInLine + tmp_j) * basketCount + secondBasketIndex;
 
                     // записываем значения
-//                     std::cout<<indexMain<<" "<<indexSide<<std::endl;
-//                    //Q_ASSERT(indexMain>-1 && indexMain<128 && indexSide>-1 && indexSide<128);
-//                     if(indexMain<0 || indexMain>127 || indexSide<0 || indexSide>127){
-//                         continue;
-//                     }
-
                     descriptors[k].data[indexMain] += mainBasketValue;
                     descriptors[k].data[indexSide] += sideBasketValue;
                 }
@@ -331,12 +334,12 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
         }
     }
 
-    for (unsigned int i = 0; i < interestPoints.size(); i++) {
+    for (unsigned int i = 0; i < descriptors.size(); i++) {
         //приводим к оригинальному масштабу
-        double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(interestPoints[i].z).image.getWidth();
-        double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(interestPoints[i].z).image.getHeight();
-        interestPoints[i].x = round(interestPoints[i].x * step_W);
-        interestPoints[i].y = round(interestPoints[i].y * step_H);
+        Point interPoint = descriptors[i].getInterPoint();
+        double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(interPoint.z).image.getWidth();
+        double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(interPoint.z).image.getHeight();
+        descriptors[i].setPointXY(interPoint.x * step_W, interPoint.y * step_H);
     }
     return descriptors;
 }

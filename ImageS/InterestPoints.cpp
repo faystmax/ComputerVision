@@ -38,7 +38,7 @@ vector<Point> InterestPoints::moravek(const Image &image, const double threshold
     return anmsFilter(points, pointsCount);
 }
 
-vector<Point>  InterestPoints::harris(const Image &image, const double threshold, const int radius, const int pointsCount) {
+vector<Point> InterestPoints::harris(const Image &image, const double threshold, const int radius, const int pointsCount) {
 
     Image image_dx = ImageConverter::convolution(image, KernelCreator::getSobelX());
     Image image_dy = ImageConverter::convolution(image, KernelCreator::getSobelY());
@@ -55,24 +55,25 @@ vector<Point>  InterestPoints::harris(const Image &image, const double threshold
     return anmsFilter(localMaximumPoints, pointsCount);
 }
 
-vector <Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, const int radius, const int pointsCount) {
+vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, const int radius, const int pointsCount) {
 
     vector<Point> points;
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
-    for (int z = 1; z < pyramid.getDogsSize() - 1; z++) {
-        Image imageDOG = pyramid.getDog(z).image;
-        Image image_dx = ImageConverter::convolution(imageDOG, kernel_x);
-        Image image_dy = ImageConverter::convolution(imageDOG, kernel_y);
+    for (int z = 1; z < pyramid.getDogsSize()-1; z++) {
+        Image& imageDOG = pyramid.getDog(z).image;
+        Image& imageTrue = pyramid.getDog(z).trueImage;
+        Image image_dx = ImageConverter::convolution(imageTrue, kernel_x);
+        Image image_dy = ImageConverter::convolution(imageTrue, kernel_y);
 
-        for (int i = 1; i < imageDOG.getWidth(); i++) {
-            for (int j = 1; j < imageDOG.getHeight(); j++) {
+        for (int i = 1; i < imageDOG.getWidth() - 1; i++) {
+            for (int j = 1; j < imageDOG.getHeight() - 1; j++) {
                 if (isExtremum(pyramid, i, j, z)) {
 
                     // check harris
-                    double val = pyramid.getDog(z).sigmaScale/1.6;
-//                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<std::endl;
-                    double lambdaMin = lambda(image_dx, image_dy, i, j, radius * val);
+                    double val = pyramid.getDog(z).sigmaScale / pyramid.getDog(0).sigmaScale;
+//                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<" "<<radius * val<<std::endl;
+                    double lambdaMin = lambda(image_dx, image_dy, i, j, round(radius * val));
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 
@@ -83,6 +84,7 @@ vector <Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, co
     }
 
     // Сортируем и оборезаем если нужно
+
     std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
     if(points.size()>pointsCount)
         points.resize(pointsCount);
@@ -94,8 +96,8 @@ void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
         //приводим к оригинальному масштабу
         double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(point.z).image.getWidth();
         double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(point.z).image.getHeight();
-        point.x = round(point.x * step_W);
-        point.y = round(point.y * step_H);
+        point.x = point.x * step_W;
+        point.y = point.y * step_H;
     }
 }
 
@@ -183,9 +185,10 @@ double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, cons
 vector <Point> InterestPoints::thresholdFilter(const Image &image_S, const double threshold) {
 
     vector <Point> points;
+//    vector<double> truePixels = image_S.deNormolize();
     for (auto i = 0; i < image_S.getWidth(); i++) {
         for (auto j = 0; j < image_S.getHeight(); j++) {
-            if (image_S.getPixel(i, j) >= threshold) {
+            if (image_S.getPixel(i,j) >= threshold) {
                 points.emplace_back(i, j, image_S.getPixel(i, j));
             }
         }

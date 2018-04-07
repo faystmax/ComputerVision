@@ -51,6 +51,8 @@ private slots:
 
     void on_scaleButton_clicked();
 
+    void on_reloadButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
@@ -63,6 +65,7 @@ private:
     void showImage(const Image &image);
     void enableButtons(bool enable);
     void showPyramidInfo(const Item &item);
+    void reloadImages();
 };
 
 #endif // MAINWINDOW_H

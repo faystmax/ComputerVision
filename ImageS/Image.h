@@ -25,6 +25,7 @@ public:
     void setPixel(const int x,const int y, double pixel);
     void setPixelNoValidation(const int x,const int y, double pixel);
     static bool sizeEq(Image& img1,Image& img2);
+    vector<double> deNormolize() const;
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
@@ -40,6 +41,7 @@ private:
     double getPixelRepeat(int x ,int y) const;
     double getPixelMirror(int x ,int y) const;
     double getPixelWrapping(int x ,int y) const;
+    void normolize();
 };
 
 #endif // IMAGE_H

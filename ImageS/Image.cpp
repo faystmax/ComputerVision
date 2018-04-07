@@ -26,8 +26,8 @@ Image::Image(const int width, const int height, const EdgeEffect edgeEffect) {
 
 void Image::setPixel(int x, int y, double pixel) {
     // Validation
-    if (pixel < 0) pixel = 0;
-    if (pixel > 255) pixel = 255;
+//    if (pixel < 0) pixel = 0;
+//    if (pixel > 255) pixel = 255;
 
     pixels[x + y * width] = pixel;
 }
@@ -82,4 +82,21 @@ double Image::getPixelWrapping(int x, int y) const {
     if (y >= height) y = 1 + (y - height);
 
     return pixels[x + y * width];
+}
+
+vector<double> Image::deNormolize() const{
+    vector<double> newPixels;
+    newPixels = this->pixels;
+    double min = *std::min_element(this->pixels.begin(), this->pixels.end());
+    double max = *std::max_element(this->pixels.begin(), this->pixels.end());
+    double delta = max - min;
+
+    if (delta == 0)  delta = max;
+
+    for (auto& pix : newPixels) {
+        pix -= min;
+        pix /= delta;
+        pix *= 255;
+    }
+    return newPixels;
 }

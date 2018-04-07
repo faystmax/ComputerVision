@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     showImage(this->image);
+    reloadImages();
 
     // Disable all active buttons
     //enableButtons(false);
@@ -38,6 +39,9 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow() {
     delete ui;
 }
+
+
+
 
 void MainWindow::on_openImageButton_clicked() {
     QString fileName = QFileDialog::getOpenFileName(this, "Open Image", nullptr, "Image Files (*.png *.jpg *.bmp)");
@@ -133,7 +137,13 @@ void MainWindow::showPyramidInfo(const Item &item) {
             QString::fromStdString("Octave:     ") + QString::number(item.octave) + QString::fromStdString("<br>") +
             QString::fromStdString("Scale:      ") + QString::number(item.scale) + QString::fromStdString("<br>") +
             QString::fromStdString("SigmaScale: ") + QString::number(item.sigmaScale) + QString::fromStdString("<br>") +
-            QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) + QString::fromStdString("<br>"));
+                QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) + QString::fromStdString("<br>"));
+}
+
+void MainWindow::reloadImages(){
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
+    showImage(this->image);
 }
 
 /* Interest Points */
@@ -152,7 +162,7 @@ void MainWindow::on_harrisButton_clicked() {
 }
 
 void MainWindow::on_blobButton_clicked() {
-    Pyramid pyramid(this->image, 7, 1.6, 0.5);
+    Pyramid pyramid(this->image);
     vector <Point> points = interestPoints.blob(pyramid, this->ui->ThresholdSpinBox->value(),
                                                   this->ui->radiusSpinBox->value(),
                                                   this->ui->pointsCountSpinBox->value());
@@ -171,13 +181,19 @@ void MainWindow::on_descriptorButton_clicked() {
     int barCharCount = this->ui->barCharCountDescSpinBox->value();
     double T = this->ui->TSpinBox->value();
 
-    Pyramid pyramid_1(this->imageOriginal, 7, 1.6, 0.5);
-    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold,radius,pointsCount);
+    Pyramid pyramid_1(this->imageOriginal);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
     vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
 
-    Pyramid pyramid_2(this->image, 7, 1.6, 0.5);
-    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold,radius,pointsCount);
+    Pyramid pyramid_2(this->image);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
     vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2,  points2, radiusDesc,basketCount, barCharCount);
+
+//    vector <Point> points1 = interestPoints.harris(this->imageOriginal, treshold, radius, pointsCount);
+//    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
+
+//    vector <Point> points2 = interestPoints.harris(this->image, treshold, radius, pointsCount);
+//    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
     QImage result = glueImages(this->imageOriginal, this->image);
@@ -259,4 +275,8 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->pyramidButton->setEnabled(enable);
     this->ui->descriptorButton->setEnabled(enable);
     this->ui->generateLImageButton->setEnabled(enable);
+}
+
+void MainWindow::on_reloadButton_clicked(){
+    reloadImages();
 }

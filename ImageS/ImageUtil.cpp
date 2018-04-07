@@ -8,6 +8,7 @@
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
+//    vector<double> newPixels = image.deNormolize();
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
             double pixel = image.getPixel(i, j);
@@ -107,6 +108,14 @@ void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
         Point p2 = similar[i].second.getInterPoint();
         painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
 
+        // Circle 1
+        double radius1 = sqrt(2) * p1.sigmaEffect;
+        painter.drawEllipse(QRect(p1.x - radius1, p1.y - radius1, 2 * radius1, 2 * radius1));
+
+         // Circle 2
+        double radius2 = sqrt(2) * p2.sigmaEffect;
+        painter.drawEllipse(QRect(p2.x + firstWidth - radius2, p2.y - radius2, 2 * radius2, 2 * radius2));
+
     }
     painter.end();
 }
@@ -121,7 +130,8 @@ QImage createImageWithPointsBlob(const Image &image, const vector <Point> &point
         pen.setColor(colors[i]);
         painter.setPen(pen);
         double radius = sqrt(2) * points[i].sigmaEffect;
-        painter.drawEllipse(QPoint(points[i].x,points[i].y), radius, radius);
+//        painter.drawEllipse(QPoint(points[i].x,points[i].y), double(radius), double(radius));
+        painter.drawEllipse(QRect(points[i].x - radius, points[i].y - radius, 2 * radius, 2 * radius));
         painter.drawPoint(points[i].x, points[i].y);
     }
     painter.end();

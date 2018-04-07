@@ -23,7 +23,7 @@ public:
     double getAt(const int index) const {return data[index];}
     Point getInterPoint() const {return interPoint;}
     void clampData(const double min, const double max);
-
+    void setPointXY(const int x, const int y);
 
 private:
    Point interPoint;    // Интересная точка - центр
@@ -63,7 +63,7 @@ public:
                                              const int radius, const int basketCount, const int barCharCount);
 
     // Поиск дескрипторов инвариантых к вращению и масштабу
-    static vector<Descriptor> getDescriptorsInvRotationScale(Pyramid &pyramid, vector<Point> interestPoints, const int _radius,
+    static vector<Descriptor> getDescriptorsInvRotationScale(Pyramid &pyramid, vector<Point> points, const int _radius,
                                                              const int basketCount, const int barCharCount);
 
     // Поиск похожих дескрипторов
@@ -71,7 +71,7 @@ public:
 private:
 
     static double getDistance(const Descriptor &d1, const Descriptor &d2);
-    static vector<double> getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const int sigma);
+    static vector<double> getPointOrientation(const Image& image_dx, const Image& image_dy, const Point &point, const int sigma, const int radius);
 
     static inline double getGradientValue(const double x, const double y) {return sqrt(x * x + y * y);}
     static inline double getGradientDirection(const double x, const double y) {return atan2(y, x) + M_PI;}
