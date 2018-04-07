@@ -46,7 +46,7 @@ vector<Point> InterestPoints::harris(const Image &image, const double threshold,
     Image image_S(image.getWidth(),image.getHeight());  // Веса
     for (int x = 0; x < image.getWidth(); x++) {
         for (int y = 0; y < image.getHeight(); y++) {
-           image_S.setPixelNoValidation(x, y, lambda(image_dx, image_dy, x, y, radius));
+            image_S.setPixelNoValidation(x, y, lambda(image_dx, image_dy, x, y, radius));
         }
     }
 
@@ -72,12 +72,11 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
 
                     // check harris
                     double val = pyramid.getDog(z).sigmaScale / pyramid.getDog(0).sigmaScale;
-//                    std::cout<<pyramid.getDog(z).sigmaScale<<"  "<<val<<" "<<radius * val<<std::endl;
                     double lambdaMin = lambda(image_dx, image_dy, i, j, round(radius * val));
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 
-                      points.emplace_back(i, j, z, lambdaMin, pyramid.getDog(z).sigmaScale, pyramid.getDog(z).sigmaEffect);
+                    points.emplace_back(i, j, z, lambdaMin, pyramid.getDog(z).sigmaScale, pyramid.getDog(z).sigmaEffect);
                 }
             }
         }
@@ -88,7 +87,9 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
     std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
     if(points.size()>pointsCount)
         points.resize(pointsCount);
-    return points;
+
+
+    return correctPosition(points,pyramid);
 }
 
 void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
@@ -124,6 +125,50 @@ bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, cons
         return max || min;
     }
     return false;
+}
+
+vector<Point> InterestPoints::correctPosition( vector<Point> &points,  Pyramid &pyramid){
+    vector<Point> result;
+    result.reserve(points.size());
+    for(Point &p : points){
+        bool flagSelect = true;
+        int z_original = pyramid.getDog(p.z).octave;
+        for(int i = 0;i < 10;i++){
+            double proizv1_x = (pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y) - pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y))/2;
+            double proizv1_y = (pyramid.getDog(p.z).image.getPixel(p.x,p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x,p.y-1))/2;
+            double proizv1_z = (pyramid.getDog(p.z+1).image.getPixel(p.x,p.y) - pyramid.getDog(p.z - 1).image.getPixel(p.x,p.y))/2;
+
+            double proizv1_x2 = 1/(pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y)) ;
+            double proizv1_y2 = 1/(pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1));
+            double proizv1_z2 = 1/(pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y));
+
+            double x_shift_rez = -proizv1_x2 * proizv1_x;
+            double y_shift_rez = -proizv1_y2 * proizv1_y;
+            double z_shift_rez = -proizv1_z2 * proizv1_z;
+
+            if(abs(x_shift_rez) <= 0.5 && abs(y_shift_rez) <= 0.5 && abs(z_shift_rez)<= 0.5){
+                break;
+            }
+            if(abs(x_shift_rez)>0.5){
+                if(x_shift_rez>0) p.x++; else p.x--;
+            }
+            if(abs(y_shift_rez)>0.5){
+                if(y_shift_rez>0) p.y++; else p.y--;
+            }
+            if(abs(z_shift_rez)>0.5){
+                if(z_shift_rez>0) p.z++; else p.z--;
+            }
+            if(pyramid.getDog(p.z).octave != pyramid.getDog(z_original).octave){
+                flagSelect = false;
+                break;
+            }
+        }
+        if(flagSelect){
+            result.push_back(std::move(p));
+        }
+    }
+
+    return result;
 }
 
 
@@ -185,7 +230,7 @@ double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, cons
 vector <Point> InterestPoints::thresholdFilter(const Image &image_S, const double threshold) {
 
     vector <Point> points;
-//    vector<double> truePixels = image_S.deNormolize();
+    //    vector<double> truePixels = image_S.deNormolize();
     for (auto i = 0; i < image_S.getWidth(); i++) {
         for (auto j = 0; j < image_S.getHeight(); j++) {
             if (image_S.getPixel(i,j) >= threshold) {

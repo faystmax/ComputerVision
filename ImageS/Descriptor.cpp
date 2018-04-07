@@ -339,7 +339,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
         Point interPoint = descriptors[i].getInterPoint();
         double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(interPoint.z).image.getWidth();
         double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(interPoint.z).image.getHeight();
-        descriptors[i].setPointXY(interPoint.x * step_W, interPoint.y * step_H);
+        descriptors[i].setPointXY(round(interPoint.x * step_W), round(interPoint.y * step_H));
     }
     return descriptors;
 }

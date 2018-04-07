@@ -99,7 +99,7 @@ inline vector<QColor> randomColors(int count){
 void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
     QPainter painter(&image);
     QPen pen;
-    pen.setWidth(2);
+    pen.setWidth(1);
     vector<QColor> colors = randomColors(similar.size());
     for (unsigned int i = 0; i < similar.size(); i++) {
         pen.setColor(colors[i]);
@@ -130,7 +130,6 @@ QImage createImageWithPointsBlob(const Image &image, const vector <Point> &point
         pen.setColor(colors[i]);
         painter.setPen(pen);
         double radius = sqrt(2) * points[i].sigmaEffect;
-//        painter.drawEllipse(QPoint(points[i].x,points[i].y), double(radius), double(radius));
         painter.drawEllipse(QRect(points[i].x - radius, points[i].y - radius, 2 * radius, 2 * radius));
         painter.drawPoint(points[i].x, points[i].y);
     }

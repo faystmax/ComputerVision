@@ -30,7 +30,7 @@ struct Item {
 class IMAGESSHARED_EXPORT Pyramid{
 public:
     Pyramid() = default;
-    Pyramid(const Image &image, const int scales = 4, double sigma = 1.6, double sigmaStart = 1);
+    Pyramid(const Image &image, const int scales = 7, double sigma = 1.6, double sigmaStart = 1);
 
     int L(int x, int y, double sigma) const;
     int getItemsSize() const {return items.size();}
