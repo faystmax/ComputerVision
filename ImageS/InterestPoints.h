@@ -57,8 +57,9 @@ private:
     // Check extremum
     bool isExtremum(Pyramid &pyramid, const int x, const int y, const int z);
 
-    // CorrecrPosition
     vector<Point> correctPosition(vector<Point> &points, Pyramid &pyramid);
+//    vector<Point> removeLowConstr(vector<Point> &points, Pyramid &pyramid);
+    Image transpose(Image& image);
 };
 
 #endif // INTERESTPOINTS_H

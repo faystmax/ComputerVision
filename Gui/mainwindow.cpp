@@ -100,6 +100,13 @@ void MainWindow::on_rotateButton_clicked(){
     showImage(this->image);
 }
 
+void MainWindow::on_scosButton_clicked(){
+    //TODO
+    this->image = ImageConverter::convolution(this->image, KernelCreator::getScos());
+    showImage(this->image);
+}
+
+
 
 /* Pyramids */
 void MainWindow::on_pyramidButton_clicked() {
@@ -171,7 +178,30 @@ void MainWindow::on_blobButton_clicked() {
 }
 
 /* Descriptors */
-void MainWindow::on_descriptorButton_clicked() {
+void MainWindow::on_invRotButton_clicked(){
+    // Vars
+    int treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    vector <Point> points1 = interestPoints.harris(this->imageOriginal, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
+
+    vector <Point> points2 = interestPoints.harris(this->image, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
+
+    // Glue and draw
+    QImage result = glueImages(this->imageOriginal, this->image);
+    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+    drawLines(result, this->imageOriginal.getWidth(), similar);
+    showImage(result);
+}
+
+void MainWindow::on_invRotScaleButton_clicked(){
     // Vars
     int treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
@@ -189,18 +219,39 @@ void MainWindow::on_descriptorButton_clicked() {
     vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
     vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2,  points2, radiusDesc,basketCount, barCharCount);
 
-//    vector <Point> points1 = interestPoints.harris(this->imageOriginal, treshold, radius, pointsCount);
-//    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotation(this->imageOriginal, points1, radiusDesc, basketCount, barCharCount);
+    // Glue and draw
+    QImage result = glueImages(this->imageOriginal, this->image);
+    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+    drawLinesAndCircles(result, this->imageOriginal.getWidth(), similar);
+    showImage(result);
+}
 
-//    vector <Point> points2 = interestPoints.harris(this->image, treshold, radius, pointsCount);
-//    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotation(this->image,  points2, radiusDesc,basketCount, barCharCount);
+void MainWindow::on_invRotScaleAffButton_clicked(){
+    // Vars
+    int treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    Pyramid pyramid_1(this->imageOriginal);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
+
+    Pyramid pyramid_2(this->image);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2,  points2, radiusDesc,basketCount, barCharCount);
 
     // Glue and draw
     QImage result = glueImages(this->imageOriginal, this->image);
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
-    drawLines(result, this->imageOriginal.getWidth(), similar);
+    drawLinesAndCircles(result, this->imageOriginal.getWidth(), similar);
     showImage(result);
 }
+
+
 
 void MainWindow::on_rotaterButton_clicked() {
     QImage outputImage = getOutputImage(this->image);
@@ -220,6 +271,21 @@ void MainWindow::on_scaleButton_clicked(){
     this->image = constructImage(rotateImage);
     showImage(this->image);
 }
+
+void MainWindow::on_scaleXButton_clicked(){
+    QImage outputImage = getOutputImage(this->image);
+    QImage rotateImage = outputImage.scaled(outputImage.width() + this->ui->scaleSpinBox->value(), outputImage.height());
+    this->image = constructImage(rotateImage);
+    showImage(this->image);
+}
+
+void MainWindow::on_scaleYButton_clicked(){
+    QImage outputImage = getOutputImage(this->image);
+    QImage rotateImage = outputImage.scaled(outputImage.width() , outputImage.height() + this->ui->scaleSpinBox->value());
+    this->image = constructImage(rotateImage);
+    showImage(this->image);
+}
+
 
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {
@@ -273,10 +339,10 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->clarityButton->setEnabled(enable);
     this->ui->moravekButton->setEnabled(enable);
     this->ui->pyramidButton->setEnabled(enable);
-    this->ui->descriptorButton->setEnabled(enable);
     this->ui->generateLImageButton->setEnabled(enable);
 }
 
 void MainWindow::on_reloadButton_clicked(){
     reloadImages();
 }
+

@@ -60,6 +60,14 @@ Kernel KernelCreator::getPriutY() {
     return Kernel(3, 3, core);
 }
 
+Kernel KernelCreator::getScos(){
+    //TODO
+    vector<double> core = { 1,  0,   0,
+                            0,  -1,  0,
+                            0,  0,   1};
+    return Kernel(3, 3, core);
+}
+
 Kernel KernelCreator::getGauss(const double sigma) {
     int radius = sigma * 6;
     if (radius % 2 == 0) radius++;

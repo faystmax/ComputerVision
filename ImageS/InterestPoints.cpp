@@ -138,13 +138,13 @@ vector<Point> InterestPoints::correctPosition( vector<Point> &points,  Pyramid &
             double proizv1_y = (pyramid.getDog(p.z).image.getPixel(p.x,p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x,p.y-1))/2;
             double proizv1_z = (pyramid.getDog(p.z+1).image.getPixel(p.x,p.y) - pyramid.getDog(p.z - 1).image.getPixel(p.x,p.y))/2;
 
-            double proizv1_x2 = 1/(pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y)) ;
-            double proizv1_y2 = 1/(pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1));
-            double proizv1_z2 = 1/(pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y));
+            double proizv2_x = 1/(pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y)) ;
+            double proizv2_y = 1/(pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1));
+            double proizv2_z = 1/(pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y));
 
-            double x_shift_rez = -proizv1_x2 * proizv1_x;
-            double y_shift_rez = -proizv1_y2 * proizv1_y;
-            double z_shift_rez = -proizv1_z2 * proizv1_z;
+            double x_shift_rez = -proizv2_x * proizv1_x;
+            double y_shift_rez = -proizv2_y * proizv1_y;
+            double z_shift_rez = -proizv2_z * proizv1_z;
 
             if(abs(x_shift_rez) <= 0.5 && abs(y_shift_rez) <= 0.5 && abs(z_shift_rez)<= 0.5){
                 break;
@@ -167,6 +167,16 @@ vector<Point> InterestPoints::correctPosition( vector<Point> &points,  Pyramid &
             result.push_back(std::move(p));
         }
     }
+
+    return result;
+}
+
+Image InterestPoints::transpose(Image &image)
+{
+    Image result(image.getHeight(),image.getWidth());
+    for(int i = 0; i < image.getWidth(); i++)
+        for(int j = 0; j < image.getHeight(); j++)
+            result.setPixel(j, i, image.getPixel(i,j));
 
     return result;
 }

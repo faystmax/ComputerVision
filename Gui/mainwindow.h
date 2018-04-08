@@ -53,6 +53,18 @@ private slots:
 
     void on_reloadButton_clicked();
 
+    void on_scosButton_clicked();
+
+    void on_scaleXButton_clicked();
+
+    void on_scaleYButton_clicked();
+
+    void on_invRotScaleButton_clicked();
+
+    void on_invRotScaleAffButton_clicked();
+
+    void on_invRotButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

@@ -96,7 +96,7 @@ inline vector<QColor> randomColors(int count){
     return colors;
 }
 
-void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
+void drawLinesAndCircles(QImage& image, const int firstWidth, vector<Vector> similar){
     QPainter painter(&image);
     QPen pen;
     pen.setWidth(1);
@@ -119,6 +119,22 @@ void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
     }
     painter.end();
 }
+
+    void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
+        QPainter painter(&image);
+        QPen pen;
+        pen.setWidth(1);
+        vector<QColor> colors = randomColors(similar.size());
+        for (unsigned int i = 0; i < similar.size(); i++) {
+            pen.setColor(colors[i]);
+            painter.setPen(pen);
+            Point p1 = similar[i].first.getInterPoint();
+            Point p2 = similar[i].second.getInterPoint();
+            painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
+        }
+        painter.end();
+    }
+
 
 QImage createImageWithPointsBlob(const Image &image, const vector <Point> &points) {
     QImage resultImage = getOutputImage(image);

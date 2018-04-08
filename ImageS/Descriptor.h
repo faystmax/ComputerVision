@@ -66,6 +66,10 @@ public:
     static vector<Descriptor> getDescriptorsInvRotationScale(Pyramid &pyramid, vector<Point> points, const int _radius,
                                                              const int basketCount, const int barCharCount);
 
+    // Поиск дескрипторов инвариантых к вращению, масштабу и афинным преобразованиям
+    static vector<Descriptor> getDescriptorsInvRotationScaleAfinn(Pyramid &pyramid, vector<Point> points, const int _radius,
+                                                             const int basketCount, const int barCharCount);
+
     // Поиск похожих дескрипторов
     static vector<Vector> findSimilar(const vector<Descriptor> &d1, const vector<Descriptor> &d2, const double treshhold = 0.8);
 private:

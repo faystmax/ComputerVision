@@ -14,6 +14,7 @@ public:
     static Kernel getSobelY();
     static Kernel getPriutX();
     static Kernel getPriutY();
+    static Kernel getScos();
     static Kernel getGauss(const double sigma);
     static Kernel getGaussDoubleDim(const double sigma);
     static double getGaussValue(const int i, const int j, const double sigma);
