@@ -434,13 +434,14 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     int gist4 = ((gist_i + 1) % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
 
                     //считаем веса
-                    double weightHX = (barCharStep - true_i % int(barCharStep)) / (double) barCharStep;
-                    double weightHY = (barCharStep - true_j % int(barCharStep)) / (double) barCharStep;
+                    //TODO распределить по нужным корзинам
+                    double weight_X = 1 - (barCharStep - true_i % int(barCharStep)) / (double) barCharStep;
+                    double weight_Y = 1 - (barCharStep - true_j % int(barCharStep)) / (double) barCharStep;
 
-                    double wt_1 = weightHX * weightHY;
-                    double wt_2 = (1 - weightHX) * weightHY;
-                    double wt_3 = weightHX * (1 - weightHY);
-                    double wt_4 = (1 - weightHX) * (1 - weightHY);
+                    double wt_1 = weight_X * weight_Y;
+                    double wt_2 = (1 - weight_X) * weight_Y;
+                    double wt_3 = weight_X * (1 - weight_Y);
+                    double wt_4 = (1 - weight_X) * (1 - weight_Y);
 
                     // считаем индексы
                     int indexMain1 = gist1 * basketCount + firstBasketIndex;
