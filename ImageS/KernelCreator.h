@@ -17,7 +17,7 @@ public:
     static Kernel getScos();
     static Kernel getGauss(const double sigma);
     static Kernel getGaussDoubleDim(const double sigma);
-    static double getGaussValue(const int i, const int j, const double sigma);
+    static double getGaussValue(const int i, const int j, const double sigma, const int radius);
     static Kernel getGauss(const double sigma, const int radius);
     static Kernel getGaussDoubleDim(const int width, const int height, const double sigma);
 };

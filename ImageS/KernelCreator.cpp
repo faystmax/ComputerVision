@@ -80,10 +80,8 @@ Kernel KernelCreator::getGaussDoubleDim(const double sigma) {
     return getGaussDoubleDim(radius, radius, sigma);
 }
 
-double KernelCreator::getGaussValue(const int i, const int j, const double sigma){
-    int radius = sigma * 6;
-    if (radius % 2 == 0) radius++;
-    return  (1.0 / (2 * sigma * sigma * M_PI)) * exp(((i - radius/2) * (i - radius/2) + (j - radius/2) * (j - radius/2)) * (-1.0 / (2 * sigma * sigma)));
+double KernelCreator::getGaussValue(const int i, const int j, const double sigma, const int radius){
+    return  (1.0 / (2 * sigma * sigma * M_PI)) * exp(((i - radius) * (i - radius) + (j - radius) * (j - radius)) * (-1.0 / (2 * sigma * sigma)));
 }
 
 Kernel KernelCreator::getGauss(const double sigma, const int radius) {

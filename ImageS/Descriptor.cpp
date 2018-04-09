@@ -116,7 +116,7 @@ vector<double> DescriptorCreator::getPointOrientation(const Image &image_dx, con
             auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
             // получаем значение(домноженное на Гаусса) и угол
-            auto value = getGradientValue(gradient_X, gradient_Y)/* * KernelCreator::getGaussValue(i, j, sigma*2)*/;
+            auto value = getGradientValue(gradient_X, gradient_Y)/* * KernelCreator::getGaussValue(i, j, sigma*2, radius)*/;
             auto phi = getGradientDirection(gradient_X, gradient_Y);
 
             // получаем индекс корзины в которую входит phi и смежную с ней
@@ -278,7 +278,7 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
         double barCharStep = double(dimension) / (barCharCount / 4);
         Image& image_dx = images_dx[points[k].z];
         Image& image_dy = images_dy[points[k].z];
-
+        Kernel gaussDoubleDim = KernelCreator::getGaussDoubleDim(dimension,dimension,sigma * scale);
         // Ориентация точки
         auto peaks = getPointOrientation(image_dx, image_dy, points[k], sigma, radius);
 
@@ -294,7 +294,8 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
                     auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
                     // получаем значение(домноженное на Гаусса) и угол
-                    auto value = getGradientValue(gradient_X, gradient_Y)  * KernelCreator::getGaussValue(i, j, sigma * scale);
+                    auto value = getGradientValue(gradient_X, gradient_Y)  * gaussDoubleDim.get(i,j);
+//                    auto value = getGradientValue(gradient_X, gradient_Y)  * KernelCreator::getGaussValue(i, j, sigma * scale, radius);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
 
@@ -389,7 +390,7 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
                     // получаем значение(домноженное на Гаусса) и угол
-                    auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma * scale);
+                    auto value = getGradientValue(gradient_X, gradient_Y) * KernelCreator::getGaussValue(i, j, sigma * scale, radius);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift
 
@@ -432,11 +433,14 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     int gist3 = (gist_i % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
                     int gist4 = ((gist_i + 1) % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
 
-                    //считаем веса TODO
-                    double wt_1 = 0;
-                    double wt_2 = 0;
-                    double wt_3 = 0;
-                    double wt_4 = 0;
+                    //считаем веса
+                    double weightHX = (barCharStep - true_i % int(barCharStep)) / (double) barCharStep;
+                    double weightHY = (barCharStep - true_j % int(barCharStep)) / (double) barCharStep;
+
+                    double wt_1 = weightHX * weightHY;
+                    double wt_2 = (1 - weightHX) * weightHY;
+                    double wt_3 = weightHX * (1 - weightHY);
+                    double wt_4 = (1 - weightHX) * (1 - weightHY);
 
                     // считаем индексы
                     int indexMain1 = gist1 * basketCount + firstBasketIndex;
