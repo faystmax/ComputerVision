@@ -37,7 +37,6 @@ private slots:
     void on_generateLImageButton_clicked();
     void on_moravekButton_clicked();
     void on_harrisButton_clicked();
-    void on_descriptorButton_clicked();
 
     void on_shiftButton_clicked();
 

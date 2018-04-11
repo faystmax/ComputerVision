@@ -68,7 +68,9 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
 
         for (int i = 1; i < imageDOG.getWidth() - 1; i++) {
             for (int j = 1; j < imageDOG.getHeight() - 1; j++) {
-                if (isExtremum(pyramid, i, j, z)) {
+
+                Point point(i, j, z, 0, pyramid.getDog(z).sigmaScale, pyramid.getDog(z).sigmaEffect);
+                if (isExtremum(pyramid, i, j, z) && correctPosition(point,pyramid)) {
 
                     // check harris
                     double val = pyramid.getDog(z).sigmaScale / pyramid.getDog(0).sigmaScale;
@@ -76,20 +78,20 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
                     if (lambdaMin < threshold)
                         continue; // skip - haris to low
 
-                    points.emplace_back(i, j, z, lambdaMin, pyramid.getDog(z).sigmaScale, pyramid.getDog(z).sigmaEffect);
+                    // Сохраняем
+                    point.s = lambdaMin;
+                    points.push_back(point);
                 }
             }
         }
     }
 
     // Сортируем и оборезаем если нужно
-
     std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
-    if(points.size()>pointsCount)
+    if(points.size() > pointsCount)
         points.resize(pointsCount);
 
-
-    return correctPosition(points,pyramid);
+    return points;
 }
 
 void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
@@ -127,60 +129,89 @@ bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, cons
     return false;
 }
 
-vector<Point> InterestPoints::correctPosition( vector<Point> &points,  Pyramid &pyramid){
-    vector<Point> result;
-    result.reserve(points.size());
-    for(Point &p : points){
-        bool flagSelect = true;
-        int z_original = pyramid.getDog(p.z).octave;
-        for(int i = 0;i < 10;i++){
-            double proizv1_x = (pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y) - pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y))/2;
-            double proizv1_y = (pyramid.getDog(p.z).image.getPixel(p.x,p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x,p.y-1))/2;
-            double proizv1_z = (pyramid.getDog(p.z+1).image.getPixel(p.x,p.y) - pyramid.getDog(p.z - 1).image.getPixel(p.x,p.y))/2;
+bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid){
 
-            double proizv2_x = 1/(pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y)) ;
-            double proizv2_y = 1/(pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1));
-            double proizv2_z = 1/(pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y));
+    cout<<p.x<<" "<<p.y<<" "<<p.z<<" "<<p.sigmaEffect<<std::endl;
 
-            double x_shift_rez = -proizv2_x * proizv1_x;
-            double y_shift_rez = -proizv2_y * proizv1_y;
-            double z_shift_rez = -proizv2_z * proizv1_z;
+    bool flagSelect = true;                         // Флаг - подходит ли точка
+    Point originalPoint = p;                        // Исходная точка
 
-            if(abs(x_shift_rez) <= 0.5 && abs(y_shift_rez) <= 0.5 && abs(z_shift_rez)<= 0.5){
-                break;
-            }
-            if(abs(x_shift_rez)>0.5){
-                if(x_shift_rez>0) p.x++; else p.x--;
-            }
-            if(abs(y_shift_rez)>0.5){
-                if(y_shift_rez>0) p.y++; else p.y--;
-            }
-            if(abs(z_shift_rez)>0.5){
-                if(z_shift_rez>0) p.z++; else p.z--;
-            }
-            if(pyramid.getDog(p.z).octave != pyramid.getDog(z_original).octave){
-                flagSelect = false;
-                break;
-            }
+    // Производные
+    double proizv_x, proizv_y, proizv_z;
+    double proizv_xx, proizv_yy, proizv_zz;
+    double proizv_xy;
+
+
+    // Корректируем позицию
+    for(int i = 0;i < 10;i++){ // максимум 10 итераций
+        proizv_x = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x + 1, p.y) - pyramid.getDog(p.z).image.getPixel(p.x - 1, p.y));
+        proizv_y = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x, p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x, p.y - 1));
+        proizv_z = 0.5 * (pyramid.getDog(p.z + 1).image.getPixel(p.x, p.y) - pyramid.getDog(p.z - 1).image.getPixel(p.x, p.y));
+
+        proizv_xx = pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y);
+        proizv_yy = pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1);
+        proizv_zz = pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y);
+
+        double x_shift = -proizv_x / proizv_xx;
+        double y_shift = -proizv_y / proizv_yy;
+        double z_shift = -proizv_z / proizv_zz;
+
+        if(abs(x_shift) <= 0.5 && abs(y_shift) <= 0.5 && abs(z_shift)<= 0.5){
+            break;
         }
-        if(flagSelect){
-            result.push_back(std::move(p));
+
+        // Меняем позицию x,y,sigma
+        if(abs(x_shift)>0.5){
+            if(x_shift>0) p.x++; else p.x--;
+        }
+        if(abs(y_shift)>0.5){
+            if(y_shift>0) p.y++; else p.y--;
+        }
+        if(abs(z_shift)>0.5){
+            if(z_shift>0) p.z++; else p.z--;
+        }
+        // Если вышли за октаву - отбрасываем
+        if(pyramid.getDog(p.z).octave != pyramid.getDog(originalPoint.z).octave){
+            flagSelect = false;
+            break;
         }
     }
 
-    return result;
+    // Отбрасываем
+    if(!flagSelect){
+        return false;
+    }
+
+
+//    // Считаем вектор сдвига
+//    double x_dif = originalPoint.x - p.x;
+//    double y_dif = originalPoint.y - p.y;
+//    double z_dif = pyramid.getDog(originalPoint.z).sigmaScale - pyramid.getDog(p.z).sigmaScale;
+
+//    // Проверяем контрастность в точке
+//    double contrast = pyramid.getDog(p.z).image.getPixel(p.x, p.y) +
+//            0.5 * proizv_x * x_dif +
+//            0.5 * proizv_y * y_dif +
+//            0.5 * proizv_z * z_dif;
+
+//    // Пропускаем если не проходит
+//    if (abs(contrast) < 0.01)
+//        return false;
+
+    //считаем proizv_xy
+    double dx1 = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x + 1, p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x - 1, p.y + 1));
+    double dx2 = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x + 1, p.y - 1) - pyramid.getDog(p.z).image.getPixel(p.x - 1, p.y - 1));
+    proizv_xy = 0.5 * (dx2 - dx1);
+
+    // Отбрасываем краевые точки
+    double trH = proizv_xx + proizv_yy;
+    double detH = proizv_xx * proizv_yy - proizv_xy * proizv_xy;
+    if (trH * trH / detH > 12.1) // ((10 + 1) * (10 + 1)) / 10
+        return false;
+
+    // Точка подходит
+    return true;
 }
-
-Image InterestPoints::transpose(Image &image)
-{
-    Image result(image.getHeight(),image.getWidth());
-    for(int i = 0; i < image.getWidth(); i++)
-        for(int j = 0; j < image.getHeight(); j++)
-            result.setPixel(j, i, image.getPixel(i,j));
-
-    return result;
-}
-
 
 
 // Adaptive Non-Maximum Suppression
