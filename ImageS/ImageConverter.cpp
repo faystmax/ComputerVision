@@ -17,16 +17,9 @@ Image ImageConverter::convolution(const Image &image, const Kernel &core) {
                     resultPixel += image.getPixel(real_i, real_j) * core.get(x, y);
                 }
             }
-            resultImage.setPixelNoValidation(i, j, resultPixel);
+            resultImage.setPixel(i, j, resultPixel);
         }
     }
-
-//    for (int i = 0; i < core.getWidth(); i++) {
-//        for (int j = 0; j < core.getHeight(); j++) {
-//            std::cout << core.getCoreAt(i, j) << " ";
-//        }
-//        std::cout << std::endl;
-//    }
     return resultImage;
 }
 
@@ -58,21 +51,23 @@ Image ImageConverter::priut(const Image &image) {
     return resultImage;
 }
 
-Image ImageConverter::rotate(const Image &image){
+Image ImageConverter::rotate(const Image &image) {
     Image resultImage(image.getHeight(),image.getWidth());
     for (int i = 0; i < image.getWidth(); i++) {
         for (int j = 0; j < image.getHeight(); j++) {
-          resultImage.setPixelNoValidation(image.getHeight() -1 -j, i, image.getPixel(i,j));
-      }
+            resultImage.setPixel(image.getHeight() -1 -j, i, image.getPixel(i,j));
+        }
     }
     return resultImage;
 }
 
-Image ImageConverter::noise(const Image &image, const int count){
+Image ImageConverter::noise(const Image &image, const int count) {
     srand(time(0));
+
+    double noise = image.getMax() - image.getMin();
     Image resultImage(image);
     for (int i = 0; i < count; i++) {
-        resultImage.setPixel(rand() % image.getWidth(), rand() % image.getHeight(), 150);
+        resultImage.setPixel(rand() % image.getWidth(), rand() % image.getHeight(), noise);
     }
     return resultImage;
 }
@@ -91,7 +86,7 @@ Image ImageConverter::halfReduce(const Image &image) {
 }
 
 
-Image ImageConverter::bilinearHalfReduce(const Image &image){
+Image ImageConverter::bilinearHalfReduce(const Image &image) {
     Image resultImage(image.getWidth() / 2, image.getHeight() / 2);
     resultImage.setEdgeEffect(image.getEdgeEffect());
     double x_koef = image.getWidth()  / (image.getWidth()/2.);

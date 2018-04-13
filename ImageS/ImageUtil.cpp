@@ -8,10 +8,10 @@
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
-//    vector<double> newPixels = image.deNormolize();
-    for (int i = 0; i < image.getWidth(); i++) {
-        for (int j = 0; j < image.getHeight(); j++) {
-            double pixel = image.getPixel(i, j);
+    Image outImage = image.getDeNormolize();
+    for (int i = 0; i < outImage.getWidth(); i++) {
+        for (int j = 0; j < outImage.getHeight(); j++) {
+            double pixel = outImage.getPixel(i, j);
             resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
         }
     }
@@ -29,6 +29,7 @@ Image constructImage(const QImage &image, const Image::EdgeEffect edgeEffect = I
             resultImage.setPixel(i, j, 0.213 * qRed(pixel) + 0.715 * qGreen(pixel) + 0.072 * qBlue(pixel));
         }
     }
+    resultImage.normolizePixels();
     return resultImage;
 }
 
@@ -66,37 +67,40 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
     // max height
     auto height = max(imageLeft.getHeight(),imageRight.getHeight());
 
-    QImage resultImage(imageLeft.getWidth() + imageRight.getWidth(), height, QImage::Format_ARGB32);
+    Image denormImageLeft = imageLeft.getDeNormolize();
+    Image denormImageRight = imageRight.getDeNormolize();
+
+    QImage resultImage(denormImageLeft.getWidth() + denormImageRight.getWidth(), height, QImage::Format_ARGB32);
     // imageLeft
-    for (auto i = 0; i < imageLeft.getWidth(); i++) {
-        for (auto j = 0; j < imageLeft.getHeight(); j++) {
-            double pixel = imageLeft.getPixel(i, j);
+    for (auto i = 0; i < denormImageLeft.getWidth(); i++) {
+        for (auto j = 0; j < denormImageLeft.getHeight(); j++) {
+            double pixel = denormImageLeft.getPixel(i, j);
             resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
         }
     }
 
     // imageRight
-    for (auto i = 0; i < imageRight.getWidth(); i++) {
-        for (auto j = 0; j < imageRight.getHeight(); j++) {
-            double pixel = imageRight.getPixel(i, j);
-            resultImage.setPixel(i + imageLeft.getWidth(), j, qRgb(pixel, pixel, pixel));
+    for (auto i = 0; i < denormImageRight.getWidth(); i++) {
+        for (auto j = 0; j < denormImageRight.getHeight(); j++) {
+            double pixel = denormImageRight.getPixel(i, j);
+            resultImage.setPixel(i + denormImageLeft.getWidth(), j, qRgb(pixel, pixel, pixel));
         }
     }
     return resultImage;
 }
 
-inline vector<QColor> randomColors(int count){
+inline vector<QColor> randomColors(int count) {
     vector<QColor> colors;
     float currentHue = 0.0;
-    for (int i = 0; i < count; i++){
-        colors.push_back( QColor::fromHslF(currentHue, 1.0, 0.5) );
+    for (int i = 0; i < count; i++) {
+        colors.push_back(QColor::fromHslF(currentHue, 1.0, 0.5));
         currentHue += 0.618033988749895f;
         currentHue = std::fmod(currentHue, 1.0f);
     }
     return colors;
 }
 
-void drawLinesAndCircles(QImage& image, const int firstWidth, vector<Vector> similar){
+void drawLinesAndCircles(QImage &image, const int firstWidth, vector<Vector> similar) {
     QPainter painter(&image);
     QPen pen;
     pen.setWidth(1);
@@ -106,13 +110,13 @@ void drawLinesAndCircles(QImage& image, const int firstWidth, vector<Vector> sim
         painter.setPen(pen);
         Point p1 = similar[i].first.getInterPoint();
         Point p2 = similar[i].second.getInterPoint();
-        painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
+        painter.drawLine(p1.x, p1.y, p2.x + firstWidth,  p2.y);
 
         // Circle 1
         double radius1 = sqrt(2) * p1.sigmaEffect;
         painter.drawEllipse(QRect(p1.x - radius1, p1.y - radius1, 2 * radius1, 2 * radius1));
 
-         // Circle 2
+        // Circle 2
         double radius2 = sqrt(2) * p2.sigmaEffect;
         painter.drawEllipse(QRect(p2.x + firstWidth - radius2, p2.y - radius2, 2 * radius2, 2 * radius2));
 
@@ -120,20 +124,20 @@ void drawLinesAndCircles(QImage& image, const int firstWidth, vector<Vector> sim
     painter.end();
 }
 
-    void drawLines(QImage& image, const int firstWidth, vector<Vector> similar){
-        QPainter painter(&image);
-        QPen pen;
-        pen.setWidth(1);
-        vector<QColor> colors = randomColors(similar.size());
-        for (unsigned int i = 0; i < similar.size(); i++) {
-            pen.setColor(colors[i]);
-            painter.setPen(pen);
-            Point p1 = similar[i].first.getInterPoint();
-            Point p2 = similar[i].second.getInterPoint();
-            painter.drawLine (p1.x, p1.y, p2.x + firstWidth,  p2.y);
-        }
-        painter.end();
+void drawLines(QImage &image, const int firstWidth, vector<Vector> similar) {
+    QPainter painter(&image);
+    QPen pen;
+    pen.setWidth(1);
+    vector<QColor> colors = randomColors(similar.size());
+    for (unsigned int i = 0; i < similar.size(); i++) {
+        pen.setColor(colors[i]);
+        painter.setPen(pen);
+        Point p1 = similar[i].first.getInterPoint();
+        Point p2 = similar[i].second.getInterPoint();
+        painter.drawLine(p1.x, p1.y, p2.x + firstWidth,  p2.y);
     }
+    painter.end();
+}
 
 
 QImage createImageWithPointsBlob(const Image &image, const vector <Point> &points) {

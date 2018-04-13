@@ -6,7 +6,8 @@
 Kernel KernelCreator::getSame() {
     vector<double> core = {0, 0, 0,
                            0, 1, 0,
-                           0, 0, 0};
+                           0, 0, 0
+                          };
     return Kernel(3, 3, core);
 }
 
@@ -14,74 +15,86 @@ Kernel KernelCreator::getBlur() {
     const double koef = 1.0 / 9;
     vector<double> core = { koef, koef, koef,
                             koef, koef, koef,
-                            koef, koef, koef};
+                            koef, koef, koef
+                          };
     return Kernel(3, 3, core);
 }
 
-Kernel KernelCreator::getShift(){
-vector<double> core = {0, 1, 0,
-                       0, 0, 0,
-                       0, 0, 0};
-return Kernel(3, 3, core);
+Kernel KernelCreator::getShift() {
+    vector<double> core = {0, 1, 0,
+                           0, 0, 0,
+                           0, 0, 0
+                          };
+    return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getClarity() {
     vector<double> core = { -1, -1, -1,
                             -1,  9, -1,
-                            -1, -1, -1};
+                            -1, -1, -1
+                          };
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelX() {
     vector<double> core = { 1, 0, -1,
                             2, 0, -2,
-                            1, 0, -1};
+                            1, 0, -1
+                          };
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getSobelY() {
     vector<double> core = { 1,  2,  1,
                             0,  0,  0,
-                           -1, -2, -1};
+                            -1, -2, -1
+                          };
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getPriutX() {
     vector<double> core = { 1, 0, -1,
                             1, 0, -1,
-                            1, 0, -1};
+                            1, 0, -1
+                          };
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getPriutY() {
     vector<double> core = { 1,  1,   1,
                             0,  0,   0,
-                            -1, -1, -1};
+                            -1, -1, -1
+                          };
     return Kernel(3, 3, core);
 }
 
-Kernel KernelCreator::getScos(){
+Kernel KernelCreator::getScos() {
     //TODO
     vector<double> core = { 1,  0,   0,
                             0,  -1,  0,
-                            0,  0,   1};
+                            0,  0,   1
+                          };
     return Kernel(3, 3, core);
 }
 
 Kernel KernelCreator::getGauss(const double sigma) {
     int radius = sigma * 6;
-    if (radius % 2 == 0) radius++;
+    if (radius % 2 == 0) {
+        radius++;
+    }
     return getGauss(sigma, radius);
 }
 
 Kernel KernelCreator::getGaussDoubleDim(const double sigma) {
     int radius = sigma * 6;
-    if (radius % 2 == 0) radius++;
+    if (radius % 2 == 0) {
+        radius++;
+    }
     return getGaussDoubleDim(radius, radius, sigma);
 }
 
-double KernelCreator::getGaussValue(const int i, const int j, const double sigma, const int radius){
-    return  (1.0 / (2 * sigma * sigma * M_PI)) * exp(((i - radius) * (i - radius) + (j - radius) * (j - radius)) * (-1.0 / (2 * sigma * sigma)));
+double KernelCreator::getGaussValue(const int i, const int j, const double sigma, const int radius) {
+    return (1.0 / (2 * sigma * sigma * M_PI)) * exp(((i - radius) * (i - radius) + (j - radius) * (j - radius)) * (-1.0 / (2 * sigma * sigma)));
 }
 
 Kernel KernelCreator::getGauss(const double sigma, const int radius) {
@@ -114,8 +127,8 @@ Kernel KernelCreator::getGaussDoubleDim(const int width,const int height,const d
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             core[i + j * width] =
-                    mainKoef * exp(((i - halfWidth) * (i - halfWidth) + (j - halfHeight) * (j - halfHeight)) *
-                                   (-1.0 / doubleSigma));
+                mainKoef * exp(((i - halfWidth) * (i - halfWidth) + (j - halfHeight) * (j - halfHeight)) *
+                               (-1.0 / doubleSigma));
             sum += core[i + j * width];
         }
     }

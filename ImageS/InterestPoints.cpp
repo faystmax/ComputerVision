@@ -30,7 +30,7 @@ vector<Point> InterestPoints::moravek(const Image &image, const double threshold
                     }
                 }
             }
-            image_S.setPixelNoValidation(x, y, *std::min_element(local_S.begin(), local_S.end()));
+            image_S.setPixel(x, y, *std::min_element(local_S.begin(), local_S.end()));
         }
     }
 
@@ -46,7 +46,7 @@ vector<Point> InterestPoints::harris(const Image &image, const double threshold,
     Image image_S(image.getWidth(),image.getHeight());  // Веса
     for (int x = 0; x < image.getWidth(); x++) {
         for (int y = 0; y < image.getHeight(); y++) {
-            image_S.setPixelNoValidation(x, y, lambda(image_dx, image_dy, x, y, radius));
+            image_S.setPixel(x, y, lambda(image_dx, image_dy, x, y, radius));
         }
     }
 
@@ -61,8 +61,8 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
     Kernel kernel_x = KernelCreator::getSobelX();
     Kernel kernel_y = KernelCreator::getSobelY();
     for (int z = 1; z < pyramid.getDogsSize()-1; z++) {
-        Image& imageDOG = pyramid.getDog(z).image;
-        Image& imageTrue = pyramid.getDog(z).trueImage;
+        Image &imageDOG = pyramid.getDog(z).image;
+        Image &imageTrue = pyramid.getDog(z).trueImage;
         Image image_dx = ImageConverter::convolution(imageTrue, kernel_x);
         Image image_dy = ImageConverter::convolution(imageTrue, kernel_y);
 
@@ -75,8 +75,9 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
                     // check harris
                     double val = pyramid.getDog(z).sigmaScale / pyramid.getDog(0).sigmaScale;
                     double lambdaMin = lambda(image_dx, image_dy, i, j, round(radius * val));
-                    if (lambdaMin < threshold)
-                        continue; // skip - haris to low
+                    if (lambdaMin < threshold) {
+                        continue;    // skip - haris to low
+                    }
 
                     // Сохраняем
                     point.s = lambdaMin;
@@ -87,15 +88,18 @@ vector<Point> InterestPoints::blob(Pyramid &pyramid, const double threshold, con
     }
 
     // Сортируем и оборезаем если нужно
-    std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
-    if(points.size() > pointsCount)
+    std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) {
+        return p1.s > p2.s;
+    });
+    if (points.size() > pointsCount) {
         points.resize(pointsCount);
+    }
 
     return points;
 }
 
-void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
-    for (auto& point: points) {
+void InterestPoints::restorePoints(Pyramid &pyramid, vector<Point> &points) {
+    for (auto &point: points) {
         //приводим к оригинальному масштабу
         double step_W = double(pyramid.getDog(0).image.getWidth()) / pyramid.getDog(point.z).image.getWidth();
         double step_H = double(pyramid.getDog(0).image.getHeight()) / pyramid.getDog(point.z).image.getHeight();
@@ -104,22 +108,26 @@ void InterestPoints::restorePoints(Pyramid& pyramid, vector<Point> &points){
     }
 }
 
-bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, const int z){
+bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, const int z) {
 
-    if(pyramid.getDog(z-1).octave == pyramid.getDog(z+1).octave){
+    if (pyramid.getDog(z-1).octave == pyramid.getDog(z+1).octave) {
         bool min = true, max = true;
         double center = pyramid.getDog(z).image.getPixel(x, y);
 
         // ищем в 3D
-        for (int i = -1;i <= 1;i++) {
-            for (int j = -1;j <= 1;j++) {
-                for (int k = -1;k <= 1;k++) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                for (int k = -1; k <= 1; k++) {
                     if (i == 0 && j == 0 && k == 0) {
                         continue;   //skip center
                     }
                     double value = pyramid.getDog(z + k).image.getPixel(x + i, y + j);
-                    if (value >= center) max = false;
-                    if (value <= center) min = false;
+                    if (value >= center) {
+                        max = false;
+                    }
+                    if (value <= center) {
+                        min = false;
+                    }
                 }
             }
         }
@@ -129,9 +137,9 @@ bool InterestPoints::isExtremum(Pyramid &pyramid, const int x, const int y, cons
     return false;
 }
 
-bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid){
+bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid) {
 
-    cout<<p.x<<" "<<p.y<<" "<<p.z<<" "<<p.sigmaEffect<<std::endl;
+//    cout<<p.x<<" "<<p.y<<" "<<p.z<<" "<<p.sigmaEffect<<std::endl;
 
     bool flagSelect = true;                         // Флаг - подходит ли точка
     Point originalPoint = p;                        // Исходная точка
@@ -143,12 +151,12 @@ bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid){
 
 
     // Корректируем позицию
-    for(int i = 0;i < 10;i++){ // максимум 10 итераций
+    for (int i = 0; i < 20; i++) { // максимум 10 итераций
         proizv_x = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x + 1, p.y) - pyramid.getDog(p.z).image.getPixel(p.x - 1, p.y));
         proizv_y = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x, p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x, p.y - 1));
         proizv_z = 0.5 * (pyramid.getDog(p.z + 1).image.getPixel(p.x, p.y) - pyramid.getDog(p.z - 1).image.getPixel(p.x, p.y));
 
-        proizv_xx = pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y);
+        proizv_xx = pyramid.getDog(p.z).image.getPixel(p.x - 1,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x, p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y);
         proizv_yy = pyramid.getDog(p.z).image.getPixel(p.x,p.y - 1) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z).image.getPixel(p.x + 1,p.y+1);
         proizv_zz = pyramid.getDog(p.z-1).image.getPixel(p.x,p.y) - 2 * pyramid.getDog(p.z).image.getPixel(p.x,p.y) + pyramid.getDog(p.z + 1).image.getPixel(p.x,p.y);
 
@@ -156,47 +164,47 @@ bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid){
         double y_shift = -proizv_y / proizv_yy;
         double z_shift = -proizv_z / proizv_zz;
 
-        if(abs(x_shift) <= 0.5 && abs(y_shift) <= 0.5 && abs(z_shift)<= 0.5){
+        if (abs(x_shift) <= 0.5 && abs(y_shift) <= 0.5 && abs(z_shift)<= 0.5) {
             break;
         }
 
         // Меняем позицию x,y,sigma
-        if(abs(x_shift)>0.5){
-            if(x_shift>0) p.x++; else p.x--;
+        if (abs(x_shift)>0.5) {
+            p.x += x_shift > 0 ? 1 : -1;
         }
-        if(abs(y_shift)>0.5){
-            if(y_shift>0) p.y++; else p.y--;
+        if (abs(y_shift)>0.5) {
+            p.y += y_shift > 0 ? 1 : -1;
         }
-        if(abs(z_shift)>0.5){
-            if(z_shift>0) p.z++; else p.z--;
+        if (abs(z_shift)>0.5) {
+            p.z += z_shift > 0 ? 1 : -1;
         }
         // Если вышли за октаву - отбрасываем
-        if(pyramid.getDog(p.z).octave != pyramid.getDog(originalPoint.z).octave){
+        if (pyramid.getDog(p.z).octave != pyramid.getDog(originalPoint.z).octave || p.z<1 || p.z>pyramid.getDogsSize()) {
             flagSelect = false;
             break;
         }
     }
 
     // Отбрасываем
-    if(!flagSelect){
+    if (!flagSelect) {
         return false;
     }
 
+    // Считаем вектор сдвига
+    double x_dif = originalPoint.x - p.x;
+    double y_dif = originalPoint.y - p.y;
+    double z_dif = pyramid.getDog(originalPoint.z).sigmaScale - pyramid.getDog(p.z).sigmaScale;
 
-//    // Считаем вектор сдвига
-//    double x_dif = originalPoint.x - p.x;
-//    double y_dif = originalPoint.y - p.y;
-//    double z_dif = pyramid.getDog(originalPoint.z).sigmaScale - pyramid.getDog(p.z).sigmaScale;
+    // Проверяем контрастность в точке
+    double contrast = pyramid.getDog(p.z).image.getPixel(p.x, p.y) +
+                      0.5 * proizv_x * x_dif +
+                      0.5 * proizv_y * y_dif +
+                      0.5 * proizv_z * z_dif;
 
-//    // Проверяем контрастность в точке
-//    double contrast = pyramid.getDog(p.z).image.getPixel(p.x, p.y) +
-//            0.5 * proizv_x * x_dif +
-//            0.5 * proizv_y * y_dif +
-//            0.5 * proizv_z * z_dif;
-
-//    // Пропускаем если не проходит
-//    if (abs(contrast) < 0.01)
-//        return false;
+    // Пропускаем если не проходит
+    if (abs(contrast) < 0.01) { // если поставить 0.3, то очень мало точек выходит TODO
+        return false;
+    }
 
     //считаем proizv_xy
     double dx1 = 0.5 * (pyramid.getDog(p.z).image.getPixel(p.x + 1, p.y + 1) - pyramid.getDog(p.z).image.getPixel(p.x - 1, p.y + 1));
@@ -206,8 +214,9 @@ bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid){
     // Отбрасываем краевые точки
     double trH = proizv_xx + proizv_yy;
     double detH = proizv_xx * proizv_yy - proizv_xy * proizv_xy;
-    if (trH * trH / detH > 12.1) // ((10 + 1) * (10 + 1)) / 10
+    if (trH * trH / detH > 12.1) { // ((10 + 1) * (10 + 1)) / 10
         return false;
+    }
 
     // Точка подходит
     return true;
@@ -254,7 +263,7 @@ vector<Point> InterestPoints::anmsFilter(vector<Point> points, const int pointsC
 }
 
 double InterestPoints::lambda(const Image &image_dx, const Image &image_dy, const int x, const int y, const int radius) {
-    double A = 0 , B = 0, C = 0;
+    double A = 0, B = 0, C = 0;
     for (auto i = x - radius; i < x + radius; i++) {
         for (auto j = y - radius; j < y + radius; j++) {
             auto curA = image_dx.getPixel(i, j);
@@ -279,22 +288,26 @@ vector <Point> InterestPoints::thresholdFilter(const Image &image_S, const doubl
             }
         }
     }
-    std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) { return p1.s > p2.s; });
+    std::sort(points.begin(), points.end(), [](auto &p1, auto &p2) {
+        return p1.s > p2.s;
+    });
     return points;
 }
 
-vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Image &image_S){
+vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Image &image_S) {
 
     vector <Point> result;
     const int radius = 2;
 
-    for(unsigned int i = 0; i < points.size(); i ++){
+    for (unsigned int i = 0; i < points.size(); i ++) {
         auto p1 = points[i];
         bool flagMaximum = true;
 
         for (auto j = -radius; j <= radius; ++j) {
             for (auto k = -radius; k <= radius; ++k) {
-                if(j ==0 && k == 0) continue;
+                if (j ==0 && k == 0) {
+                    continue;
+                }
 
                 if (image_S.getPixel(p1.x + j, p1.y + k) >= p1.s) {
                     flagMaximum = false;
@@ -303,7 +316,7 @@ vector<Point> InterestPoints::localMaximum(const vector<Point> points, const Ima
             }
         }
 
-        if(flagMaximum == true){
+        if (flagMaximum == true) {
             result.push_back(p1);
         }
     }

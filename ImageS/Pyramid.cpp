@@ -1,4 +1,4 @@
- #include "Pyramid.h"
+#include "Pyramid.h"
 
 #include "KernelCreator.h"
 #include "ImageConverter.h"
@@ -33,7 +33,7 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
                                sigmaScale, sigmaEffect);
 
             if (i == scales - 1) {
-                tmpLastImage = ImageConverter::bilinearHalfReduce(getLastImage());
+                tmpLastImage = ImageConverter::halfReduce(getLastImage());
             }
         }
         octave++;
@@ -46,10 +46,10 @@ Pyramid::Pyramid(const Image &image, const int scales, double sigma, double sigm
 
     /* Constructs DOGs */
     for (unsigned int i = 1; i < items.size(); i++) {
-        if(Image::sizeEq(items[i - 1].image, items[i].image)){
-            Item& item = items[i - 1];
-            dogs.emplace_back(items[i].image ,items[i].image - item.image ,
-                    item.octave, item.scale, item.sigmaScale, item.sigmaEffect);
+        if (Image::sizeEq(items[i - 1].image, items[i].image)) {
+            Item &item = items[i - 1];
+            dogs.emplace_back(items[i].image,items[i].image - item.image,
+                              item.octave, item.scale, item.sigmaScale, item.sigmaEffect);
         }
     }
 }

@@ -7,41 +7,47 @@
 
 using namespace std;
 
-class IMAGESSHARED_EXPORT Image{
+class IMAGESSHARED_EXPORT Image {
 
 public:
-    enum EdgeEffect{ Black, Repeat, Mirror,  Wrapping };
+    enum EdgeEffect { Black, Repeat, Mirror,  Wrapping };
 
     Image();
-    Image(Image&&) = default;
-    Image(const Image&) = default ;
-    Image& operator=(Image&&) = default;
-    Image& operator=(const Image&) = default;
-    Image operator-(const Image& right)const;
-    Image(const int width , const int height, const EdgeEffect edgeEffect = Repeat );
+    Image(Image &&) = default;
+    Image(const Image &) = default ;
+    Image &operator=(Image &&) = default;
+    Image &operator=(const Image &) = default;
+    Image operator-(const Image &right)const;
+    Image(const int width, const int height, const EdgeEffect edgeEffect = Repeat);
     ~Image() = default;
 
     double getPixel(const int x,const int y) const;
     void setPixel(const int x,const int y, double pixel);
-    void setPixelNoValidation(const int x,const int y, double pixel);
-    static bool sizeEq(Image& img1,Image& img2);
-    vector<double> deNormolize() const;
+    static bool sizeEq(Image &img1,Image &img2);
+
+    Image getDeNormolize() const;
+    void normolizePixels();
 
     int getHeight() const {return height;}
     int getWidth() const {return width;}
 
+    inline double getMax() const {return *std::max_element(pixels.begin(), pixels.end());}
+    inline double getMin() const {return *std::min_element(pixels.begin(), pixels.end());}
+
+    vector<double>& getPixels() {return pixels;}
+
     void setEdgeEffect(const EdgeEffect edgeEffect) {this->edgeEffect = edgeEffect;}
     EdgeEffect getEdgeEffect() const {return this->edgeEffect;}
+
 private:
     int height;
     int width;
     EdgeEffect edgeEffect;
     vector<double> pixels;
 
-    double getPixelRepeat(int x ,int y) const;
-    double getPixelMirror(int x ,int y) const;
-    double getPixelWrapping(int x ,int y) const;
-    void normolize();
+    double getPixelRepeat(int x,int y) const;
+    double getPixelMirror(int x,int y) const;
+    double getPixelWrapping(int x,int y) const;
 };
 
 #endif // IMAGE_H

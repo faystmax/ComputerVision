@@ -1,6 +1,5 @@
 TEMPLATE = subdirs
 
-
 SUBDIRS += \
     Gui \
     ImageS

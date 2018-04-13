@@ -16,8 +16,8 @@
 
 
 MainWindow::MainWindow(QWidget *parent) :
-        QMainWindow(parent),
-        ui(new Ui::MainWindow) {
+    QMainWindow(parent),
+    ui(new Ui::MainWindow) {
     ui->setupUi(this);
     this->ui->graphicsView->setScene(new QGraphicsScene());
 
@@ -27,9 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->edgeEffectComboBox->addItem("Black");
     ui->edgeEffectComboBox->addItem("Wrapping");
 
-    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
-    showImage(this->image);
     reloadImages();
 
     // Disable all active buttons
@@ -86,21 +83,21 @@ void MainWindow::on_gaussButton_clicked() {
     showImage(this->image);
 }
 
-void MainWindow::on_shiftButton_clicked(){
+void MainWindow::on_shiftButton_clicked() {
     this->image = ImageConverter::convolution(this->image, KernelCreator::getShift());
     showImage(this->image);
 }
 
-void MainWindow::on_noiseButton_clicked(){
+void MainWindow::on_noiseButton_clicked() {
     this->image = ImageConverter::noise(this->image, 2000);
     showImage(this->image);
 }
-void MainWindow::on_rotateButton_clicked(){
+void MainWindow::on_rotateButton_clicked() {
     this->image = ImageConverter::rotate(this->image);
     showImage(this->image);
 }
 
-void MainWindow::on_scosButton_clicked(){
+void MainWindow::on_scosButton_clicked() {
     //TODO
     this->image = ImageConverter::convolution(this->image, KernelCreator::getScos());
     showImage(this->image);
@@ -115,20 +112,20 @@ void MainWindow::on_pyramidButton_clicked() {
     curPyramidIdex = 0;
     showImage(pyramid.getItem(curPyramidIdex).image);
     showPyramidInfo(pyramid.getItem(curPyramidIdex));
-
-    //Enable buttons
-    this->ui->pyramidLeftButton->setEnabled(true);
-    this->ui->pyramidRightButton->setEnabled(true);
 }
 
 void MainWindow::on_pyramidLeftButton_clicked() {
-    if (curPyramidIdex > 0) curPyramidIdex--;
+    if (curPyramidIdex > 0) {
+        curPyramidIdex--;
+    }
     showImage(pyramid.getItem(curPyramidIdex).image);
     showPyramidInfo(pyramid.getItem(curPyramidIdex));
 }
 
 void MainWindow::on_pyramidRightButton_clicked() {
-    if (curPyramidIdex < pyramid.getItemsSize() - 1) curPyramidIdex++;
+    if (curPyramidIdex < pyramid.getItemsSize() - 1) {
+        curPyramidIdex++;
+    }
     showImage(pyramid.getItem(curPyramidIdex).image);
     showPyramidInfo(pyramid.getItem(curPyramidIdex));
 }
@@ -141,13 +138,13 @@ void MainWindow::on_generateLImageButton_clicked() {
 
 void MainWindow::showPyramidInfo(const Item &item) {
     this->ui->infoPyramidTextEdit->setText(
-            QString::fromStdString("Octave:     ") + QString::number(item.octave) + QString::fromStdString("<br>") +
-            QString::fromStdString("Scale:      ") + QString::number(item.scale) + QString::fromStdString("<br>") +
-            QString::fromStdString("SigmaScale: ") + QString::number(item.sigmaScale) + QString::fromStdString("<br>") +
-                QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) + QString::fromStdString("<br>"));
+        QString::fromStdString("Octave:     ") + QString::number(item.octave) + QString::fromStdString("<br>") +
+        QString::fromStdString("Scale:      ") + QString::number(item.scale) + QString::fromStdString("<br>") +
+        QString::fromStdString("SigmaScale: ") + QString::number(item.sigmaScale) + QString::fromStdString("<br>") +
+        QString::fromStdString("SigmaEffect:") + QString::number(item.sigmaEffect) + QString::fromStdString("<br>"));
 }
 
-void MainWindow::reloadImages(){
+void MainWindow::reloadImages() {
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     this->image = constructImage(QImage(":/resource/img/resource/img/lenna.jpg"));
     showImage(this->image);
@@ -156,29 +153,29 @@ void MainWindow::reloadImages(){
 /* Interest Points */
 void MainWindow::on_moravekButton_clicked() {
     vector <Point> points = interestPoints.moravek(this->image, this->ui->ThresholdSpinBox->value(),
-                                                   this->ui->radiusSpinBox->value(),
-                                                   this->ui->pointsCountSpinBox->value());
+                            this->ui->radiusSpinBox->value(),
+                            this->ui->pointsCountSpinBox->value());
     showImage(createImageWithPoints(this->image, points));
 }
 
 void MainWindow::on_harrisButton_clicked() {
     vector <Point> points = interestPoints.harris(this->image, this->ui->ThresholdSpinBox->value(),
-                                                  this->ui->radiusSpinBox->value(),
-                                                  this->ui->pointsCountSpinBox->value());
+                            this->ui->radiusSpinBox->value(),
+                            this->ui->pointsCountSpinBox->value());
     showImage(createImageWithPoints(this->image, points));
 }
 
 void MainWindow::on_blobButton_clicked() {
     Pyramid pyramid(this->image);
     vector <Point> points = interestPoints.blob(pyramid, this->ui->ThresholdSpinBox->value(),
-                                                  this->ui->radiusSpinBox->value(),
-                                                  this->ui->pointsCountSpinBox->value());
+                                                this->ui->radiusSpinBox->value(),
+                                                this->ui->pointsCountSpinBox->value());
     interestPoints.restorePoints(pyramid, points);
     showImage(createImageWithPointsBlob(this->image, points));
 }
 
 /* Descriptors */
-void MainWindow::on_invRotButton_clicked(){
+void MainWindow::on_invRotButton_clicked() {
     // Vars
     int treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
@@ -201,9 +198,9 @@ void MainWindow::on_invRotButton_clicked(){
     showImage(result);
 }
 
-void MainWindow::on_invRotScaleButton_clicked(){
+void MainWindow::on_invRotScaleButton_clicked() {
     // Vars
-    int treshold = this->ui->ThresholdSpinBox->value();
+    double treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
     int pointsCount = this->ui->pointsCountSpinBox->value();
     int radiusDesc = this->ui->radiusDescSpinBox->value();
@@ -226,7 +223,7 @@ void MainWindow::on_invRotScaleButton_clicked(){
     showImage(result);
 }
 
-void MainWindow::on_invRotScaleAffButton_clicked(){
+void MainWindow::on_invRotScaleAffButton_clicked() {
     // Vars
     int treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
@@ -265,23 +262,24 @@ void MainWindow::on_rotaterButton_clicked() {
 }
 
 
-void MainWindow::on_scaleButton_clicked(){
+void MainWindow::on_scaleButton_clicked() {
     QImage outputImage = getOutputImage(this->image);
-    QImage rotateImage = outputImage.scaled(outputImage.width() + this->ui->scaleSpinBox->value(), outputImage.height() + this->ui->scaleSpinBox->value(),Qt::KeepAspectRatio);
+    QImage rotateImage = outputImage.scaled(outputImage.width() + this->ui->scaleSpinBox->value(), outputImage.height() + this->ui->scaleSpinBox->value(),
+                                            Qt::KeepAspectRatio);
     this->image = constructImage(rotateImage);
     showImage(this->image);
 }
 
-void MainWindow::on_scaleXButton_clicked(){
+void MainWindow::on_scaleXButton_clicked() {
     QImage outputImage = getOutputImage(this->image);
     QImage rotateImage = outputImage.scaled(outputImage.width() + this->ui->scaleSpinBox->value(), outputImage.height());
     this->image = constructImage(rotateImage);
     showImage(this->image);
 }
 
-void MainWindow::on_scaleYButton_clicked(){
+void MainWindow::on_scaleYButton_clicked() {
     QImage outputImage = getOutputImage(this->image);
-    QImage rotateImage = outputImage.scaled(outputImage.width() , outputImage.height() + this->ui->scaleSpinBox->value());
+    QImage rotateImage = outputImage.scaled(outputImage.width(), outputImage.height() + this->ui->scaleSpinBox->value());
     this->image = constructImage(rotateImage);
     showImage(this->image);
 }
@@ -289,18 +287,18 @@ void MainWindow::on_scaleYButton_clicked(){
 
 void MainWindow::on_edgeEffectComboBox_currentIndexChanged(int index) {
     switch (index) {
-        case (0):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Repeat);
-            break;
-        case (1):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Mirror);
-            break;
-        case (2):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Black);
-            break;
-        case (3):
-            return this->image.setEdgeEffect(Image::EdgeEffect::Wrapping);
-            break;
+    case (0):
+        return this->image.setEdgeEffect(Image::EdgeEffect::Repeat);
+        break;
+    case (1):
+        return this->image.setEdgeEffect(Image::EdgeEffect::Mirror);
+        break;
+    case (2):
+        return this->image.setEdgeEffect(Image::EdgeEffect::Black);
+        break;
+    case (3):
+        return this->image.setEdgeEffect(Image::EdgeEffect::Wrapping);
+        break;
     }
 }
 
@@ -342,7 +340,7 @@ void MainWindow::enableButtons(bool enable) {
     this->ui->generateLImageButton->setEnabled(enable);
 }
 
-void MainWindow::on_reloadButton_clicked(){
+void MainWindow::on_reloadButton_clicked() {
     reloadImages();
 }
 
