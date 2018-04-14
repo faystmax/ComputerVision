@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Gui \
-    ImageS
+    ImageS \
+    linalg
 
 Gui.depends = ImageS
-
+ImageS.depends = linalg

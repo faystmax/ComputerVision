@@ -32,7 +32,8 @@ SOURCES += \
     ImageUtil.cpp \
     InterestPoints.cpp \
     Descriptor.cpp \
-    Util.cpp
+    Util.cpp \
+    Ransac.cpp
 
 HEADERS +=\
         images_global.h \
@@ -42,9 +43,24 @@ HEADERS +=\
     KernelCreator.h \
     Pyramid.h \
     InterestPoints.h \
-    Descriptor.h
+    Descriptor.h \
+    Ransac.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../linalg/release/ -llinalg
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../linalg/debug/ -llinalg
+else:unix: LIBS += -L$$OUT_PWD/../linalg/ -llinalg
+
+INCLUDEPATH += $$PWD/../linalg
+DEPENDPATH += $$PWD/../linalg
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../linalg/release/liblinalg.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../linalg/debug/liblinalg.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../linalg/release/linalg.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../linalg/debug/linalg.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../linalg/liblinalg.a

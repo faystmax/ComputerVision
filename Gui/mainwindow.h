@@ -7,7 +7,7 @@
 #include "Image.h"
 #include "Pyramid.h"
 #include "InterestPoints.h"
-
+#include "Ransac.h"
 using namespace std;
 
 namespace Ui {
@@ -39,29 +39,17 @@ private slots:
     void on_harrisButton_clicked();
 
     void on_shiftButton_clicked();
-
     void on_noiseButton_clicked();
-
     void on_rotateButton_clicked();
-
     void on_rotaterButton_clicked();
-
     void on_blobButton_clicked();
-
     void on_scaleButton_clicked();
-
     void on_reloadButton_clicked();
-
     void on_scosButton_clicked();
-
     void on_scaleXButton_clicked();
-
     void on_scaleYButton_clicked();
-
     void on_invRotScaleButton_clicked();
-
     void on_invRotScaleAffButton_clicked();
-
     void on_invRotButton_clicked();
 
 private:
@@ -71,6 +59,7 @@ private:
     Image imageOriginal;
     Pyramid pyramid;
     InterestPoints interestPoints;
+    Ransac ransac;
 
     void showImage(const QImage &image);
     void showImage(const Image &image);
