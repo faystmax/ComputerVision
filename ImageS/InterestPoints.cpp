@@ -202,7 +202,7 @@ bool InterestPoints::correctPosition(Point &p, Pyramid &pyramid) {
                       0.5 * proizv_z * z_dif;
 
     // Пропускаем если не проходит
-    if (abs(contrast) < 0.01) { // если поставить 0.3, то очень мало точек выходит TODO
+    if (abs(contrast) < 0.01) { // если поставить 0.03, то очень мало точек выходит TODO
         return false;
     }
 

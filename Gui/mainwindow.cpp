@@ -177,7 +177,7 @@ void MainWindow::on_blobButton_clicked() {
 /* Descriptors */
 void MainWindow::on_invRotButton_clicked() {
     // Vars
-    int treshold = this->ui->ThresholdSpinBox->value();
+    double treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
     int pointsCount = this->ui->pointsCountSpinBox->value();
     int radiusDesc = this->ui->radiusDescSpinBox->value();
@@ -225,7 +225,7 @@ void MainWindow::on_invRotScaleButton_clicked() {
 
 void MainWindow::on_invRotScaleAffButton_clicked() {
     // Vars
-    int treshold = this->ui->ThresholdSpinBox->value();
+    double treshold = this->ui->ThresholdSpinBox->value();
     int radius = this->ui->radiusSpinBox->value();
     int pointsCount = this->ui->pointsCountSpinBox->value();
     int radiusDesc = this->ui->radiusDescSpinBox->value();

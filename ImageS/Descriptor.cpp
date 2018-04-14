@@ -440,12 +440,12 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     int gist4 = ((gist_i + 1) % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
 
                     // добиваемся чтоб координаты были между 4 гистограммами
-                    double tmp_i = true_i % int(barCharStep/2) + barCharStep/2;
-                    double tmp_j = true_j % int(barCharStep/2) + barCharStep/2;
+                    double tmp_i = fmod(true_i  + barCharStep/2, barCharStep);
+                    double tmp_j = fmod(true_j  + barCharStep/2, barCharStep);
 
                     // считаем веса  по x и y
                     double wt_X = (barCharStep - tmp_i) / barCharStep;
-                    double wt_Y = (barCharStep - tmp_j) /  barCharStep;
+                    double wt_Y = (barCharStep - tmp_j) / barCharStep;
 
                     // перемножаем для 4 гистограмм
                     double wt_1 = wt_X * wt_Y;
