@@ -47,6 +47,7 @@ Matrix Ransac::search(vector<Vector> &lines, const double threshhold) {
         hypothesis.inliers = countInliers(hypothesis, lines, threshhold);
         matrixes.push_back(hypothesis);
     }
+
     // Сортируем и берём самый подходящий
     std::sort(matrixes.begin(), matrixes.end(), [](const Matrix &m_1, const Matrix &m_2) {return m_1.inliers > m_2.inliers;});
     return matrixes[0];
