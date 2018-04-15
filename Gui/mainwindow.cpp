@@ -150,6 +150,13 @@ void MainWindow::reloadImages() {
     showImage(this->image);
 }
 
+void MainWindow::on_reloadPanoramButton_clicked(){
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/pan1.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/pan2.jpg"));
+    showImage(this->image);
+}
+
+
 /* Interest Points */
 void MainWindow::on_moravekButton_clicked() {
     vector <Point> points = interestPoints.moravek(this->image, this->ui->ThresholdSpinBox->value(),
@@ -239,7 +246,7 @@ void MainWindow::on_invRotScaleAffButton_clicked() {
 
     Pyramid pyramid_2(this->image);
     vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2,  points2, radiusDesc,basketCount, barCharCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
 
     // Glue and draw
     QImage result = glueImages(this->imageOriginal, this->image);
@@ -282,6 +289,35 @@ void MainWindow::on_scaleYButton_clicked() {
     QImage rotateImage = outputImage.scaled(outputImage.width(), outputImage.height() + this->ui->scaleSpinBox->value());
     this->image = constructImage(rotateImage);
     showImage(this->image);
+}
+
+
+/* Panorama */
+void MainWindow::on_glueButton_clicked(){
+    // Vars
+    double treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    Pyramid pyramid_1(this->imageOriginal);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
+
+    Pyramid pyramid_2(this->image);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
+
+
+
+    // Glue and draw Panoram TODO
+    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+    Matrix transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
+    QImage panoram = glueImagesPanoram(this->imageOriginal, this->image, transformMatrix);
+    showImage(panoram);
 }
 
 
@@ -343,4 +379,3 @@ void MainWindow::enableButtons(bool enable) {
 void MainWindow::on_reloadButton_clicked() {
     reloadImages();
 }
-

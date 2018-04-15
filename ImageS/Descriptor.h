@@ -22,6 +22,7 @@ public:
     int getSize() const { return data.size(); }
     double getAt(const int index) const {return data[index];}
     Point getInterPoint() const {return interPoint;}
+    Point& getInterPointRef() {return interPoint;}
     void clampData(const double min, const double max);
     void setPointXY(const int x, const int y);
 
@@ -39,7 +40,7 @@ private:
 struct IMAGESSHARED_EXPORT Vector {
     Descriptor first;
     Descriptor second;
-    Vector(Descriptor first,Descriptor second) {
+    Vector(Descriptor first, Descriptor second) {
         this->first = first;
         this->second = second;
     }

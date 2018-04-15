@@ -52,6 +52,10 @@ private slots:
     void on_invRotScaleAffButton_clicked();
     void on_invRotButton_clicked();
 
+    void on_glueButton_clicked();
+
+    void on_reloadPanoramButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

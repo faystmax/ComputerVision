@@ -6,6 +6,9 @@
         <file>resource/img/lenna.jpg</file>
         <file>resource/img/big_lenna.jpg</file>
         <file>resource/img/blob.png</file>
+        <file>resource/img/pan1.jpg</file>
+        <file>resource/img/pan2.jpg</file>
+        <file>resource/img/city-1200x500.jpg</file>
     </qresource>
     <qresource prefix="/icons">
         <file>resource/icons/main.png</file>

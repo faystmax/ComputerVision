@@ -5,6 +5,7 @@
 #include "Pyramid.h"
 #include "InterestPoints.h"
 #include "Descriptor.h"
+#include "Ransac.h"
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
@@ -88,6 +89,36 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
     }
     return resultImage;
 }
+
+//TODO
+QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const Matrix& matr) {
+
+    // max height
+    auto height = max(imageLeft.getHeight(),imageRight.getHeight());
+
+    Image denormImageLeft = imageLeft.getDeNormolize();
+    Image denormImageRight = imageRight.getDeNormolize();
+
+    QImage resultImage(denormImageLeft.getWidth() + denormImageRight.getWidth(), height, QImage::Format_ARGB32);
+    // imageLeft
+    for (auto i = 0; i < denormImageLeft.getWidth(); i++) {
+        for (auto j = 0; j < denormImageLeft.getHeight(); j++) {
+            double pixel = denormImageLeft.getPixel(i, j);
+            resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
+        }
+    }
+
+    // imageRight
+    for (auto i = 0; i < denormImageRight.getWidth(); i++) {
+        for (auto j = 0; j < denormImageRight.getHeight(); j++) {
+            double pixel = denormImageRight.getPixel(i, j);
+            resultImage.setPixel(i + denormImageLeft.getWidth(), j, qRgb(pixel, pixel, pixel));
+        }
+    }
+    return resultImage;
+}
+
+
 
 inline vector<QColor> randomColors(int count) {
     vector<QColor> colors;
