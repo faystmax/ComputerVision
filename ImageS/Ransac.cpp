@@ -11,7 +11,7 @@ Matrix::Matrix(const int rows, const int cols) {
     this->data.resize(rows * cols, 0);
 }
 
-Matrix::Matrix(const int rows, const int cols, const vector<double> data) {
+Matrix::Matrix(const int rows, const int cols, const vector<double> &data) {
     Q_ASSERT(data.size() == rows * cols);
     this->rows = rows;
     this->cols = cols;
@@ -37,31 +37,47 @@ Matrix Ransac::search(vector<Vector> &lines, const double threshhold) {
     }
 
     // Сортируем и берём самый подходящий
-    std::sort(matrixes.begin(), matrixes.end(), [](const Matrix &m_1, const Matrix &m_2) {return m_1.inliers > m_2.inliers;});
+    std::sort(matrixes.begin(), matrixes.end(), [](const Matrix &m_1, const Matrix &m_2) {
+        return m_1.inliers > m_2.inliers;
+    });
     return matrixes[0];
+}
+
+Matrix Ransac::convert(const Matrix &transMatrix, const int x, const int y) {
+    Matrix a(3, 1);
+    a.set(0, 0, x);
+    a.set(1, 0, y);
+    a.set(2, 0, 1);
+
+    // Строим матрицу h 3 на 3
+    Q_ASSERT(transMatrix.data.size() == 9);
+    Matrix h(3, 3, transMatrix.data);
+
+    // Находим новые координаты
+    return Matrix::multiply(h, a);
 }
 
 Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vector &line_4) {
     // Переименовываем для простоты использования
-    double x1 = line_1.first.getInterPointRef().x;
-    double y1 = line_1.first.getInterPointRef().y;
-    double x1_s = line_1.second.getInterPointRef().x;
-    double y1_s = line_1.second.getInterPointRef().y;
+    double x1 = line_1.second.getInterPointRef().x;
+    double y1 = line_1.second.getInterPointRef().y;
+    double x1_s = line_1.first.getInterPointRef().x;
+    double y1_s = line_1.first.getInterPointRef().y;
 
-    double x2 = line_2.first.getInterPointRef().x;
-    double y2 = line_2.first.getInterPointRef().y;
-    double x2_s = line_2.second.getInterPointRef().x;
-    double y2_s = line_2.second.getInterPointRef().y;
+    double x2 = line_2.second.getInterPointRef().x;
+    double y2 = line_2.second.getInterPointRef().y;
+    double x2_s = line_2.first.getInterPointRef().x;
+    double y2_s = line_2.first.getInterPointRef().y;
 
-    double x3 = line_3.first.getInterPointRef().x;
-    double y3 = line_3.first.getInterPointRef().y;
-    double x3_s = line_3.second.getInterPointRef().x;
-    double y3_s = line_3.second.getInterPointRef().y;
+    double x3 = line_3.second.getInterPointRef().x;
+    double y3 = line_3.second.getInterPointRef().y;
+    double x3_s = line_3.first.getInterPointRef().x;
+    double y3_s = line_3.first.getInterPointRef().y;
 
-    double x4 = line_4.first.getInterPointRef().x;
-    double y4 = line_4.first.getInterPointRef().y;
-    double x4_s = line_4.second.getInterPointRef().x;
-    double y4_s = line_4.second.getInterPointRef().y;
+    double x4 = line_4.second.getInterPointRef().x;
+    double y4 = line_4.second.getInterPointRef().y;
+    double x4_s = line_4.first.getInterPointRef().x;
+    double y4_s = line_4.first.getInterPointRef().y;
 
     // Инициализируем матрицу A
     vector<double> matr_A_data = { x1, y1, 1, 0,   0,  0, -x1_s * x1, -x1_s * y1, -x1_s,
@@ -76,8 +92,8 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
 
     // Транспонируем и перемножаем
     Matrix matr_A(8, 9, matr_A_data);
-    Matrix transp_A = transpose(matr_A);
-    Matrix matr_ATA = multiply(transp_A, matr_A);
+    Matrix transp_A = Matrix::transpose(matr_A);
+    Matrix matr_ATA = Matrix::multiply(transp_A, matr_A);
 
     // Кладём в real_2d_array
     real_2d_array matr, u, vt;
@@ -85,31 +101,21 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
 
     // Считаем SVD
     real_1d_array w;
-    bool isSucces = rmatrixsvd(matr, 9, 9, 2, 2, 2, w, u, vt);
+    bool isSucces = rmatrixsvd(matr, 9, 9, 2, 0, 2, w, u, vt);
     Q_ASSERT(isSucces);
-
-
-    for (int i = 0;i < w.length();i++) {
-        std::cout<<w[i]<<std::endl;
-    }
 
     // так как  W - contains singular values in descending order.
     // берём последний столбец в u
     Matrix hypothesis(9, 1);
-    for (int i = 0;i < hypothesis.rows;i++) {
+    for (auto i = 0; i < hypothesis.rows; i++) {
         hypothesis.set(i, 0, u[i][u.cols()-1]);
     }
+
+    // Делим на последний элемент в матрице - чтоб h22 = 1
     double koef = 1.0 / hypothesis.data[8];
     for (auto &elem : hypothesis.data) {
         elem *= koef;
     }
-
-//    for (int i = 0;i < 9;i++) {
-//        for (int j = 0;j < 9;j++) {
-//            std::cout<<u[i][j]<<"  ";
-//        }
-//        std::cout<<std::endl;
-//    }
 
     return hypothesis;
 }
@@ -117,22 +123,12 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
 int Ransac::countInliers(const Matrix &hyp, const vector<Vector> &lines, const double threshhold) {
     int inliers = 0;
     for (auto i = 0; i < lines.size(); i++) {
-        // Строим матрицу
-        Matrix a(3, 1);
-        a.set(0, 0, lines[i].first.getInterPoint().x);
-        a.set(1, 0, lines[i].first.getInterPoint().y);
-        a.set(2, 0, 1);
-
-        // Строим матрицу h 3 на 3
-        Matrix h(3, 3);
-        h.data = hyp.data;
-
         // Находим новые координаты
-        Matrix result = multiply(h, a);
+        Matrix newCoord = convert(hyp, lines[i].second.getInterPoint().x, lines[i].second.getInterPoint().y);
 
         // Считаем разницу
-        double distance = sqrt(pow(result.at(0,0) - lines[i].second.getInterPoint().x,2) +
-                               pow(result.at(1,0) - lines[i].second.getInterPoint().y,2));
+        double distance = sqrt(pow(newCoord.at(0,0) - lines[i].first.getInterPoint().x, 2) +
+                               pow(newCoord.at(1,0) - lines[i].first.getInterPoint().y, 2));
         if (distance <= threshhold) {
             inliers++;
         }
@@ -142,7 +138,7 @@ int Ransac::countInliers(const Matrix &hyp, const vector<Vector> &lines, const d
 
 
 /* Транспонированеие */
-Matrix Ransac::transpose(const Matrix &matr) {
+Matrix Matrix::transpose(const Matrix &matr) {
     Matrix result(matr.cols, matr.rows);
     for (auto i = 0; i < matr.rows; i++) {
         for (auto j = 0; j < matr.cols; j++) {
@@ -153,7 +149,7 @@ Matrix Ransac::transpose(const Matrix &matr) {
 }
 
 /* Перемножение */
-Matrix Ransac::multiply(const Matrix &matr_1, const Matrix &matr_2) {
+Matrix Matrix::multiply(const Matrix &matr_1, const Matrix &matr_2) {
     Q_ASSERT(matr_1.cols == matr_2.rows);
     Matrix result(matr_1.rows, matr_2.cols);
     for (auto i = 0; i < matr_1.rows; i++) {
@@ -171,12 +167,16 @@ Matrix Ransac::multiply(const Matrix &matr_1, const Matrix &matr_2) {
 /* 4 разных рандомных числа */
 vector<int> Ransac::get4RandomNumbers(const int max) {
     int rand_1, rand_2, rand_3, rand_4;
+    rand_1 = rand() % max;
     do {
-        rand_1 = rand() % max;
         rand_2 = rand() % max;
+    } while (rand_1 == rand_2);
+    do {
         rand_3 = rand() % max;
+    } while (rand_1 == rand_3 || rand_2 == rand_3);
+    do {
         rand_4 = rand() % max;
-    } while (rand_1 != rand_2 && rand_2!=rand_3 && rand_3 != rand_4);
+    } while (rand_1 == rand_4 || rand_2 == rand_4 || rand_3 == rand_4);
 
     vector<int> lines_4 = {rand_1, rand_2, rand_3, rand_4};
     return lines_4;

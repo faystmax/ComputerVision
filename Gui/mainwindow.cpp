@@ -151,8 +151,8 @@ void MainWindow::reloadImages() {
 }
 
 void MainWindow::on_reloadPanoramButton_clicked(){
-    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/pan1.jpg"));
-    this->image = constructImage(QImage(":/resource/img/resource/img/pan2.jpg"));
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/pan1111.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/pan2222.jpg"));
     showImage(this->image);
 }
 
@@ -310,8 +310,6 @@ void MainWindow::on_glueButton_clicked(){
     Pyramid pyramid_2(this->image);
     vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
     vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
-
-
 
     // Glue and draw Panoram TODO
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
