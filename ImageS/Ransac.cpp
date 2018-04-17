@@ -19,18 +19,6 @@ Matrix::Matrix(const int rows, const int cols, const vector<double> data) {
 
 }
 
-Matrix::Matrix(const real_1d_array &matr) {
-    Q_ASSERT(matr.length() == 9);
-    double koef = 1.0 / matr[8];
-    this->cols = 1;
-    this->rows = 1;
-
-    this->data = vector<double>(matr.getcontent(), matr.getcontent() + matr.length());
-    for (auto &elem : this->data) {
-        elem *= koef;
-    }
-}
-
 Ransac::Ransac() {
     srand(time(0));
 }
@@ -100,12 +88,29 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
     bool isSucces = rmatrixsvd(matr, 9, 9, 2, 2, 2, w, u, vt);
     Q_ASSERT(isSucces);
 
+
+    for (int i = 0;i < w.length();i++) {
+        std::cout<<w[i]<<std::endl;
+    }
+
     // так как  W - contains singular values in descending order.
     // берём последний столбец в u
     Matrix hypothesis(9, 1);
     for (int i = 0;i < hypothesis.rows;i++) {
         hypothesis.set(i, 0, u[i][u.cols()-1]);
     }
+    double koef = 1.0 / hypothesis.data[8];
+    for (auto &elem : hypothesis.data) {
+        elem *= koef;
+    }
+
+//    for (int i = 0;i < 9;i++) {
+//        for (int j = 0;j < 9;j++) {
+//            std::cout<<u[i][j]<<"  ";
+//        }
+//        std::cout<<std::endl;
+//    }
+
     return hypothesis;
 }
 
@@ -114,8 +119,8 @@ int Ransac::countInliers(const Matrix &hyp, const vector<Vector> &lines, const d
     for (auto i = 0; i < lines.size(); i++) {
         // Строим матрицу
         Matrix a(3, 1);
-        a.set(0, 0, lines[i].second.getInterPoint().x);
-        a.set(1, 0, lines[i].second.getInterPoint().y);
+        a.set(0, 0, lines[i].first.getInterPoint().x);
+        a.set(1, 0, lines[i].first.getInterPoint().y);
         a.set(2, 0, 1);
 
         // Строим матрицу h 3 на 3
@@ -126,8 +131,8 @@ int Ransac::countInliers(const Matrix &hyp, const vector<Vector> &lines, const d
         Matrix result = multiply(h, a);
 
         // Считаем разницу
-        double distance = sqrt(pow(result.at(0,0) - lines[i].first.getInterPoint().x,2) +
-                               pow(result.at(1,0) - lines[i].first.getInterPoint().y,2));
+        double distance = sqrt(pow(result.at(0,0) - lines[i].second.getInterPoint().x,2) +
+                               pow(result.at(1,0) - lines[i].second.getInterPoint().y,2));
         if (distance <= threshhold) {
             inliers++;
         }
@@ -149,6 +154,7 @@ Matrix Ransac::transpose(const Matrix &matr) {
 
 /* Перемножение */
 Matrix Ransac::multiply(const Matrix &matr_1, const Matrix &matr_2) {
+    Q_ASSERT(matr_1.cols == matr_2.rows);
     Matrix result(matr_1.rows, matr_2.cols);
     for (auto i = 0; i < matr_1.rows; i++) {
         for (auto j = 0; j < matr_2.cols; j++) {

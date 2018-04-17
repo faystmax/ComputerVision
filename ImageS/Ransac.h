@@ -13,7 +13,6 @@ class IMAGESSHARED_EXPORT Matrix {
     Matrix() = default;
     Matrix(const int rows, const int cols);
     Matrix(const int rows, const int cols, const vector<double> data);
-    Matrix(const real_1d_array &matr);
     Matrix(const Matrix &) = default ;
     Matrix(Matrix &&) = default;
     Matrix &operator=(Matrix &&) = default;
