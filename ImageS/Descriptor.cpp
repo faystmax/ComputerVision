@@ -434,10 +434,12 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     int gist_j = disk_j / barCharStep;
 
                     // индексы 4-ех гистограмм
-                    int gist1 = (gist_i % barCharCountInLine) * barCharCountInLine + gist_j % barCharCountInLine;
-                    int gist2 = ((gist_i + 1) % barCharCountInLine) * barCharCountInLine + gist_j % barCharCountInLine;
-                    int gist3 = (gist_i % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
-                    int gist4 = ((gist_i + 1) % barCharCountInLine) * barCharCountInLine + (gist_j + 1) % barCharCountInLine;
+                    int gist[4];
+                    gist[0] = gist_i * barCharCountInLine + gist_j;
+                    gist[1] = gist_i + 1 >= barCharCountInLine ? -1 : (gist_i + 1) * barCharCountInLine + gist_j;
+                    gist[2] = gist_j + 1 >= barCharCountInLine ? -1 :  gist_i * barCharCountInLine + (gist_j + 1),
+                    gist[3] = (gist_i + 1 >= barCharCountInLine || gist_j + 1 >= barCharCountInLine) ? -1 :
+                              (gist_i + 1) * barCharCountInLine + (gist_j + 1);
 
                     // добиваемся чтоб координаты были между 4 гистограммами
                     double tmp_i = fmod(true_i  + barCharStep/2, barCharStep);
@@ -448,31 +450,17 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
                     double wt_Y = (barCharStep - tmp_j) / barCharStep;
 
                     // перемножаем для 4 гистограмм
-                    double wt_1 = wt_X * wt_Y;
-                    double wt_2 = (1 - wt_X) * wt_Y;
-                    double wt_3 = wt_X * (1 - wt_Y);
-                    double wt_4 = (1 - wt_X) * (1 - wt_Y);
+                    double wt[4] = {wt_X * wt_Y, (1 - wt_X) * wt_Y,
+                                    wt_X *(1 - wt_Y), (1 - wt_X) * (1 - wt_Y)};
 
-                    // считаем индексы
-                    int indexMain1 = gist1 * basketCount + firstBasketIndex;
-                    int indexSide1 = gist1 * basketCount + secondBasketIndex;
-                    int indexMain2 = gist2 * basketCount + firstBasketIndex;
-                    int indexSide2 = gist2 * basketCount + secondBasketIndex;
-                    int indexMain3 = gist3 * basketCount + firstBasketIndex;
-                    int indexSide3 = gist3 * basketCount + secondBasketIndex;
-                    int indexMain4 = gist4 * basketCount + firstBasketIndex;
-                    int indexSide4 = gist4 * basketCount + secondBasketIndex;
-
-                    // записываем значения
-                    descriptors[k].data[indexMain1] += wt_1 * mainBasketValue;
-                    descriptors[k].data[indexSide1] += wt_1 * sideBasketValue;
-                    descriptors[k].data[indexMain2] += wt_2 * mainBasketValue;
-                    descriptors[k].data[indexSide2] += wt_2 * sideBasketValue;
-                    descriptors[k].data[indexMain3] += wt_3 * mainBasketValue;
-                    descriptors[k].data[indexSide3] += wt_3 * sideBasketValue;
-                    descriptors[k].data[indexMain4] += wt_4 * mainBasketValue;
-                    descriptors[k].data[indexSide4] += wt_4 * sideBasketValue;
-
+                    // считаем индексы и записываем значения
+                    for (int i = 0; i < 4; i++) {
+                        if (gist[i] != -1) {
+                            int index = gist[i] * basketCount;
+                            descriptors[k].data[index + firstBasketIndex] += wt[i] * mainBasketValue;
+                            descriptors[k].data[index + secondBasketIndex] += wt[i] * sideBasketValue;
+                        }
+                    }
                 }
             }
             descriptors[k].normalize();

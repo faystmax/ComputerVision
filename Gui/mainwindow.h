@@ -56,6 +56,8 @@ private slots:
 
     void on_reloadPanoramButton_clicked();
 
+    void on_affineButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;

@@ -93,39 +93,24 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
 // Строим панораму
 QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const Matrix& matr) {
 
+    QImage outputLeftImage = getOutputImage(imageLeft.getDeNormolize());
+    QImage outputRightImage = getOutputImage(imageRight.getDeNormolize());
 
-
-    Image denormImageLeft = imageLeft.getDeNormolize();
-    Image denormImageRight = imageRight.getDeNormolize();
-
-    // transform
+    // transform matrix
     QTransform transform(matr.at(0,0),matr.at(3,0),matr.at(6,0),
                          matr.at(1,0),matr.at(4,0),matr.at(7,0),
                          matr.at(2,0),matr.at(5,0),matr.at(8,0));
-    QImage outputImage = getOutputImage(denormImageRight);
-    QImage result = outputImage.transformed(transform);
 
-    // max height
-    auto height = max(imageLeft.getHeight(),result.height() + 100); // высоту возьмём с запасом
+    auto height = max(outputLeftImage.height(), outputRightImage.height() + 100); // высоту возьмём с запасом
+    QImage resultImage(outputLeftImage.width() + outputRightImage.width(), height, QImage::Format_ARGB32);
 
-    QImage resultImage(denormImageLeft.getWidth() + result.width(), height, QImage::Format_ARGB32);
-    // imageLeft
-    for (auto i = 0; i < denormImageLeft.getWidth(); i++) {
-        for (auto j = 0; j < denormImageLeft.getHeight(); j++) {
-            double pixel = denormImageLeft.getPixel(i, j);
-            resultImage.setPixel(i, j, qRgb(pixel, pixel, pixel));
-        }
-    }
+    // Строим изображение
+    QPainter painter;
+    painter.begin(&resultImage);
+    painter.drawImage(0,0,outputLeftImage);
+    painter.setTransform(transform);
+    painter.drawImage(0,0,outputRightImage);
 
-    // вычисляем сдвиг
-    Matrix newCoord = Ransac::convert(matr, 0, 0);
-
-    // imageRight
-    for (auto i = 0; i < result.width(); i++) {
-        for (auto j = 0; j < result.height(); j++) {
-            resultImage.setPixel(i + newCoord.at(0,0), j + newCoord.at(1,0), result.pixel(i, j));
-        }
-    }
     return resultImage;
 }
 

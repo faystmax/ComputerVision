@@ -377,3 +377,13 @@ void MainWindow::enableButtons(bool enable) {
 void MainWindow::on_reloadButton_clicked() {
     reloadImages();
 }
+
+void MainWindow::on_affineButton_clicked()
+{
+    QTransform trans(1, 0.2, 0,
+                     0.3,  1,  0,
+                     0,  0,  1);
+    QImage out = getOutputImage(this->image).transformed(trans);
+    this->image = constructImage(out);
+    this->showImage(out);
+}

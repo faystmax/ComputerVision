@@ -2,21 +2,18 @@
 #include "iostream"
 #include <cstdlib>
 #include <ctime>
-
+#include <algorithm>
 
 
 Matrix::Matrix(const int rows, const int cols) {
     this->rows = rows;
     this->cols = cols;
-    this->data.resize(rows * cols, 0);
 }
 
-Matrix::Matrix(const int rows, const int cols, const vector<double> &data) {
-    Q_ASSERT(data.size() == rows * cols);
+Matrix::Matrix(const int rows, const int cols, const array<double, 100> &data) {
     this->rows = rows;
     this->cols = cols;
     this->data = data;
-
 }
 
 Ransac::Ransac() {
@@ -25,22 +22,25 @@ Ransac::Ransac() {
 
 Matrix Ransac::search(vector<Vector> &lines, const double threshhold) {
 
-    vector<Matrix> matrixes;
-
+    int numbers[4];
+    Matrix bestHypothesis;
+    int bestInliers = -1;
     for (auto i = 0; i < 200; i++) {
-        vector<int> numbers = get4RandomNumbers(lines.size());
+        // Генерим рандомные числа
+        std::generate_n(numbers, 4, [&lines] (){return std::rand() % lines.size();});
+
+        // Получаем гипотезу
         Matrix hypothesis = getHypothesis(lines[numbers[0]],lines[numbers[1]],lines[numbers[2]],lines[numbers[3]]);
 
-        //Считаем inliers
-        hypothesis.inliers = countInliers(hypothesis, lines, threshhold);
-        matrixes.push_back(hypothesis);
+        // Считаем inliers
+        int inliers = countInliers(hypothesis, lines, threshhold);
+        if(inliers > bestInliers) {
+            bestInliers = inliers;
+            bestHypothesis = std::move(hypothesis);
+        }
     }
 
-    // Сортируем и берём самый подходящий
-    std::sort(matrixes.begin(), matrixes.end(), [](const Matrix &m_1, const Matrix &m_2) {
-        return m_1.inliers > m_2.inliers;
-    });
-    return matrixes[0];
+    return bestHypothesis;
 }
 
 Matrix Ransac::convert(const Matrix &transMatrix, const int x, const int y) {
@@ -50,7 +50,6 @@ Matrix Ransac::convert(const Matrix &transMatrix, const int x, const int y) {
     a.set(2, 0, 1);
 
     // Строим матрицу h 3 на 3
-    Q_ASSERT(transMatrix.data.size() == 9);
     Matrix h(3, 3, transMatrix.data);
 
     // Находим новые координаты
@@ -80,7 +79,7 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
     double y4_s = line_4.first.getInterPointRef().y;
 
     // Инициализируем матрицу A
-    vector<double> matr_A_data = { x1, y1, 1, 0,   0,  0, -x1_s * x1, -x1_s * y1, -x1_s,
+    array<double, 100> matr_A_data = { x1, y1, 1, 0,   0,  0, -x1_s * x1, -x1_s * y1, -x1_s,
                                    0,  0,  0, x1, y1,  1, -y1_s * x1, -y1_s * y1, -y1_s,
                                    x2, y2, 1, 0,   0,  0, -x2_s * x2, -x2_s * y2, -x2_s,
                                    0,  0,  0, x2, y2,  1, -y2_s * x2, -y2_s * y2, -y2_s,
@@ -107,14 +106,9 @@ Matrix Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vec
     // так как  W - contains singular values in descending order.
     // берём последний столбец в u
     Matrix hypothesis(9, 1);
+    double koef = 1.0 / u[8][u.cols()-1];  // Делим на последний элемент в матрице - чтоб h22 = 1
     for (auto i = 0; i < hypothesis.rows; i++) {
-        hypothesis.set(i, 0, u[i][u.cols()-1]);
-    }
-
-    // Делим на последний элемент в матрице - чтоб h22 = 1
-    double koef = 1.0 / hypothesis.data[8];
-    for (auto &elem : hypothesis.data) {
-        elem *= koef;
+        hypothesis.set(i, 0, koef * u[i][u.cols()-1]);
     }
 
     return hypothesis;
@@ -162,22 +156,4 @@ Matrix Matrix::multiply(const Matrix &matr_1, const Matrix &matr_2) {
         }
     }
     return result;
-}
-
-/* 4 разных рандомных числа */
-vector<int> Ransac::get4RandomNumbers(const int max) {
-    int rand_1, rand_2, rand_3, rand_4;
-    rand_1 = rand() % max;
-    do {
-        rand_2 = rand() % max;
-    } while (rand_1 == rand_2);
-    do {
-        rand_3 = rand() % max;
-    } while (rand_1 == rand_3 || rand_2 == rand_3);
-    do {
-        rand_4 = rand() % max;
-    } while (rand_1 == rand_4 || rand_2 == rand_4 || rand_3 == rand_4);
-
-    vector<int> lines_4 = {rand_1, rand_2, rand_3, rand_4};
-    return lines_4;
 }
