@@ -14,6 +14,7 @@ Matrix::Matrix(const int rows, const int cols, const array<double, 100> &data) {
     this->rows = rows;
     this->cols = cols;
     this->data = data;
+    std::copy(std::begin(data), std::begin(data) + rows * cols, std::begin(this->data));
 }
 
 Ransac::Ransac() {
@@ -23,8 +24,9 @@ Ransac::Ransac() {
 Matrix Ransac::search(vector<Vector> &lines, const double threshhold) {
 
     int numbers[4];
-    Matrix bestHypothesis;
     int bestInliers = -1;
+    Matrix bestHypothesis;
+
     for (auto i = 0; i < 200; i++) {
         // Генерим рандомные числа
         std::generate_n(numbers, 4, [&lines] (){return std::rand() % lines.size();});

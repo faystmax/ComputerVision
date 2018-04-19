@@ -101,10 +101,11 @@ QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const 
                          matr.at(1,0),matr.at(4,0),matr.at(7,0),
                          matr.at(2,0),matr.at(5,0),matr.at(8,0));
 
+    // Создаём Новое изображение
     auto height = max(outputLeftImage.height(), outputRightImage.height() + 100); // высоту возьмём с запасом
     QImage resultImage(outputLeftImage.width() + outputRightImage.width(), height, QImage::Format_ARGB32);
 
-    // Строим изображение
+    // Склеиваем панораму
     QPainter painter;
     painter.begin(&resultImage);
     painter.drawImage(0,0,outputLeftImage);
