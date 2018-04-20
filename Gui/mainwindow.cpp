@@ -313,7 +313,7 @@ void MainWindow::on_glueButton_clicked(){
 
     // Glue and draw Panoram TODO
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
-    Matrix transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
+    auto transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
     QImage panoram = glueImagesPanoram(this->imageOriginal, this->image, transformMatrix);
     showImage(panoram);
 }
@@ -381,7 +381,7 @@ void MainWindow::on_reloadButton_clicked() {
 void MainWindow::on_affineButton_clicked()
 {
     QTransform trans(1, 0.2, 0,
-                     0.3,  1,  0,
+                     0.2,  1,  0,
                      0,  0,  1);
     QImage out = getOutputImage(this->image).transformed(trans);
     this->image = constructImage(out);

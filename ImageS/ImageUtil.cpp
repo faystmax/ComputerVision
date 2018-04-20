@@ -91,7 +91,7 @@ QImage glueImages(const Image &imageLeft, const Image &imageRight) {
 }
 
 // Строим панораму
-QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const Matrix& matr) {
+QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const Matrix<9, 1>& matr) {
 
     QImage outputLeftImage = getOutputImage(imageLeft.getDeNormolize());
     QImage outputRightImage = getOutputImage(imageRight.getDeNormolize());
@@ -115,8 +115,6 @@ QImage glueImagesPanoram(const Image &imageLeft, const Image &imageRight, const 
     return resultImage;
 }
 
-
-
 inline vector<QColor> randomColors(int count) {
     vector<QColor> colors;
     float currentHue = 0.0;
@@ -138,7 +136,7 @@ void drawLinesAndCircles(QImage &image, const int firstWidth, vector<Vector> sim
         painter.setPen(pen);
         Point p1 = similar[i].first.getInterPoint();
         Point p2 = similar[i].second.getInterPoint();
-        painter.drawLine(p1.x, p1.y, p2.x + firstWidth,  p2.y);
+        painter.drawLine(p1.x, p1.y, p2.x + firstWidth, p2.y);
 
         // Circle 1
         double radius1 = sqrt(2) * p1.sigmaEffect;
@@ -166,7 +164,6 @@ void drawLines(QImage &image, const int firstWidth, vector<Vector> similar) {
     }
     painter.end();
 }
-
 
 QImage createImageWithPointsBlob(const Image &image, const vector <Point> &points) {
     QImage resultImage = getOutputImage(image);
