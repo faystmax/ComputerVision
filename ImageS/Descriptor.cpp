@@ -283,7 +283,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
         double barCharStep = double(dimension) / (barCharCount / 4);
         Image &image_dx = images_dx[points[k].z];
         Image &image_dy = images_dy[points[k].z];
-//        Kernel gaussDoubleDim = KernelCreator::getGaussDoubleDim(dimension,dimension,sigma * scale);
         // Ориентация точки
         auto peaks = getPointOrientation(image_dx, image_dy, points[k], sigma, radius);
 
@@ -299,7 +298,6 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
                     auto gradient_Y = image_dy.getPixel(coord_X, coord_Y);
 
                     // получаем значение(домноженное на Гаусса) и угол
-//                    auto value = getGradientValue(gradient_X, gradient_Y)  * gaussDoubleDim.get(i,j);
                     auto value = getGradientValue(gradient_X, gradient_Y)  * KernelCreator::getGaussValue(i, j, sigma * scale, radius);
                     auto phi = getGradientDirection(gradient_X, gradient_Y) + 2 * M_PI - phiRotate;
                     phi = fmod(phi, 2 * M_PI);  // Shift

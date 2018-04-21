@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
-
-
+#include <utility>
+#include <unordered_set>
 template<int Rows, int Cols>
 Matrix<Rows, Cols>::Matrix(const int x, const int y)
 {
@@ -13,9 +13,16 @@ Matrix<Rows, Cols>::Matrix(const int x, const int y)
     this->data[2] = 1;
 }
 
+/* Транспонированеие */
 template<int Rows, int Cols>
-Matrix<Rows, Cols>::Matrix(const array<double, Rows * Cols> array){
-    this->data = array;
+Matrix<Cols, Rows> Matrix<Rows, Cols>::operator~() {
+    Matrix<Cols, Rows> result;
+    for (auto i = 0; i < Rows; i++) {
+        for (auto j = 0; j < Cols; j++) {
+            result.set(j, i, this->at(i, j));
+        }
+    }
+    return result;
 }
 
 Ransac::Ransac() {
@@ -24,13 +31,13 @@ Ransac::Ransac() {
 
 Matrix<9, 1> Ransac::search(vector<Vector> &lines, const double threshhold) {
 
-    int numbers[4];
+    array<int,4> numbers;
     int bestInliers = -1;
-    Matrix<9, 1> bestHypothesis;
-
-    for (auto i = 0; i < 200; i++) {
+    array<pair<array<int,4>,int>,400> linesInliers;
+    Matrix<9, 1> best;
+    for (auto i = 0; i < 400; i++) {
         // Генерим рандомные числа
-        std::generate_n(numbers, 4, [&lines]() {return std::rand() % lines.size();});
+        std::generate_n(numbers.begin(), 4, [&lines]() {return std::rand() % lines.size();});
 
         // Получаем гипотезу
         Matrix<9, 1> hypothesis = getHypothesis(lines[numbers[0]],lines[numbers[1]],lines[numbers[2]],lines[numbers[3]]);
@@ -39,34 +46,97 @@ Matrix<9, 1> Ransac::search(vector<Vector> &lines, const double threshhold) {
         int inliers = countInliers(hypothesis, lines, threshhold);
         if (inliers > bestInliers) {
             bestInliers = inliers;
-            bestHypothesis = std::move(hypothesis);
+            best = hypothesis;
+        }
+        linesInliers[i] = std::make_pair(numbers, inliers);
+    }
+    vector<int> indxLines;
+    for (auto i = 0; i < 400; i++) {
+        if(linesInliers[i].second == bestInliers){
+            indxLines.push_back(linesInliers[i].first[0]);
+            indxLines.push_back(linesInliers[i].first[1]);
+            indxLines.push_back(linesInliers[i].first[2]);
+            indxLines.push_back(linesInliers[i].first[3]);
         }
     }
+    // удаление повторяющихся элементов
+    std::sort(indxLines.begin(), indxLines.end());
+    auto last = std::unique(indxLines.begin(), indxLines.end());
+    indxLines.erase(last, indxLines.end());
 
-    return correctDLT(bestHypothesis,lines);
+    return correctDLT(indxLines, lines);
 }
 
-Matrix<9, 1> Ransac::correctDLT(const Matrix<9, 1> &hyp, vector<Vector> &lines)
+Matrix<9, 1> Ransac::correctDLT(const vector<int> &indxLines, vector<Vector> &lines)
 {
-//    int numbers[4];
-//    int bestInliers = -1;
-//    Matrix<9, 1> bestHypothesis;
+    // Инициализируем матрицу A
+    int size = indxLines.size() > 24 ? 24 : indxLines.size();
+    int rows = size * 2;
+    int cols = 9;
+    vector<double> matr_A(rows * cols, 0);
+    for(int i = 0;i < size; i++){
 
-//    for (auto i = 0; i < 200; i++) {
-//        // Генерим рандомные числа
-//        std::generate_n(numbers, 4, [&lines]() {return std::rand() % lines.size();});
+        double x1 = lines[indxLines[i]].second.getInterPointRef().x;
+        double y1 = lines[indxLines[i]].second.getInterPointRef().y;
+        double x1_s = lines[indxLines[i]].first.getInterPointRef().x;
+        double y1_s = lines[indxLines[i]].first.getInterPointRef().y;
 
-//        // Получаем гипотезу
-//        Matrix<9, 1> hypothesis = getHypothesis(lines[numbers[0]],lines[numbers[1]],lines[numbers[2]],lines[numbers[3]]);
+        int idx = i * 2 * 9;
+        matr_A[idx + 0] = x1;         matr_A[idx + 1] = y1;          matr_A[idx + 2] = 1;
+        matr_A[idx + 6] = -x1_s * x1; matr_A[idx + 7] = -x1_s * y1;  matr_A[idx + 8]  = -x1_s;
 
-//        // Считаем inliers
-//        int inliers = countInliers(hypothesis, lines, threshhold);
-//        if (inliers > bestInliers) {
-//            bestInliers = inliers;
-//            bestHypothesis = std::move(hypothesis);
-//        }
-//    }
-    return hyp;
+        idx  +=  9;
+        matr_A[idx + 3] = x1;         matr_A[idx + 4] = y1;          matr_A[idx + 5] = 1;
+        matr_A[idx + 6] = -y1_s * x1; matr_A[idx + 7] = -y1_s * y1;  matr_A[idx + 8]  = -y1_s;
+    }
+
+
+    // Транспонируем и перемножаем
+    vector<double> transp_A = transpose(rows , cols, matr_A);
+    vector<double> res = multiply(cols, rows , cols,transp_A, matr_A);
+
+    // Кладём в real_2d_array
+    real_2d_array matr, u, vt;
+    matr.setcontent(9, 9, &res[0]);
+
+    // Считаем SVD
+    real_1d_array w;
+    bool isSucces = rmatrixsvd(matr, 9, 9, 2, 0, 2, w, u, vt);
+    Q_ASSERT(isSucces);
+
+    // так как  W - contains singular values in descending order.
+    // берём последний столбец в u
+    Matrix<9, 1> hypothesis;
+    double koef = 1.0 / u[8][u.cols()-1];  // Делим на последний элемент в матрице - чтоб h22 = 1
+    for (auto i = 0; i < hypothesis.getRows(); i++) {
+        hypothesis.set(i, 0, koef * u[i][u.cols()-1]);
+    }
+    return hypothesis;
+}
+
+/* Перемножение для векторов */
+vector<double> Ransac::multiply(int rows, int cols_rows, int cols,const vector<double>& m1,const vector<double>& m2){
+    vector<double> result(rows * cols);
+    for (auto i = 0; i < rows; i++) {
+        for (auto j = 0; j < cols; j++) {
+           double sum = 0;
+           for (auto k = 0; k < cols_rows; k++) {
+               sum += m1[i * cols_rows + k] * m2[k * cols + j];
+           }
+            result[i * cols + j] = sum;
+        }
+    }
+    return result;
+}
+
+vector<double> Ransac::transpose(int rows, int cols, const vector<double> &m1){
+    vector<double> result(m1.size());
+    for (auto i = 0; i < rows; i++) {
+        for (auto j = 0; j < cols; j++) {
+            result[j * rows + i] = m1[i * cols + j];
+        }
+    }
+    return result;
 }
 
 Matrix<3, 1> Ransac::convert(const Matrix<9, 1> &transMatrix, const int x, const int y) {
@@ -76,7 +146,7 @@ Matrix<3, 1> Ransac::convert(const Matrix<9, 1> &transMatrix, const int x, const
     Matrix<3, 3> h(transMatrix.getData());
 
     // Находим новые координаты
-    return multiply(h, a);
+    return h * a;
 }
 
 Matrix<9, 1> Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_3, Vector &line_4) {
@@ -115,8 +185,8 @@ Matrix<9, 1> Ransac::getHypothesis(Vector &line_1, Vector &line_2, Vector &line_
     // Транспонируем и перемножаем
     Matrix<8, 9> matr_A(matr_A_data);
     matr_A.setData(matr_A_data);
-    Matrix<9, 8> transp_A = transpose(matr_A);
-    Matrix<9, 9> matr_ATA = multiply(transp_A, matr_A);
+    Matrix<9, 8> transp_A = ~matr_A;
+    Matrix<9, 9> matr_ATA = transp_A * matr_A;
 
     // Кладём в real_2d_array
     real_2d_array matr, u, vt;
@@ -154,32 +224,7 @@ int Ransac::countInliers(const Matrix<9, 1> &hyp, const vector<Vector> &lines, c
     return inliers;
 }
 
-/* Транспонированеие */
-template <int rows, int cols>
-Matrix<cols, rows> transpose(const Matrix<rows, cols> &matr) {
-    Matrix<cols, rows> result;
-    for (auto i = 0; i < rows; i++) {
-        for (auto j = 0; j < cols; j++) {
-            result.set(j, i, matr.at(i, j));
-        }
-    }
-    return result;
-}
 
-/* Перемножение */
 
-template <int rows_1, int cols_2, int cols_rows>
-Matrix<rows_1, cols_2> multiply(const Matrix<rows_1, cols_rows> &matr_1, const Matrix<cols_rows, cols_2> &matr_2) {
-    Matrix<rows_1, cols_2> result;
-    for (auto i = 0; i < rows_1; i++) {
-        for (auto j = 0; j < cols_2; j++) {
-            double sum = 0;
-            for (auto k = 0; k < cols_rows; k++) {
-                sum += matr_1.at(i, k) * matr_2.at(k, j);
-            }
-            result.set(i, j, sum);
-        }
-    }
-    return result;
-}
+
 
