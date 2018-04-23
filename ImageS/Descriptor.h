@@ -19,16 +19,35 @@ public:
     Descriptor& operator=(const Descriptor&) = default;
 
     void normalize();
-    int getSize() const { return data.size(); }
+    int getDataSize() const { return data.size(); }
     double getAt(const int index) const {return data[index];}
     Point getInterPoint() const {return interPoint;}
     Point& getInterPointRef() {return interPoint;}
     void clampData(const double min, const double max);
     void setPointXY(const int x, const int y);
 
+    double getSize() const {return size;}
+    void setSize(double value) {size = value;}
+
+    double getOrientation() const {return orientation;}
+    void setOrientation(double value) {orientation = value;}
+
+    double getCenterAngle() const {return centerAngle;}
+    void setCenterAngle(double value) {centerAngle = value;}
+
+    double getCenterDistance() const {return centerDistance;}
+    void setCenterDistance(double value) {centerDistance = value;}
+
 private:
-   Point interPoint;    // Интересная точка - центр
-   vector<double> data; // N - Количество корзин * L кол-во гистограмм
+    Point interPoint;    // Интересная точка - центр
+    vector<double> data; // N - Количество корзин * L кол-во гистограмм
+
+   // Hough
+   double centerDistance;
+   double centerAngle;
+   double orientation;      // Ориентация
+   double size;             // Размер дескриптора
+
 
    friend DescriptorCreator;
 };

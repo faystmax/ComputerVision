@@ -305,17 +305,48 @@ void MainWindow::on_glueButton_clicked(){
 
     Pyramid pyramid_1(this->imageOriginal);
     vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
-    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
 
     Pyramid pyramid_2(this->image);
     vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScaleAfinn(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
 
-    // Glue and draw Panoram TODO
+    // Glue and draw Panoram
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
     auto transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
     QImage panoram = glueImagesPanoram(this->imageOriginal, this->image, transformMatrix);
     showImage(panoram);
+}
+
+/* Hough */
+void MainWindow::on_houghButton_clicked(){
+    // Vars
+    double treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    Pyramid pyramid_1(this->imageOriginal);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
+
+    // calc distance and angle
+    hough.calcCenterDistanceAndAngle(descriptors1,this->imageOriginal);
+
+    Pyramid pyramid_2(this->image);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
+
+
+    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+    hough.search(similar, this->imageOriginal, this->image);
+
+//    auto transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
+//    QImage panoram = glueImagesPanoram(this->imageOriginal, this->image, transformMatrix);
+//    showImage(panoram);
 }
 
 
@@ -381,9 +412,15 @@ void MainWindow::on_reloadButton_clicked() {
 void MainWindow::on_affineButton_clicked()
 {
     QTransform trans(1, 0.2, 0,
-                     0.2,  1,  0,
+                     0.1,  1,  0,
                      0,  0,  1);
     QImage out = getOutputImage(this->image).transformed(trans);
     this->image = constructImage(out);
     this->showImage(out);
+}
+
+void MainWindow::on_reloadHoughButton_clicked(){
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/pers1.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/persAll1.jpg"));
+    showImage(this->image);
 }

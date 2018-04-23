@@ -33,7 +33,8 @@ SOURCES += \
     InterestPoints.cpp \
     Descriptor.cpp \
     Util.cpp \
-    Ransac.cpp
+    Ransac.cpp \
+    Hough.cpp
 
 HEADERS +=\
         images_global.h \
@@ -44,7 +45,8 @@ HEADERS +=\
     Pyramid.h \
     InterestPoints.h \
     Descriptor.h \
-    Ransac.h
+    Ransac.h \
+    Hough.h
 
 unix {
     target.path = /usr/lib

@@ -283,8 +283,13 @@ vector <Descriptor> DescriptorCreator::getDescriptorsInvRotationScale(Pyramid &p
         double barCharStep = double(dimension) / (barCharCount / 4);
         Image &image_dx = images_dx[points[k].z];
         Image &image_dy = images_dy[points[k].z];
+
         // Ориентация точки
         auto peaks = getPointOrientation(image_dx, image_dy, points[k], sigma, radius);
+
+        // hough
+        descriptors[k].setOrientation(peaks[0]);
+        descriptors[k].setSize(dimension);
 
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {
@@ -380,6 +385,10 @@ vector<Descriptor> DescriptorCreator::getDescriptorsInvRotationScaleAfinn(Pyrami
 
         // Ориентация точки
         auto peaks = getPointOrientation(image_dx, image_dy, points[k], sigma, radius);
+
+        // hough
+        descriptors[k].setOrientation(peaks[0]);
+        descriptors[k].setSize(dimension);
 
         for (auto &phiRotate : peaks) {
             for (auto i = 0 ; i < dimension ; i++) {

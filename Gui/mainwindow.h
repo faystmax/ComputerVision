@@ -8,6 +8,8 @@
 #include "Pyramid.h"
 #include "InterestPoints.h"
 #include "Ransac.h"
+#include "Hough.h"
+
 using namespace std;
 
 namespace Ui {
@@ -58,6 +60,10 @@ private slots:
 
     void on_affineButton_clicked();
 
+    void on_houghButton_clicked();
+
+    void on_reloadHoughButton_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
@@ -66,6 +72,7 @@ private:
     Pyramid pyramid;
     InterestPoints interestPoints;
     Ransac ransac;
+    Hough hough;
 
     void showImage(const QImage &image);
     void showImage(const Image &image);
