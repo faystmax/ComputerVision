@@ -420,7 +420,7 @@ void MainWindow::on_affineButton_clicked()
 }
 
 void MainWindow::on_reloadHoughButton_clicked(){
-    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/pers1.jpg"));
-    this->image = constructImage(QImage(":/resource/img/resource/img/persAll1.jpg"));
+    this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/kn1.jpg"));
+    this->image = constructImage(QImage(":/resource/img/resource/img/kn22.jpg"));
     showImage(this->image);
 }

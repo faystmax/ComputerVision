@@ -13,6 +13,8 @@
         <file>resource/img/pan2222.jpg</file>
         <file>resource/img/pers1.jpg</file>
         <file>resource/img/persAll1.jpg</file>
+        <file>resource/img/kn1.jpg</file>
+        <file>resource/img/kn22.jpg</file>
     </qresource>
     <qresource prefix="/icons">
         <file>resource/icons/main.png</file>
