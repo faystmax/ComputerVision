@@ -28,8 +28,11 @@ class IMAGESSHARED_EXPORT Hough
 public:
     Hough();
 
-    Transform search(vector<Vector> &lines, const Image& img1, const Image& img2);
+    vector<Transform> search(vector<Vector> &lines, const Image& obj, const Image &img,
+                             const int widthStep, const int heightStep, const double sizeStep, const int angleStep);
+
     void calcCenterDistanceAndAngle(vector<Descriptor>& desc, const Image& image);
+private:
 };
 
 #endif // HOUGH_H

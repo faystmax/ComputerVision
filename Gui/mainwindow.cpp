@@ -342,11 +342,27 @@ void MainWindow::on_houghButton_clicked(){
 
 
     vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
-    hough.search(similar, this->imageOriginal, this->image);
+    vector<Transform> tr = hough.search(similar, this->imageOriginal, this->image, this->ui->widthStepSpinBox->value(),
+                                        this->ui->heightStepSpinBox->value(),this->ui->sizeStepSpinBox->value(), this->ui->angleStepSpinBox->value());
 
-//    auto transformMatrix = ransac.search(similar, this->ui->tresholdSpinBox->value());
-//    QImage panoram = glueImagesPanoram(this->imageOriginal, this->image, transformMatrix);
-//    showImage(panoram);
+    QImage result = glueImages(this->imageOriginal, this->image);
+
+    QPainter painter(&result);
+    QPen pen;
+    pen.setWidth(2);
+    pen.setColor( QColor::fromHslF(0, 1.0, 0.5));
+    painter.setPen(pen);
+
+    for(auto&t : tr){
+        double radius1 = 3;
+        painter.drawEllipse(QRect(t.x+this->imageOriginal.getWidth() - radius1, t.y - radius1, 2 * radius1, 2 * radius1));
+        QPoint points[4] = {
+            // TODO
+        };
+        painter.drawPolygon(points,4);
+    }
+    painter.end();
+    showImage(result);
 }
 
 

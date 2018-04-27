@@ -43,8 +43,8 @@ private:
     vector<double> data; // N - Количество корзин * L кол-во гистограмм
 
    // Hough
-   double centerDistance;
-   double centerAngle;
+   double centerDistance;   // Расстояние до центра
+   double centerAngle;      // Угол относительно центра
    double orientation;      // Ориентация
    double size;             // Размер дескриптора
 
