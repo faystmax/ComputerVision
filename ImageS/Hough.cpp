@@ -40,7 +40,7 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
         int index_Y = (lines[i].second.getInterPoint().y - diff_y) / heightStep;
         int index_Size = size / sizeStep;
         int index_Angle = diff_angle / angleStepRad;
-        std::cout<< index_X <<" "<<index_Y<<" "<<index_Size<<" "<<index_Angle<<std::endl;
+//        std::cout<< index_X <<" "<<index_Y<<" "<<index_Size<<" "<<index_Angle<<std::endl;
 
         // Пропускаем если ушли за границу
         if (index_X < 1 || index_Y < 1 || index_X >= width-1 || index_Y >= height-1 ||
@@ -66,7 +66,7 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
 
     // Ищем максимальный
     for (int i = 1; i < width - 1; i++) {
-    for (int j = 1; j < height - 1; j++) {
+        for (int j = 1; j < height - 1; j++) {
             for (int k = 1; k < sizeCount - 1; k++) {
                 for (int n = 1; n < angleCount - 1; n++) {
                     if (parameterSpace[i][j][k][n] > max) {
@@ -82,9 +82,9 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
     }
 
     double resultSize = size * sizeStep + 0.5 * sizeStep;
-                        peaks.emplace_back(widthStep * x + 0.5 * widthStep, heightStep * y + 0.5 * heightStep, resultSize,
-                                           angle * angleStepRad + 0.5 * angleStepRad, obj.getWidth() * resultSize, obj.getHeight() * resultSize);
-                        return peaks;
+    peaks.emplace_back(widthStep * x + 0.5 * widthStep, heightStep * y + 0.5 * heightStep, resultSize,
+                       angle * angleStepRad + 0.5 * angleStepRad, obj.getWidth() * resultSize, obj.getHeight() * resultSize);
+    return peaks;
 }
 
 
