@@ -320,48 +320,12 @@ void MainWindow::on_glueButton_clicked(){
 
 /* Hough */
 void MainWindow::on_houghButton_clicked(){
-    // Vars
-    double treshold = this->ui->ThresholdSpinBox->value();
-    int radius = this->ui->radiusSpinBox->value();
-    int pointsCount = this->ui->pointsCountSpinBox->value();
-    int radiusDesc = this->ui->radiusDescSpinBox->value();
-    int basketCount = this->ui->basketCountDescSpinBox->value();
-    int barCharCount = this->ui->barCharCountDescSpinBox->value();
-    double T = this->ui->TSpinBox->value();
-
-    Pyramid pyramid_1(this->imageOriginal);
-    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
-    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
-
-    // calc distance and angle
-    hough.calcCenterDistanceAndAngle(descriptors1,this->imageOriginal);
-
-    Pyramid pyramid_2(this->image);
-    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
-    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
-
-
-    vector<Vector>  similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
     vector<Transform> tr = hough.search(similar, this->imageOriginal, this->image, this->ui->widthStepSpinBox->value(),
                                         this->ui->heightStepSpinBox->value(),this->ui->sizeStepSpinBox->value(), this->ui->angleStepSpinBox->value());
 
     QImage result = glueImages(this->imageOriginal, this->image);
 
-    QPainter painter(&result);
-    QPen pen;
-    pen.setWidth(2);
-    pen.setColor( QColor::fromHslF(0, 1.0, 0.5));
-    painter.setPen(pen);
-
-    for(auto&t : tr){
-        double radius1 = 3;
-        painter.drawEllipse(QRect(t.x+this->imageOriginal.getWidth() - radius1, t.y - radius1, 2 * radius1, 2 * radius1));
-        QPoint points[4] = {
-            // TODO
-        };
-        painter.drawPolygon(points,4);
-    }
-    painter.end();
+    drawObjects(result, tr, this->imageOriginal.getWidth());
     showImage(result);
 }
 
@@ -438,5 +402,36 @@ void MainWindow::on_affineButton_clicked()
 void MainWindow::on_reloadHoughButton_clicked(){
     this->imageOriginal =  constructImage(QImage(":/resource/img/resource/img/kn1.jpg"));
     this->image = constructImage(QImage(":/resource/img/resource/img/kn22.jpg"));
+    loadDescriptors();
     showImage(this->image);
+}
+
+void MainWindow::loadDescriptors(){
+    // Vars
+    double treshold = this->ui->ThresholdSpinBox->value();
+    int radius = this->ui->radiusSpinBox->value();
+    int pointsCount = this->ui->pointsCountSpinBox->value();
+    int radiusDesc = this->ui->radiusDescSpinBox->value();
+    int basketCount = this->ui->basketCountDescSpinBox->value();
+    int barCharCount = this->ui->barCharCountDescSpinBox->value();
+    double T = this->ui->TSpinBox->value();
+
+    Pyramid pyramid_1(this->imageOriginal);
+    vector <Point> points1 = interestPoints.blob(pyramid_1, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors1 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_1, points1, radiusDesc, basketCount, barCharCount);
+
+    // calc distance and angle
+    hough.calcCenterDistanceAndAngle(descriptors1,this->imageOriginal);
+
+    Pyramid pyramid_2(this->image);
+    vector <Point> points2 = interestPoints.blob(pyramid_2, treshold, radius, pointsCount);
+    vector <Descriptor> descriptors2 = DescriptorCreator::getDescriptorsInvRotationScale(pyramid_2, points2, radiusDesc, basketCount, barCharCount);
+
+    similar = DescriptorCreator::findSimilar(descriptors1, descriptors2, T);
+}
+
+
+
+void MainWindow::on_reloadHoughButton_2_clicked(){
+    loadDescriptors();
 }

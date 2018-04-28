@@ -30,9 +30,7 @@ public:
 
     vector<Transform> search(vector<Vector> &lines, const Image& obj, const Image &img,
                              const int widthStep, const int heightStep, const double sizeStep, const int angleStep);
-
     void calcCenterDistanceAndAngle(vector<Descriptor>& desc, const Image& image);
-private:
 };
 
 #endif // HOUGH_H

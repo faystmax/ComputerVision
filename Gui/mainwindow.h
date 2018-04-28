@@ -64,6 +64,8 @@ private slots:
 
     void on_reloadHoughButton_clicked();
 
+    void on_reloadHoughButton_2_clicked();
+
 private:
     int curPyramidIdex = 0;
     Ui::MainWindow *ui;
@@ -73,12 +75,14 @@ private:
     InterestPoints interestPoints;
     Ransac ransac;
     Hough hough;
+    vector<Vector> similar;
 
     void showImage(const QImage &image);
     void showImage(const Image &image);
     void enableButtons(bool enable);
     void showPyramidInfo(const Item &item);
     void reloadImages();
+    void loadDescriptors();
 };
 
 #endif // MAINWINDOW_H

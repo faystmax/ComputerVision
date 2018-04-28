@@ -6,6 +6,7 @@
 #include "InterestPoints.h"
 #include "Descriptor.h"
 #include "Ransac.h"
+#include "Hough.h"
 
 QImage getOutputImage(const Image &image) {
     QImage resultImage(image.getWidth(), image.getHeight(), QImage::Format_ARGB32);
@@ -182,3 +183,40 @@ QImage createImageWithPointsBlob(const Image &image, const vector <Point> &point
     return resultImage;
 }
 
+void drawObjects(QImage &image,vector<Transform> transforms, const int objWidth){
+    QPainter painter(&image);
+    QPen pen;
+    pen.setWidth(2);
+    pen.setColor(QColor::fromHslF(0, 1.0, 0.5));
+    painter.setPen(pen);
+
+    for(auto&t : transforms){
+        //Центр
+        double radius = 3;
+        painter.drawEllipse(QRect(t.x + objWidth - radius, t.y - radius, 2 * radius, 2 * radius));
+
+        //Фигура
+        double cosP = cos(t.angle);
+        double sinP = sin(t.angle);
+        double halfWidth = 0.5 * t.width;
+        double halfHeight = 0.5 * t.height;
+
+//       Новые точки
+//       painter.drawEllipse(QRect(t.x + objWidth + halfWidth - 1, t.y + halfHeight - 1, 2 , 2 ));
+//       painter.drawEllipse(QRect(t.x + objWidth + halfWidth - 1, t.y - halfHeight - 1, 2 , 2 ));
+//       painter.drawEllipse(QRect(t.x + objWidth - halfWidth - 1, t.y - halfHeight - 1, 2 , 2 ));
+//       painter.drawEllipse(QRect(t.x + objWidth - halfWidth - 1, t.y + halfHeight - 1, 2 , 2 ));
+
+//       Поворот вокруг точки
+//       X = x0 + (x - x0) * cos(a) - (y - y0) * sin(a);
+//       Y = y0 + (y - y0) * cos(a) + (x - x0) * sin(a);
+        QPoint points[4] = {
+            QPoint(t.x + (+ halfWidth) * cosP - (+ halfHeight) * sinP + objWidth, t.y + (+ halfWidth) * sinP + (+ halfHeight) * cosP),
+            QPoint(t.x + (+ halfWidth) * cosP - (- halfHeight) * sinP + objWidth, t.y + (+ halfWidth) * sinP + (- halfHeight) * cosP),
+            QPoint(t.x + (- halfWidth) * cosP - (- halfHeight) * sinP + objWidth, t.y + (- halfWidth) * sinP + (- halfHeight) * cosP),
+            QPoint(t.x + (- halfWidth) * cosP - (+ halfHeight) * sinP + objWidth, t.y + (- halfWidth) * sinP + (+ halfHeight) * cosP),
+        };
+        painter.drawPolygon(points,4);
+    }
+    painter.end();
+}
