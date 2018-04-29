@@ -33,9 +33,10 @@ Matrix<9, 1> Ransac::search(vector<Vector> &lines, const double threshhold) {
 
     array<int,4> numbers;
     int bestInliers = -1;
-    array<pair<array<int,4>,int>,400> linesInliers;
+    int const count = 600;
+    array<pair<array<int,4>,int>,count> linesInliers;
     Matrix<9, 1> best;
-    for (auto i = 0; i < 600; i++) {
+    for (auto i = 0; i < count; i++) {
         // Генерим рандомные числа
         std::generate_n(numbers.begin(), 4, [&lines]() {return std::rand() % lines.size();});
 
@@ -51,7 +52,7 @@ Matrix<9, 1> Ransac::search(vector<Vector> &lines, const double threshhold) {
         linesInliers[i] = std::make_pair(numbers, inliers);
     }
     vector<int> indxLines;
-    for (auto i = 0; i < 400; i++) {
+    for (auto i = 0; i < count; i++) {
         if(linesInliers[i].second == bestInliers){
             indxLines.push_back(linesInliers[i].first[0]);
             indxLines.push_back(linesInliers[i].first[1]);

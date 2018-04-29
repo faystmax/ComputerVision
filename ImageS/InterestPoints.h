@@ -58,7 +58,6 @@ private:
     bool isExtremum(Pyramid &pyramid, const int x, const int y, const int z);
 
     bool correctPosition(Point &p, Pyramid &pyramid);
-
 };
 
 #endif // INTERESTPOINTS_H

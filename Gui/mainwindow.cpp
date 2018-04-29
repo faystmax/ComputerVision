@@ -391,7 +391,7 @@ void MainWindow::on_reloadButton_clicked() {
 
 void MainWindow::on_affineButton_clicked()
 {
-    QTransform trans(1, 0.2, 0,
+    QTransform trans(1, 0.1, 0,
                      0.1,  1,  0,
                      0,  0,  1);
     QImage out = getOutputImage(this->image).transformed(trans);

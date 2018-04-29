@@ -39,8 +39,8 @@ public:
     void setCenterDistance(double value) {centerDistance = value;}
 
 private:
-    Point interPoint;    // Интересная точка - центр
-    vector<double> data; // N - Количество корзин * L кол-во гистограмм
+   Point interPoint;    // Интересная точка - центр
+   vector<double> data; // N - Количество корзин * L кол-во гистограмм
 
    // Hough
    double centerDistance;   // Расстояние до центра

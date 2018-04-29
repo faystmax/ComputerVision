@@ -49,12 +49,6 @@ private:
     array<double, Rows * Cols> data;
 };
 
-
-// Методы для работы с матрицей
-template <int rows, int cols>
-static Matrix<cols, rows> transpose(const Matrix<rows, cols> &matr);
-
-
 class IMAGESSHARED_EXPORT Ransac {
   public:
     Ransac();
@@ -72,7 +66,6 @@ class IMAGESSHARED_EXPORT Ransac {
 
     vector<double> multiply(int rows, int cols_rows, int cols, const vector<double>& m1, const vector<double>& m2);
     vector<double> transpose(int rows, int cols, const vector<double>& m1);
-
 };
 
 #endif // RANSAC_H
