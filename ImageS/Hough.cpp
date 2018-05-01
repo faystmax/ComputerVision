@@ -5,13 +5,6 @@
 Hough::Hough() {
 }
 
-// Пространство параметров - объявляем здесь так, как нехватает места в стеке при маленьких step
-double parameterSpace[100][100][20][40];
-
-void clear() {
-    memset(parameterSpace, 0, 100*100*20*40*(sizeof(double)));
-}
-
 vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const Image &img,
                                 const int widthStep, const int heightStep, const double sizeStep, const int angleStep) {
     int width = img.getWidth() / widthStep;
@@ -22,8 +15,8 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
     // Шаг в радианах
     double angleStepRad = 2 * M_PI / angleCount;
 
-    // чистим пространство параметров
-    clear();
+    // Создаём пространство параметров
+    Space space(width, height, sizeCount, angleCount);
 
     for (size_t i = 0; i < lines.size(); i++) {
     double diff_angle = lines[i].second.getOrientation() - lines[i].first.getOrientation();
@@ -53,10 +46,7 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
             for (int m2=-1; m2 <= 1; m2++)
                 for (int m3=-1; m3 <= 1; m3++)
                     for (int m4=-1; m4 <= 1; m4++) {
-                        parameterSpace[index_X + m1]
-                        [index_Y + m2]
-                        [index_Size + m3]
-                        [index_Angle + m4]++;
+                        space.add(index_X + m1, index_Y + m2, index_Size + m3, index_Angle + m4);
                     }
     }
 
@@ -69,12 +59,12 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
         for (int j = 1; j < height - 1; j++) {
             for (int k = 1; k < sizeCount - 1; k++) {
                 for (int n = 1; n < angleCount - 1; n++) {
-                    if (parameterSpace[i][j][k][n] > max) {
+                    if (space.getAt(i,j,k,n) > max) {
                         x = i;
                         y = j;
                         size = k;
                         angle = n;
-                        max = parameterSpace[i][j][k][n];
+                        max = space.getAt(i,j,k,n);
                     }
                 }
             }
