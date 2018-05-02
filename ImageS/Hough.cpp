@@ -1,6 +1,7 @@
 #include "Hough.h"
 #include "iostream"
 #include <cstring>
+#include <iostream>
 
 Hough::Hough() {
 }
@@ -51,25 +52,13 @@ vector<Transform> Hough::search(vector<Vector> &lines, const Image &obj, const I
     }
 
     vector<Transform> peaks;
-    double x, y, size, angle;
-    int max = 0;
 
-    // Ищем максимальный
-    for (int i = 1; i < width - 1; i++) {
-        for (int j = 1; j < height - 1; j++) {
-            for (int k = 1; k < sizeCount - 1; k++) {
-                for (int n = 1; n < angleCount - 1; n++) {
-                    if (space.getAt(i,j,k,n) > max) {
-                        x = i;
-                        y = j;
-                        size = k;
-                        angle = n;
-                        max = space.getAt(i,j,k,n);
-                    }
-                }
-            }
-        }
-    }
+    // Индекс максимального элемента
+    int maxIndex = distance(space.data.begin(), max_element(space.data.begin(), space.data.end()));
+    int x = maxIndex % space.width;
+    int y = ( ( maxIndex - x ) / space.width ) %  space.height;
+    int size =( ( maxIndex - y * space.width - x ) / (space.width * space.height) ) % space.size;
+    int angle = ( ( maxIndex - size * space.height * space.width - y * space.width - x ) / (space.width * space.height * space.size) ) + 1;
 
     double resultSize = size * sizeStep + 0.5 * sizeStep;
     peaks.emplace_back(widthStep * x + 0.5 * widthStep, heightStep * y + 0.5 * heightStep, resultSize,
